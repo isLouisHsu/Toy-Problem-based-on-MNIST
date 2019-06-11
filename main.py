@@ -23,7 +23,7 @@ def main_supervised():
     trainer.train()
 
 def main_unsupervised(num_clusters, feature_size):
-    net = NetUnsupervised(num_clusters, feature_size)
+    net = NetUnsupervised(feature_size)
     criterion = LossUnsupervised(num_clusters, feature_size)
     params = [{'params': net.parameters(), }, {'params': criterion.m, }]
     trainset = MNIST('train')

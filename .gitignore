@@ -1,3 +1,4 @@
 data/
 ckpt/
 log/
+*.pyc

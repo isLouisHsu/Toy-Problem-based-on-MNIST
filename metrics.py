@@ -2,12 +2,12 @@ import torch
 import torch.nn as nn
 
 
-class UnsupervisedLoss(nn.Module):
+class LossUnsupervised(nn.Module):
 
-    def __init__(self, num_clusters):
-        super(UnsupervisedLoss, self).__init__()
+    def __init__(self, num_clusters, feature_size=128):
+        super(LossUnsupervised, self).__init__()
 
-        self.m = Parameter(torch.Tensor(num_clusters, 128))
+        self.m = nn.Parameter(torch.Tensor(num_clusters, feature_size))
         nn.init.xavier_uniform_(self.m)
     
         self.s1 = None; self.s2 = None
@@ -41,8 +41,8 @@ class UnsupervisedLoss(nn.Module):
             p_{ik} = \frac{\exp( - \frac{||x^{(i)} - m_k||^2}{s_k^2})}{\sum_j \exp( - \frac{||x^{(i)} - m_j||^2}{s_j^2})}
         """
         y = torch.norm(x - m, dim=1)
-        if s is not None:
-            y = y / s
+        if s is not None: y = y / s
+            
         y = - y**2
         y = self._softmax(y)
         return y
@@ -59,7 +59,7 @@ class UnsupervisedLoss(nn.Module):
         -   inter = \frac{1}{N} \sum_i entropy^{(i)}
         """
         ## 类内，属于各类别的概率的熵，求极小
-        intra = torch.cat(list(map(lambda x: self._f(x, self.m, self.s1).unsqueeze(0), x)), dim=0)                                               # P_{N × n_classes} = [p_{ik}]
+        intra = torch.cat(list(map(lambda x: self._f(x, self.m, self.s1).unsqueeze(0), x)), dim=0)  # P_{N × n_classes} = [p_{ik}]
         intra = torch.cat(list(map(lambda x: self._entropy(x).unsqueeze(0), intra)), dim=0) # ent_i = \sum_k p_{ik} \log p_{ik}
         intra = torch.mean(intra)                                                           # ent   = \frac{1}{N} \sum_i ent_i
 

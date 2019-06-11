@@ -12,7 +12,7 @@ from torch.utils.data import DataLoader
 from tensorboardX import SummaryWriter
 
 from processbar import ProcessBar
-from utils import getTime
+from utils import getTime, accuracy
 
 class Trainer(object):
     """ Train Templet
@@ -58,7 +58,7 @@ class Trainer(object):
             self.load_checkpoint()
 
         ## print information
-        stat(self.net, configer.inputsize)
+        # stat(self.net, configer.inputsize)
         if configer.cuda and cuda.is_available(): self.net.cuda()
             
         print("==============================================================================================")
@@ -81,6 +81,7 @@ class Trainer(object):
 
         bar = ProcessBar(n_epoch)
         loss_train = 0.; loss_valid = 0.
+        acc_train  = 0.; acc_valid  = 0.
 
         for i_epoch in range(n_epoch):
             
@@ -93,11 +94,11 @@ class Trainer(object):
             cur_lr = self.lr_scheduler.get_lr()[-1]
             self.writer.add_scalar('{}/lr'.format(self.net._get_name()), cur_lr, self.cur_epoch)
 
-            loss_train = self.train_epoch()
+            loss_train, acc_train = self.train_epoch()
             # print("----------------------------------------------------------------------------------------------")
             
             if self.valid_freq != 0 and self.cur_epoch % self.valid_freq == 0:
-                loss_valid = self.valid_epoch()
+                loss_valid, acc_valid = self.valid_epoch()
             # print("----------------------------------------------------------------------------------------------")
 
             self.writer.add_scalars('loss', {'train': loss_train, 'valid': loss_valid}, self.cur_epoch)
@@ -121,7 +122,7 @@ class Trainer(object):
     def train_epoch(self):
         
         self.net.train()
-        avg_loss = []
+        avg_loss = []; avg_acc = []
         start_time = time.time()
         n_batch = len(self.trainset) // self.configer.batchsize
 
@@ -134,13 +135,15 @@ class Trainer(object):
             
             y_pred = self.net(X)
             loss_i = self.criterion(y_pred, y)
+            acc_i  = accuracy(y_pred, y)
 
             self.optimizer.zero_grad()
             loss_i.backward()
             self.optimizer.step()
 
-            avg_loss += [loss_i.detach().cpu().numpy()]
+            avg_loss += [loss_i.detach().cpu().numpy()]; avg_acc += [acc_i.detach().cpu().numpy()]
             self.writer.add_scalar('{}/train/loss_i'.format(self.net._get_name()), loss_i, self.cur_epoch*n_batch + i_batch)
+            self.writer.add_scalar('{}/train/acc_i'.format(self.net._get_name()), acc_i, self.cur_epoch*n_batch + i_batch)
 
             duration_time = time.time() - start_time
             start_time = time.time()
@@ -156,13 +159,14 @@ class Trainer(object):
             # print(print_log)
         
         avg_loss = np.mean(np.array(avg_loss))
-        return avg_loss
+        avg_acc  = np.mean(np.array(avg_acc))
+        return avg_loss, avg_acc
 
 
     def valid_epoch(self):
         
         self.net.eval()
-        avg_loss = []
+        avg_loss = []; avg_acc = []
         start_time = time.time()
         n_batch = len(self.validset) // self.configer.batchsize
 
@@ -173,8 +177,9 @@ class Trainer(object):
             
             y_pred = self.net(X)
             loss_i = self.criterion(y_pred, y)
+            acc_i  = accuracy(y_pred, y)
 
-            avg_loss += [loss_i.detach().cpu().numpy()]
+            avg_loss += [loss_i.detach().cpu().numpy()]; avg_acc += [acc_i.detach().cpu().numpy()]
             self.writer.add_scalar('{}/valid/loss_i'.format(self.net._get_name()), loss_i, self.cur_epoch*n_batch + i_batch)
 
             duration_time = time.time() - start_time
@@ -187,7 +192,8 @@ class Trainer(object):
             # print(print_log)
         
         avg_loss = np.mean(np.array(avg_loss))
-        return avg_loss
+        avg_acc  = np.mean(np.array(avg_acc))
+        return avg_loss, avg_acc
     
 
     def save_checkpoint(self):

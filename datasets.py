@@ -30,7 +30,7 @@ class MNIST(Dataset):
         image = self.images[index]
         label = self.labels[index]
 
-        image = torch.from_numpy(image).unsqueeze(0)
+        image = torch.from_numpy(image).unsqueeze(0).float() / 255.
         
         return image, label
 

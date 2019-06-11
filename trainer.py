@@ -447,3 +447,24 @@ class UnsupervisedTrainer():
         self.criterion.load_state_dict(checkpoint_state['criterion_state'])
         self.optimizer.load_state_dict(checkpoint_state['optimizer_state'])
         self.lr_scheduler.load_state_dict(checkpoint_state['lr_scheduler_state'])
+
+    def show_embedding_features(self, dataset):
+        
+        embedding_images   = torch.zeros(len(dataset), 1, 28, 28)
+        embedding_features = torch.zeros(len(dataset), self.criterion.m.shape[1])
+        embedding_labels   = torch.zeros(len(dataset))
+
+        self.net.eval()
+
+        dataloader = DataLoader(dataset)
+        for i, (X, y) in enumerate(dataloader):
+
+            if self.configer.cuda and cuda.is_available():
+                X = X.cuda()
+            embedding_features[i] = self.net(X)
+
+            embedding_images[i] = X[0]
+            embedding_labels[i] = y
+
+        self.writer.add_embedding(embedding_features, 
+                    metadata=embedding_labels, label_img=embedding_images)

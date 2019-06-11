@@ -34,6 +34,7 @@ def main_unsupervised(num_clusters, feature_size):
     trainer = UnsupervisedTrainer(configer, net, params, trainset, validset, criterion, 
                     optimizer, lr_scheduler, num_to_keep=5, resume=False, valid_freq=1)
     trainer.train()
+    trainer.show_embedding_features(validset)
     
 
 if __name__ == "__main__":

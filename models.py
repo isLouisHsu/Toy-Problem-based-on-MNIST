@@ -14,13 +14,9 @@ class NetSupervised(nn.Module):
             nn.ReLU(),
             nn.Conv2d(  64,  128, 3, 1, 1),
             nn.ReLU(),
-            nn.Conv2d( 128,  256, 3, 1, 1),
+            nn.Conv2d( 128,  128, 3, 2, 1),
             nn.ReLU(),
-            nn.Conv2d( 256,  256, 3, 2, 1),
-            nn.ReLU(),
-            nn.Conv2d( 256,  256, 3, 1, 1),
-            nn.ReLU(),
-            nn.Conv2d( 256, num_classes, 7),
+            nn.Conv2d( 128, num_classes, 7),
             nn.Conv2d(num_classes, num_classes, 1),
         )
 
@@ -44,13 +40,9 @@ class NetUnsupervised(nn.Module):
             nn.ReLU(),
             nn.Conv2d(  64,  128, 3, 1, 1),
             nn.ReLU(),
-            nn.Conv2d( 128,  256, 3, 1, 1),
+            nn.Conv2d( 128,  128, 3, 2, 1),
             nn.ReLU(),
-            nn.Conv2d( 256,  256, 3, 2, 1),
-            nn.ReLU(),
-            nn.Conv2d( 256,  256, 3, 1, 1),
-            nn.ReLU(),
-            nn.Conv2d( 256, feature_size, 7),
+            nn.Conv2d( 128, feature_size, 7),
             nn.Conv2d(feature_size, feature_size, 1),
         )
 

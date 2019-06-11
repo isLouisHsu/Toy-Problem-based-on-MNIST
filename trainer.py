@@ -404,7 +404,7 @@ class UnsupervisedTrainer():
         avg_ami  = np.mean(np.array(avg_ami))
         return avg_loss, avg_ami
 
-    def save_checkpoint():
+    def save_checkpoint(self):
         
         checkpoint_state = {
             'save_time': getTime(),

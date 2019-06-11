@@ -271,7 +271,9 @@ class UnsupervisedTrainer():
             self.load_checkpoint()
 
         ## print information
-        if configer.cuda and cuda.is_available(): self.net.cuda()
+        if configer.cuda and cuda.is_available(): 
+            self.net.cuda()
+            self.criterion.cuda()
             
         print("==============================================================================================")
         print("model:           {}".format(self.net._get_name()))

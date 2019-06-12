@@ -354,16 +354,16 @@ class UnsupervisedTrainer():
             if self.configer.cuda and cuda.is_available(): X = X.cuda(); y = y.cuda()
             
             feature = self.net(X)
-            loss_i = self.criterion(feature)
+            total_i, intra_i, inter_i = self.criterion(feature)
             ami_i  = adjusted_mutual_info_score(y.detach().cpu().numpy(), 
                             self.predict(feature).detach().cpu().numpy())
 
             self.optimizer.zero_grad()
-            loss_i.backward()
+            total_i.backward()
             self.optimizer.step()
 
-            avg_loss += [loss_i.detach().cpu().numpy()]; avg_ami += [ami_i]
-            self.writer.add_scalar('{}/train/loss_i'.format(self.net._get_name()), loss_i, self.cur_epoch*n_batch + i_batch)
+            avg_loss += [total_i.detach().cpu().numpy()]; avg_ami += [ami_i]
+            self.writer.add_scalars('{}/train/loss_i'.format(self.net._get_name()), {'total_i': total_i, 'intra_i': intra_i, 'inter_i': inter_i, }, self.cur_epoch*n_batch + i_batch)
             self.writer.add_scalar('{}/train/ami_i'.format(self.net._get_name()),  ami_i,  self.cur_epoch*n_batch + i_batch)
 
             duration_time = time.time() - start_time
@@ -389,12 +389,12 @@ class UnsupervisedTrainer():
             if self.configer.cuda and cuda.is_available(): X = X.cuda(); y = y.cuda()
             
             feature = self.net(X)
-            loss_i = self.criterion(feature)
+            total_i, intra_i, inter_i  = self.criterion(feature)
             ami_i  = adjusted_mutual_info_score(y.detach().cpu().numpy(), 
                             self.predict(feature).detach().cpu().numpy())
             
-            avg_loss += [loss_i.detach().cpu().numpy()]; avg_ami += [ami_i]
-            self.writer.add_scalar('{}/valid/loss_i'.format(self.net._get_name()), loss_i, self.cur_epoch*n_batch + i_batch)
+            avg_loss += [total_i.detach().cpu().numpy()]; avg_ami += [ami_i]
+            self.writer.add_scalars('{}/valid/loss_i'.format(self.net._get_name()), {'total_i': total_i, 'intra_i': intra_i, 'inter_i': inter_i, }, self.cur_epoch*n_batch + i_batch)
             self.writer.add_scalar('{}/valid/ami_i'.format(self.net._get_name()),  ami_i,  self.cur_epoch*n_batch + i_batch)
 
             duration_time = time.time() - start_time

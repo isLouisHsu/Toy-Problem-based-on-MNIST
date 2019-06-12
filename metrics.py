@@ -68,6 +68,7 @@ class LossUnsupervised(nn.Module):
         inter = self._entropy(inter)
 
         ## 优化目标，最小化
-        total = intra / inter
+        # total = intra / inter
+        total = intra - inter
 
-        return total
+        return total, intra, inter

@@ -25,7 +25,8 @@ def main_supervised():
 def main_unsupervised(num_clusters, feature_size):
     net = NetUnsupervised(feature_size)
     criterion = LossUnsupervised(num_clusters, feature_size)
-    params = [{'params': net.parameters(), }, {'params': criterion.m, }]
+    # params = [{'params': net.parameters(), }, {'params': criterion.m, }]
+    params = [{'params': net.parameters(), }, {'params': criterion.parameters(), }]
     trainset = MNIST('train')
     validset = MNIST('valid')
     optimizer = optim.SGD

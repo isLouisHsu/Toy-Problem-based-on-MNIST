@@ -10,7 +10,9 @@ class LossUnsupervised(nn.Module):
         self.m = nn.Parameter(torch.Tensor(num_clusters, feature_size))
         nn.init.xavier_uniform_(self.m)
     
-        self.s1 = None; self.s2 = None
+        # self.s1 = None; self.s2 = None
+        self.s1 = nn.Parameter(torch.ones(num_clusters))
+        self.s2 = nn.Parameter(torch.ones(num_clusters))
         
     def _entropy(self, x):
         """
@@ -72,4 +74,4 @@ class LossUnsupervised(nn.Module):
         # total = intra - inter
         total = intra + 1. / inter
 
-        return total, intra, inter
+        return total, intra, 1. / inter

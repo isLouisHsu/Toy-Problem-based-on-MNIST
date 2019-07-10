@@ -1,5 +1,67 @@
+import math
 import torch
 import torch.nn as nn
+from torch.nn import Parameter
+
+
+class MarginProduct(nn.Module):
+    """
+    Notes:
+        $$
+        \text{softmax} = \frac{1}{N} \sum_i -\log \frac{e^{\tilde{y}_{y_i}}}{\sum_i e^{\tilde{y}_i}}
+        $$
+
+        $\text{where}$
+        $$
+        \tilde{y} = \begin{cases}
+            s(\cos(m_1 \theta_{j, i} + m_2) + m_3) & j = y_i \\
+            s(\cos(    \theta_{j, i}))             & j \neq y_i
+        \end{cases}
+        $$
+    """
+
+    def __init__(self, s=32.0, m1=2.00, m2=0.50, m3=0.35):
+
+        super(MarginProduct, self).__init__()
+        self.s = s
+        self.m1 = m1
+        self.m2 = m2
+        self.m3 = m3
+
+    def forward(self, cosine, label):
+        """
+        Params:
+            cosine: {tensor(N, n_classes)} 每个样本(N)，到各类别(n_classes)矢量的余弦值
+            label:  {tensor(N)}
+        Returns:
+            output: {tensor(N, n_classes)}
+        """
+        one_hot = torch.zeros(cosine.size(), device='cuda' if torch.cuda.is_available() else 'cpu')
+        one_hot.scatter_(1, label.view(-1, 1).long(), 1)
+
+        arc    = torch.acos(cosine)
+        phi    = torch.cos(self.m1*arc + self.m2) + self.m3
+        output = torch.where(one_hot > 0, phi, cosine)
+
+        output = self.s * output
+        
+        return output
+
+
+class MarginLoss(nn.Module):
+
+    def __init__(self, s=32.0, m1=2.00, m2=0.50, m3=0.35):
+        super(MarginLoss, self).__init__()
+
+        self.margin = MarginProduct(s, m1, m2, m3)
+        self.classifier = nn.CrossEntropyLoss()
+
+    def forward(self, pred, gt):
+
+        output = self.margin(pred, gt)
+        loss   = self.classifier(output, gt)
+
+        return loss
 
 
 class LossUnsupervised(nn.Module):

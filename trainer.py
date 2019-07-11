@@ -294,7 +294,7 @@ class MarginTrainer(SupervisedTrainer):
             self.writer.add_scalar('{}/valid/loss_i'.format(self.net._get_name()), loss_i, self.cur_epoch*n_batch + i_batch)
 
             if self.show_embedding:
-                self.writer.add_embedding(cosine, y)
+                self.writer.add_embedding(cosine, y, X)
 
             duration_time = time.time() - start_time
             start_time = time.time()

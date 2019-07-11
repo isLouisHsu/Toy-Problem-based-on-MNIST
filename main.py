@@ -93,6 +93,8 @@ def main_unsupervised(num_classes, feature_size):
 
 if __name__ == "__main__":
     main_cosmargin()
+    main_spheremargin()
+    main_arcmargin()
     exit(0)
 
 

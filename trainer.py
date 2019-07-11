@@ -239,8 +239,21 @@ class MarginTrainer(SupervisedTrainer):
         m1m2m3 = '_'.join(list(map(str, [self.criterion.margin.m1, self.criterion.margin.m2, self.criterion.margin.m3])))
         self.logdir = os.path.join(configer.logdir, m1m2m3)
         if not os.path.exists(self.logdir): os.makedirs(self.logdir)
-        self.writer.close(); self.writer = SummaryWriter(configer.logdir)
-        
+        self.writer.close(); self.writer = SummaryWriter(self.logdir)
+            
+        print("==============================================================================================")
+        print("model:           {}".format(self.net._get_name()))
+        print("logdir:          {}".format(self.logdir))
+        print("ckptdir:         {}".format(self.ckptdir))
+        print("train samples:   {}k".format(len(trainset)/1000))
+        print("valid samples:   {}k".format(len(validset)/1000))
+        print("batch size:      {}".format(configer.batchsize))
+        print("batch per epoch: {}".format(len(trainset)/configer.batchsize))
+        print("epoch:           [{:4d}]/[{:4d}]".format(self.cur_epoch, configer.n_epoch))
+        print("val frequency:   {}".format(self.valid_freq))
+        print("learing rate:    {}".format(configer.lrbase))
+        print("==============================================================================================")
+
         self.show_embedding = show_embedding
 
     def train_epoch(self):

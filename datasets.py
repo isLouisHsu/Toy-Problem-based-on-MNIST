@@ -37,4 +37,12 @@ class MNIST(Dataset):
     def __len__(self):
 
         return len(self.images)
+
+if __name__ == "__main__":
+    
+    D = MNIST('train')
+    for i in range(10):
+        X, y = D[i]
         
+        cv2.imshow("%d" % y, (X[0]*255).numpy().astype('uint8'))
+        cv2.waitKey(500)

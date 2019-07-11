@@ -12,7 +12,7 @@ configer.valid_freq = 1
 
 configer.lrbase = 0.001
 configer.adjstep = [60,]
-configer.gamma = 0.1
+configer.gamma = 0.0001
 
 configer.cuda = True
 

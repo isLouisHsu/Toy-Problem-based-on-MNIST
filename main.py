@@ -25,7 +25,7 @@ def main_crossent(num_classes, feature_size):
 def main_cosmargin(num_classes=10, feature_size=2):
     net = NetworkMargin(num_classes=num_classes, feature_size=feature_size)
 
-    base_params = filter(lambda x: id(x) != id(net.center), net.parameters())
+    base_params = list(filter(lambda x: id(x) != id(net.center), net.parameters()))
     params = [
         {'params': base_params, 'weight_decay': 4e-5},
         {'params': net.center, 'weight_decay': 4e-4},
@@ -33,7 +33,7 @@ def main_cosmargin(num_classes=10, feature_size=2):
 
     trainset = MNIST('train'); validset = MNIST('valid')
     criterion = MarginLoss(s=32.0, m1=0, m2=0, m3=0.35)
-    optimizer = optim.SGD
+    optimizer = optim.Adam
     lr_scheduler = MultiStepLR
 
     trainer = MarginTrainer(configer, net, params, trainset, validset, criterion, 
@@ -43,7 +43,7 @@ def main_cosmargin(num_classes=10, feature_size=2):
 def main_spheremargin(num_classes=10, feature_size=2):
     net = NetworkMargin(num_classes=num_classes, feature_size=feature_size)
 
-    base_params = filter(lambda x: id(x) != id(net.center), net.parameters())
+    base_params = list(filter(lambda x: id(x) != id(net.center), net.parameters()))
     params = [
         {'params': base_params, 'weight_decay': 4e-5},
         {'params': net.center, 'weight_decay': 4e-4},
@@ -51,7 +51,7 @@ def main_spheremargin(num_classes=10, feature_size=2):
 
     trainset = MNIST('train'); validset = MNIST('valid')
     criterion = MarginLoss(s=32.0, m1=2.00, m2=0, m3=0)
-    optimizer = optim.SGD
+    optimizer = optim.Adam
     lr_scheduler = MultiStepLR
 
     trainer = MarginTrainer(configer, net, params, trainset, validset, criterion, 
@@ -61,7 +61,7 @@ def main_spheremargin(num_classes=10, feature_size=2):
 def main_arcmargin(num_classes=10, feature_size=2):
     net = NetworkMargin(num_classes=num_classes, feature_size=feature_size)
 
-    base_params = filter(lambda x: id(x) != id(net.center), net.parameters())
+    base_params = list(filter(lambda x: id(x) != id(net.center), net.parameters()))
     params = [
         {'params': base_params, 'weight_decay': 4e-5},
         {'params': net.center, 'weight_decay': 4e-4},
@@ -69,7 +69,7 @@ def main_arcmargin(num_classes=10, feature_size=2):
 
     trainset = MNIST('train'); validset = MNIST('valid')
     criterion = MarginLoss(s=32.0, m1=0, m2=0.5, m3=0)
-    optimizer = optim.SGD
+    optimizer = optim.Adam
     lr_scheduler = MultiStepLR
 
     trainer = MarginTrainer(configer, net, params, trainset, validset, criterion, 
@@ -90,7 +90,11 @@ def main_unsupervised(num_classes, feature_size):
                     optimizer, lr_scheduler, num_to_keep=5, resume=False, valid_freq=1)
     trainer.train()
     trainer.show_embedding_features(validset)
-    
+
+if __name__ == "__main__":
+    main_cosmargin()
+    exit(0)
+
 
 if __name__ == "__main__":
     import argparse

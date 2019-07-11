@@ -43,7 +43,7 @@ class SupervisedTrainer(object):
         self.criterion = criterion
         self.optimizer = optimizer(params, configer.lrbase)
         self.lr_scheduler = lr_scheduler(self.optimizer, configer.adjstep, configer.gamma)
-        self.writer = SummaryWriter(configer.logdir)
+        self.writer = SummaryWriter(self.logdir)
         
         ## initialize
         self.valid_loss = float('inf')
@@ -355,7 +355,7 @@ class UnsupervisedTrainer():
         self.criterion = criterion
         self.optimizer = optimizer(params, configer.lrbase)
         self.lr_scheduler = lr_scheduler(self.optimizer, configer.adjstep, configer.gamma)
-        self.writer = SummaryWriter(configer.logdir)
+        self.writer = SummaryWriter(self.logdir)
         
         ## initialize
         self.valid_loss = float('inf')

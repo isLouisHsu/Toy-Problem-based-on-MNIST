@@ -36,11 +36,12 @@ class MarginProduct(nn.Module):
         Returns:
             output: {tensor(N, n_classes)}
         """
-        one_hot = torch.zeros(cosine.size(), device='cuda' if torch.cuda.is_available() else 'cpu')
+        one_hot = torch.zeros(cosine.size(), device='cuda' if \
+                        torch.cuda.is_available() else 'cpu')
         one_hot.scatter_(1, label.view(-1, 1).long(), 1)
 
-        arc    = torch.acos(cosine)
-        phi    = torch.cos(self.m1*arc + self.m2) + self.m3
+        theta  = torch.acos(cosine)
+        phi    = torch.cos(self.m1*theta - self.m2) + self.m3
         output = torch.where(one_hot > 0, phi, cosine)
 
         output = self.s * output

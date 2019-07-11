@@ -239,6 +239,8 @@ class MarginTrainer(SupervisedTrainer):
         m1m2m3 = '_'.join(list(map(str, [self.criterion.margin.m1, self.criterion.margin.m2, self.criterion.margin.m3])))
         self.logdir = os.path.join(configer.logdir, m1m2m3)
         if not os.path.exists(self.logdir): os.makedirs(self.logdir)
+        self.writer.close(); self.writer = SummaryWriter(configer.logdir)
+        
         self.show_embedding = show_embedding
 
     def train_epoch(self):

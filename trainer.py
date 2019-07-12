@@ -285,7 +285,7 @@ class MarginTrainer(SupervisedTrainer):
             
             costh   = self.net(X)
             loss_i = self.criterion(costh, y)
-            y_pred = torch.argmin(costh, dim=1)
+            y_pred = torch.argmax(costh, dim=1)
             acc_i  = torch.mean((y_pred==y).float())
 
             self.optimizer.zero_grad()
@@ -324,7 +324,7 @@ class MarginTrainer(SupervisedTrainer):
             
             costh   = self.net(X)
             loss_i = self.criterion(costh, y)
-            y_pred = torch.argmin(costh, dim=1)
+            y_pred = torch.argmax(costh, dim=1)
             acc_i  = torch.mean((y_pred==y).float())
 
             avg_loss += [loss_i.detach().cpu().numpy()]

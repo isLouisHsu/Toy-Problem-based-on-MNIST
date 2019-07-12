@@ -1,6 +1,9 @@
 import os
+import cv2
 import time
 import numpy as np
+import matplotlib.pyplot as plt
+
 from torchstat import stat
 from collections import OrderedDict
 from sklearn.metrics import adjusted_mutual_info_score
@@ -244,7 +247,7 @@ class SupervisedTrainer(object):
 class MarginTrainer(SupervisedTrainer):
 
     def __init__(self, configer, net, params, trainset, validset, criterion, 
-                    optimizer, lr_scheduler, num_to_keep=5, resume=False, valid_freq=1, show_embedding=False):
+                    optimizer, lr_scheduler, num_to_keep=5, resume=False, valid_freq=1, show_embedding=False, show_video=False):
 
         super(MarginTrainer, self).__init__(configer, net, params, trainset, validset, criterion, 
                     optimizer, lr_scheduler, num_to_keep, resume, valid_freq)
@@ -269,6 +272,11 @@ class MarginTrainer(SupervisedTrainer):
 
         self.show_embedding = show_embedding
 
+        self.show_video = show_video
+        if show_video:
+            fourcc = cv2.VideoWriter_fourcc(*'XVID')
+            self.videoWriter = cv2.VideoWriter(os.path.join(self.logdir, "process.avi"), fourcc, 30, (400, 300))
+    
     def train_epoch(self):
         
         self.net.train()
@@ -314,7 +322,7 @@ class MarginTrainer(SupervisedTrainer):
         start_time = time.time()
         n_batch = len(self.validset) // self.configer.batchsize
 
-        if self.show_embedding:
+        if self.show_embedding or self.show_video:
             mat = None
             metadata = None
 
@@ -343,6 +351,16 @@ class MarginTrainer(SupervisedTrainer):
 
         if self.show_embedding:
             self.writer.add_embedding(mat, metadata, global_step=self.cur_epoch)
+        
+        if show_video:
+            m = mat.cpu().detach().numpy()
+            md = metadata.cpu().detach().numpy()
+            plt.figure(0)
+            plt.scatter(m[:, 0], m[:, 1], c=md)
+            
+            imgpath = os.path.join(self.logdir, 'temp.png')
+            plt.savefig(imgpath); img = cv2.imread(imgpath, cv2.IMREAD_COLOR)
+            self.videoWriter.write(img)
 
         avg_loss = np.mean(np.array(avg_loss))
         avg_acc  = np.mean(np.array(avg_acc))

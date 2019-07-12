@@ -22,7 +22,7 @@ def main_crossent(num_classes, feature_size):
                     optimizer, lr_scheduler, num_to_keep=5, resume=False, valid_freq=1, show_embedding=True)
     trainer.train()
 
-def main_modified(num_classes=10, feature_size=2):
+def main_modified_softmax(num_classes=10, feature_size=2):
     net = NetworkMargin(num_classes=num_classes, feature_size=feature_size)
 
     base_params = list(filter(lambda x: id(x) != id(net.center), net.parameters()))
@@ -37,7 +37,7 @@ def main_modified(num_classes=10, feature_size=2):
     lr_scheduler = MultiStepLR
 
     trainer = MarginTrainer(configer, net, params, trainset, validset, criterion, 
-                    optimizer, lr_scheduler, num_to_keep=5, resume=False, valid_freq=1, show_embedding=True)
+                    optimizer, lr_scheduler, num_to_keep=5, resume=False, valid_freq=1, show_embedding=True, show_video=True)
     trainer.train()
 
 def main_spheremargin(num_classes=10, feature_size=2):
@@ -55,7 +55,7 @@ def main_spheremargin(num_classes=10, feature_size=2):
     lr_scheduler = MultiStepLR
 
     trainer = MarginTrainer(configer, net, params, trainset, validset, criterion, 
-                    optimizer, lr_scheduler, num_to_keep=5, resume=False, valid_freq=1, show_embedding=True)
+                    optimizer, lr_scheduler, num_to_keep=5, resume=False, valid_freq=1, show_embedding=True, show_video=True)
     trainer.train()
 
 def main_arcmargin(num_classes=10, feature_size=2):
@@ -73,7 +73,7 @@ def main_arcmargin(num_classes=10, feature_size=2):
     lr_scheduler = MultiStepLR
 
     trainer = MarginTrainer(configer, net, params, trainset, validset, criterion, 
-                    optimizer, lr_scheduler, num_to_keep=5, resume=False, valid_freq=1, show_embedding=True)
+                    optimizer, lr_scheduler, num_to_keep=5, resume=False, valid_freq=1, show_embedding=True, show_video=True)
     trainer.train()
 
 def main_cosmargin(num_classes=10, feature_size=2):
@@ -91,7 +91,7 @@ def main_cosmargin(num_classes=10, feature_size=2):
     lr_scheduler = MultiStepLR
 
     trainer = MarginTrainer(configer, net, params, trainset, validset, criterion, 
-                    optimizer, lr_scheduler, num_to_keep=5, resume=False, valid_freq=1, show_embedding=True)
+                    optimizer, lr_scheduler, num_to_keep=5, resume=False, valid_freq=1, show_embedding=True, show_video=True)
     trainer.train()
 
 def main_unsupervised(num_classes, feature_size):
@@ -110,7 +110,7 @@ def main_unsupervised(num_classes, feature_size):
     trainer.show_embedding_features(validset)
 
 if __name__ == "__main__":
-    main_modified()
+    main_modified_softmax()
     main_arcmargin()
     main_cosmargin()
     main_spheremargin()

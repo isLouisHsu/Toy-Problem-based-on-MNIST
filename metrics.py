@@ -28,15 +28,58 @@ class MarginProduct(nn.Module):
         self.m2 = m2
         self.m3 = m3
 
-    def _phi(self, theta):
+    def _acos(self, x):
         """
         Params:
-            theta: {tensor(N, n_classes)} 每个样本到各类别矢量的角度值，[0, pi]
+            x: {tensor}
+        Notes:
+            防止梯度计算不稳定，arccos泰勒展开，近似计算
         """
-        theta_with_margin = self.m1*theta + self.m2
-        cos_theta_with_margin = torch.cos(theta_with_margin)
+        y = math.pi / 2 - x - x**3 / 6
+        return y
 
-        y = torch.where(theta_with_margin > math.pi, - cos_theta_with_margin - 2, cos_theta_with_margin)
+    def _cosPhi(self, x):
+        """
+        Params:
+            x: {tensor} [0, pi]
+        Noets:
+            由于$m_1*\theta + m_2 \in [m_2, m_1*pi + m_2]$在该区间内$cos(\theta)$不单调，故做相应处理
+            $$
+            \Phi(\theta) = \begin{cases}
+                \cos (m_1*\theta + m_2) - m_3 & m_1*\theta + m_2 < \pi \\
+                - 2 + \cos (m_1*\theta + m_2 - \pi) - m_3 & otherwise
+            \end{cases}
+            $$
+
+            其函数图像可做出，代码如下
+            ``` python
+            import numpy as np
+            import matplotlib.pyplot as plt
+
+            def cosPhi(x, m1=1, m2=0.5, m3=0.35):
+
+                phi = m1*x + m2
+                cosPhi = np.cos(phi)
+                y = np.where(phi < np.pi, cosPhi, - cosPhi - 2)
+                y = y - m3
+
+                return y
+
+
+            if __name__ == '__main__':
+
+                x = np.linspace(0, np.pi, 200)
+                y = cosPhi(x, m1=1, m2=0.5, m3=0)
+
+                plt.figure(0)
+                plt.plot(x, y)
+                plt.show()
+            ```
+        """
+        phi = self.m1*x + self.m2
+        cos_phi = torch.cos(phi)
+
+        y = torch.where(phi > math.pi, - cos_phi - 2, cos_phi)
         y = y - self.m3
 
         return y
@@ -53,9 +96,10 @@ class MarginProduct(nn.Module):
                         torch.cuda.is_available() else 'cpu')
         one_hot.scatter_(1, label.view(-1, 1).long(), 1)
 
-        theta  = torch.acos(cosTheta)
-        phi    = self._phi(theta)
-        output = torch.where(one_hot > 0, phi, cosTheta)
+        # theta  = torch.acos(cosTheta)
+        theta  = self._acos(cosTheta)
+        cosPhi = self._cosPhi(theta)
+        output = torch.where(one_hot > 0, cosPhi, cosTheta)
 
         output = self.s * output
         

@@ -91,11 +91,11 @@ def main_unsupervised(num_classes, feature_size):
     trainer.train()
     trainer.show_embedding_features(validset)
 
-# if __name__ == "__main__":
-#     main_arcmargin()
-#     main_cosmargin()
-#     main_spheremargin()
-#     exit(0)
+if __name__ == "__main__":
+    main_arcmargin()
+    main_cosmargin()
+    main_spheremargin()
+    exit(0)
 
 if __name__ == "__main__":
     import argparse

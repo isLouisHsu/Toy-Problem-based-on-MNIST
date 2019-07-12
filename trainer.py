@@ -283,9 +283,9 @@ class MarginTrainer(SupervisedTrainer):
             X = Variable(X.float()); y = Variable(y.long())
             if self.configer.cuda and cuda.is_available(): X = X.cuda(); y = y.cuda()
             
-            feat   = self.net(X)
-            loss_i = self.criterion(feat, y)
-            y_pred = torch.argmin(feat, dim=1)
+            costh   = self.net(X)
+            loss_i = self.criterion(costh, y)
+            y_pred = torch.argmin(costh, dim=1)
             acc_i  = torch.mean((y_pred==y).float())
 
             self.optimizer.zero_grad()
@@ -322,9 +322,9 @@ class MarginTrainer(SupervisedTrainer):
             X = Variable(X.float()); y = Variable(y.long())
             if self.configer.cuda and cuda.is_available(): X = X.cuda(); y = y.cuda()
             
-            feat   = self.net(X)
-            loss_i = self.criterion(feat, y)
-            y_pred = torch.argmin(feat, dim=1)
+            costh   = self.net(X)
+            loss_i = self.criterion(costh, y)
+            y_pred = torch.argmin(costh, dim=1)
             acc_i  = torch.mean((y_pred==y).float())
 
             avg_loss += [loss_i.detach().cpu().numpy()]
@@ -332,6 +332,7 @@ class MarginTrainer(SupervisedTrainer):
             self.writer.add_scalar('{}/valid/acc_i'.format(self.net._get_name()), acc_i, self.cur_epoch*n_batch + i_batch)
 
             if self.show_embedding:
+                feat = self.net.get_feature(X)
                 mat = torch.cat([mat, feat], dim=0) if mat is not None else feat
                 metadata = torch.cat([metadata, y], dim=0) if metadata is not None else y
 

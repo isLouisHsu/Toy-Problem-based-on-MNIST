@@ -293,6 +293,7 @@ class MarginTrainer(SupervisedTrainer):
             self.optimizer.step()
 
             avg_loss += [loss_i.detach().cpu().numpy()]
+            avg_acc += [acc_i.detach().cpu().numpy()]
             self.writer.add_scalar('{}/train/loss_i'.format(self.net._get_name()), loss_i, self.cur_epoch*n_batch + i_batch)
             self.writer.add_scalar('{}/train/acc_i'.format(self.net._get_name()), acc_i, self.cur_epoch*n_batch + i_batch)
 
@@ -328,6 +329,7 @@ class MarginTrainer(SupervisedTrainer):
             acc_i  = torch.mean((y_pred==y).float())
 
             avg_loss += [loss_i.detach().cpu().numpy()]
+            avg_acc += [acc_i.detach().cpu().numpy()]
             self.writer.add_scalar('{}/valid/loss_i'.format(self.net._get_name()), loss_i, self.cur_epoch*n_batch + i_batch)
             self.writer.add_scalar('{}/valid/acc_i'.format(self.net._get_name()), acc_i, self.cur_epoch*n_batch + i_batch)
 

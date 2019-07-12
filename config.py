@@ -11,8 +11,8 @@ configer.n_epoch = 100
 configer.valid_freq = 1
 
 configer.lrbase = 0.001
-configer.adjstep = [60,]
-configer.gamma = 0.0001
+configer.adjstep = [80,]
+configer.gamma = 0.001
 
 configer.cuda = True
 

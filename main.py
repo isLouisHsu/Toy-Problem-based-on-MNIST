@@ -32,7 +32,7 @@ def main_cosmargin(num_classes=10, feature_size=2):
     ]
 
     trainset = MNIST('train'); validset = MNIST('valid')
-    criterion = MarginLoss(s=32.0, m1=0, m2=0, m3=0.35)
+    criterion = MarginLoss(s=1.0, m1=1, m2=0, m3=0.35)
     optimizer = optim.Adam
     lr_scheduler = MultiStepLR
 
@@ -50,7 +50,7 @@ def main_spheremargin(num_classes=10, feature_size=2):
     ]
 
     trainset = MNIST('train'); validset = MNIST('valid')
-    criterion = MarginLoss(s=32.0, m1=2.00, m2=0, m3=0)
+    criterion = MarginLoss(s=1.0, m1=2.00, m2=0, m3=0)
     optimizer = optim.Adam
     lr_scheduler = MultiStepLR
 
@@ -68,7 +68,7 @@ def main_arcmargin(num_classes=10, feature_size=2):
     ]
 
     trainset = MNIST('train'); validset = MNIST('valid')
-    criterion = MarginLoss(s=32.0, m1=0, m2=0.5, m3=0)
+    criterion = MarginLoss(s=1.0, m1=1, m2=0.5, m3=0)
     optimizer = optim.Adam
     lr_scheduler = MultiStepLR
 
@@ -91,6 +91,11 @@ def main_unsupervised(num_classes, feature_size):
     trainer.train()
     trainer.show_embedding_features(validset)
 
+if __name__ == "__main__":
+    main_arcmargin()
+    main_cosmargin()
+    main_spheremargin()
+    exit(0)
 
 if __name__ == "__main__":
     import argparse

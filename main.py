@@ -21,6 +21,7 @@ def main_crossent(num_classes, feature_size):
     trainer = SupervisedTrainer(configer, net, params, trainset, validset, criterion, 
                     optimizer, lr_scheduler, num_to_keep=5, resume=False, valid_freq=1, show_embedding=True)
     trainer.train()
+    del trainer
 
 def main_modified_softmax(num_classes=10, feature_size=2):
     net = NetworkMargin(num_classes=num_classes, feature_size=feature_size)
@@ -39,6 +40,7 @@ def main_modified_softmax(num_classes=10, feature_size=2):
     trainer = MarginTrainer(configer, net, params, trainset, validset, criterion, 
                     optimizer, lr_scheduler, num_to_keep=5, resume=False, valid_freq=1, show_embedding=True, show_video=True)
     trainer.train()
+    del trainer
 
 def main_spheremargin(num_classes=10, feature_size=2):
     net = NetworkMargin(num_classes=num_classes, feature_size=feature_size)
@@ -57,6 +59,7 @@ def main_spheremargin(num_classes=10, feature_size=2):
     trainer = MarginTrainer(configer, net, params, trainset, validset, criterion, 
                     optimizer, lr_scheduler, num_to_keep=5, resume=False, valid_freq=1, show_embedding=True, show_video=True)
     trainer.train()
+    del trainer
 
 def main_arcmargin(num_classes=10, feature_size=2):
     net = NetworkMargin(num_classes=num_classes, feature_size=feature_size)
@@ -75,6 +78,7 @@ def main_arcmargin(num_classes=10, feature_size=2):
     trainer = MarginTrainer(configer, net, params, trainset, validset, criterion, 
                     optimizer, lr_scheduler, num_to_keep=5, resume=False, valid_freq=1, show_embedding=True, show_video=True)
     trainer.train()
+    del trainer
 
 def main_cosmargin(num_classes=10, feature_size=2):
     net = NetworkMargin(num_classes=num_classes, feature_size=feature_size)
@@ -93,6 +97,7 @@ def main_cosmargin(num_classes=10, feature_size=2):
     trainer = MarginTrainer(configer, net, params, trainset, validset, criterion, 
                     optimizer, lr_scheduler, num_to_keep=5, resume=False, valid_freq=1, show_embedding=True, show_video=True)
     trainer.train()
+    del trainer
 
 def main_unsupervised(num_classes, feature_size):
     net = Network(num_classes=num_classes, feature_size=feature_size)
@@ -108,6 +113,7 @@ def main_unsupervised(num_classes, feature_size):
                     optimizer, lr_scheduler, num_to_keep=5, resume=False, valid_freq=1)
     trainer.train()
     trainer.show_embedding_features(validset)
+    del trainer
 
 if __name__ == "__main__":
     main_modified_softmax()

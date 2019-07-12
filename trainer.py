@@ -277,6 +277,11 @@ class MarginTrainer(SupervisedTrainer):
             fourcc = cv2.VideoWriter_fourcc(*'XVID')
             self.videoWriter = cv2.VideoWriter(os.path.join(self.logdir, "process.avi"), fourcc, 30, (1200, 600))
     
+    def __del__(self):
+        self.writer.close()
+        if self.show_video:
+            self.videoWriter.release()
+
     def train_epoch(self):
         
         self.net.train()

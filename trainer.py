@@ -168,7 +168,6 @@ class SupervisedTrainer(object):
         if self.show_embedding:
             mat = None
             metadata = None
-            label_img = None
 
         for i_batch, (X, y) in enumerate(self.validloader):
 
@@ -186,13 +185,12 @@ class SupervisedTrainer(object):
             if self.show_embedding:
                 mat = torch.cat([mat, y_pred], dim=0) if mat is not None else y_pred
                 metadata = torch.cat([metadata, y], dim=0) if metadata is not None else y
-                label_img = torch.cat([label_img, X], dim=0) if label_img is not None else X
 
             duration_time = time.time() - start_time
             start_time = time.time()
 
         if self.show_embedding:
-            self.writer.add_embedding(mat, metadata, label_img, global_step=self.cur_epoch)
+            self.writer.add_embedding(mat, metadata, global_step=self.cur_epoch)
 
         avg_loss = np.mean(np.array(avg_loss))
         avg_acc  = np.mean(np.array(avg_acc))
@@ -318,7 +316,6 @@ class MarginTrainer(SupervisedTrainer):
         if self.show_embedding:
             mat = None
             metadata = None
-            label_img = None
 
         for i_batch, (X, y) in enumerate(self.validloader):
 
@@ -337,13 +334,12 @@ class MarginTrainer(SupervisedTrainer):
             if self.show_embedding:
                 mat = torch.cat([mat, cosine], dim=0) if mat is not None else cosine
                 metadata = torch.cat([metadata, y], dim=0) if metadata is not None else y
-                label_img = torch.cat([label_img, X], dim=0) if label_img is not None else X
 
             duration_time = time.time() - start_time
             start_time = time.time()
 
         if self.show_embedding:
-            self.writer.add_embedding(mat, metadata, label_img, global_step=self.cur_epoch)
+            self.writer.add_embedding(mat, metadata, global_step=self.cur_epoch)
 
         avg_loss = np.mean(np.array(avg_loss))
         avg_acc  = np.mean(np.array(avg_acc))

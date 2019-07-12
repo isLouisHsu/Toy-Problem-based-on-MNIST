@@ -275,7 +275,7 @@ class MarginTrainer(SupervisedTrainer):
         self.show_video = show_video
         if show_video:
             fourcc = cv2.VideoWriter_fourcc(*'XVID')
-            self.videoWriter = cv2.VideoWriter(os.path.join(self.logdir, "process.avi"), fourcc, 30, (400, 300))
+            self.videoWriter = cv2.VideoWriter(os.path.join(self.logdir, "process.avi"), fourcc, 30, (1200, 600))
     
     def train_epoch(self):
         
@@ -356,11 +356,11 @@ class MarginTrainer(SupervisedTrainer):
             m = mat.cpu().detach().numpy()
             md = metadata.cpu().detach().numpy()
             
-            plt.figure(0)
-            plt.subplot(2, 1, 1)
+            plt.figure(0, figsize=(8, 4))
+            plt.subplot(1, 2, 1)
             plt.scatter(m[:, 0], m[:, 1], c=md)
-            plt.subplot(2, 1, 2)
-            m /= np.linalg.norm(m)
+            plt.subplot(1, 2, 2)
+            m = m / np.linalg.norm(m, axis=1).reshape(-1, 1)
             plt.scatter(m[:, 0], m[:, 1], c=md)
             
             imgpath = os.path.join(self.logdir, 'temp.png')

@@ -36,7 +36,8 @@ class MarginProduct(nn.Module):
         theta_with_margin = self.m1*theta + self.m2
         cos_theta_with_margin = torch.cos(theta_with_margin)
 
-        y = torch.where(theta_with_margin > math.pi, cos_theta_with_margin - 2, cos_theta_with_margin)
+        y = torch.where(theta_with_margin > math.pi, - cos_theta_with_margin - 2, cos_theta_with_margin)
+        y = y - self.m3
 
         return y
 
@@ -53,7 +54,7 @@ class MarginProduct(nn.Module):
         one_hot.scatter_(1, label.view(-1, 1).long(), 1)
 
         theta  = torch.acos(cosTheta)
-        phi    = self._phi(theta) - self.m3
+        phi    = self._phi(theta)
         output = torch.where(one_hot > 0, phi, cosTheta)
 
         output = self.s * output

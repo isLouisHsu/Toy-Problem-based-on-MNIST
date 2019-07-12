@@ -352,7 +352,7 @@ class MarginTrainer(SupervisedTrainer):
         if self.show_embedding:
             self.writer.add_embedding(mat, metadata, global_step=self.cur_epoch)
         
-        if show_video:
+        if self.show_video:
             m = mat.cpu().detach().numpy()
             md = metadata.cpu().detach().numpy()
             plt.figure(0)

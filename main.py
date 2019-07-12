@@ -19,7 +19,7 @@ def main_crossent(num_classes, feature_size):
     lr_scheduler = MultiStepLR
 
     trainer = SupervisedTrainer(configer, net, params, trainset, validset, criterion, 
-                    optimizer, lr_scheduler, num_to_keep=5, resume=False, valid_freq=1)
+                    optimizer, lr_scheduler, num_to_keep=5, resume=False, valid_freq=1, show_embedding=True)
     trainer.train()
 
 def main_cosmargin(num_classes=10, feature_size=2):

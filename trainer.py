@@ -20,7 +20,7 @@ class SupervisedTrainer(object):
     """
 
     def __init__(self, configer, net, params, trainset, validset, criterion, 
-                    optimizer, lr_scheduler, num_to_keep=5, resume=False, valid_freq=1):
+                    optimizer, lr_scheduler, num_to_keep=5, resume=False, valid_freq=1, show_embedding=False):
 
         self.configer = configer
         self.valid_freq = valid_freq
@@ -72,6 +72,8 @@ class SupervisedTrainer(object):
         print("val frequency:   {}".format(self.valid_freq))
         print("learing rate:    {}".format(configer.lrbase))
         print("==============================================================================================")
+
+        self.show_embedding = show_embedding
 
     def train(self):
         
@@ -163,6 +165,11 @@ class SupervisedTrainer(object):
         start_time = time.time()
         n_batch = len(self.validset) // self.configer.batchsize
 
+        if self.show_embedding:
+            mat = None
+            metadata = None
+            label_img = None
+
         for i_batch, (X, y) in enumerate(self.validloader):
 
             X = Variable(X.float()); y = Variable(y.long())
@@ -176,8 +183,16 @@ class SupervisedTrainer(object):
             self.writer.add_scalar('{}/valid/loss_i'.format(self.net._get_name()), loss_i, self.cur_epoch*n_batch + i_batch)
             self.writer.add_scalar('{}/valid/acc_i'.format(self.net._get_name()), acc_i, self.cur_epoch*n_batch + i_batch)
 
+            if self.show_embedding:
+                mat = torch.cat([mat, y_pred], dim=0) if mat is not None else y_pred
+                metadata = torch.cat([metadata, y], dim=0) if metadata is not None else y
+                label_img = torch.cat([label_img, X], dim=0) if label_img is not None else X
+
             duration_time = time.time() - start_time
             start_time = time.time()
+
+        if self.show_embedding:
+            self.writer.add_embedding(mat, metadata, label_img, global_step=self.cur_epoch)
 
         avg_loss = np.mean(np.array(avg_loss))
         avg_acc  = np.mean(np.array(avg_acc))
@@ -272,6 +287,8 @@ class MarginTrainer(SupervisedTrainer):
             
             cosine = self.net(X)
             loss_i = self.criterion(cosine, y)
+            y_pred = torch.argmin(cosine, dim=1)
+            acc_i  = torch.mean((y_pred==y).float())
 
             self.optimizer.zero_grad()
             loss_i.backward()
@@ -279,6 +296,7 @@ class MarginTrainer(SupervisedTrainer):
 
             avg_loss += [loss_i.detach().cpu().numpy()]
             self.writer.add_scalar('{}/train/loss_i'.format(self.net._get_name()), loss_i, self.cur_epoch*n_batch + i_batch)
+            self.writer.add_scalar('{}/train/acc_i'.format(self.net._get_name()), acc_i, self.cur_epoch*n_batch + i_batch)
 
             duration_time = time.time() - start_time
             start_time = time.time()
@@ -309,9 +327,12 @@ class MarginTrainer(SupervisedTrainer):
             
             cosine = self.net(X)
             loss_i = self.criterion(cosine, y)
+            y_pred = torch.argmin(cosine, dim=1)
+            acc_i  = torch.mean((y_pred==y).float())
 
             avg_loss += [loss_i.detach().cpu().numpy()]
             self.writer.add_scalar('{}/valid/loss_i'.format(self.net._get_name()), loss_i, self.cur_epoch*n_batch + i_batch)
+            self.writer.add_scalar('{}/valid/acc_i'.format(self.net._get_name()), acc_i, self.cur_epoch*n_batch + i_batch)
 
             if self.show_embedding:
                 mat = torch.cat([mat, cosine], dim=0) if mat is not None else cosine

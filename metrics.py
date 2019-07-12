@@ -28,21 +28,33 @@ class MarginProduct(nn.Module):
         self.m2 = m2
         self.m3 = m3
 
-    def forward(self, cosine, label):
+    def _phi(self, theta):
         """
         Params:
-            cosine: {tensor(N, n_classes)} 每个样本(N)，到各类别(n_classes)矢量的余弦值
+            theta: {tensor(N, n_classes)} 每个样本到各类别矢量的角度值，[0, pi]
+        """
+        theta_with_margin = self.m1*theta + self.m2
+        cos_theta_with_margin = torch.cos(theta_with_margin)
+
+        y = torch.where(theta_with_margin > math.pi, cos_theta_with_margin - 2, cos_theta_with_margin)
+
+        return y
+
+    def forward(self, cosTheta, label):
+        """
+        Params:
+            cosTheta: {tensor(N, n_classes)} 每个样本(N)，到各类别(n_classes)矢量的余弦值
             label:  {tensor(N)}
         Returns:
             output: {tensor(N, n_classes)}
         """
-        one_hot = torch.zeros(cosine.size(), device='cuda' if \
+        one_hot = torch.zeros(cosTheta.size(), device='cuda' if \
                         torch.cuda.is_available() else 'cpu')
         one_hot.scatter_(1, label.view(-1, 1).long(), 1)
 
-        theta  = torch.acos(cosine)
-        phi    = torch.cos(self.m1*theta - self.m2) + self.m3
-        output = torch.where(one_hot > 0, phi, cosine)
+        theta  = torch.acos(cosTheta)
+        phi    = self._phi(theta) - self.m3
+        output = torch.where(one_hot > 0, phi, cosTheta)
 
         output = self.s * output
         

@@ -10,11 +10,11 @@ class Network(nn.Module):
         super(Network, self).__init__()
 
         self.pre_layers = nn.Sequential(
-            nn.Conv2d(   1,  32, 3, 1, 1),
+            nn.Conv2d(   1,  64, 3, 1, 1),
             nn.ReLU(),
             nn.MaxPool2d(2, 2),
 
-            nn.Conv2d(  32,  64, 3, 1, 1),
+            nn.Conv2d(  64,  64, 3, 1, 1),
             nn.ReLU(),
             nn.MaxPool2d(2, 2),
 
@@ -42,11 +42,11 @@ class NetworkMargin(nn.Module):
         super(NetworkMargin, self).__init__()
 
         self.pre_layers = nn.Sequential(
-            nn.Conv2d(   1,  32, 3, 1, 1),
+            nn.Conv2d(   1,  64, 3, 1, 1),
             nn.ReLU(),
             nn.MaxPool2d(2, 2),
 
-            nn.Conv2d(  32,  64, 3, 1, 1),
+            nn.Conv2d(  64,  64, 3, 1, 1),
             nn.ReLU(),
             nn.MaxPool2d(2, 2),
 

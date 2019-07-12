@@ -355,7 +355,12 @@ class MarginTrainer(SupervisedTrainer):
         if self.show_video:
             m = mat.cpu().detach().numpy()
             md = metadata.cpu().detach().numpy()
+            
             plt.figure(0)
+            plt.subplot(2, 1, 1)
+            plt.scatter(m[:, 0], m[:, 1], c=md)
+            plt.subplot(2, 1, 2)
+            m /= np.linalg.norm(m)
             plt.scatter(m[:, 0], m[:, 1], c=md)
             
             imgpath = os.path.join(self.logdir, 'temp.png')

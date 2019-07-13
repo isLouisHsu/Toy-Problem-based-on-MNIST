@@ -92,9 +92,7 @@ if __name__ == "__main__":
     main_margin(num_classes=10, feature_size=2, s= 8.0, m1=1.00, m2=0.5, m3=0.00, m4=1.0)
     main_margin(num_classes=10, feature_size=2, s= 1.0, m1=1.00, m2=0.5, m3=0.00, m4=1.0)
     # cosmulface
-    main_margin(num_classes=10, feature_size=2, s=32.0, m1=1.00, m2=0.0, m3=0.00, m4=0.8)
     main_margin(num_classes=10, feature_size=2, s=32.0, m1=1.00, m2=0.0, m3=0.00, m4=0.5)
-    main_margin(num_classes=10, feature_size=2, s=32.0, m1=1.00, m2=0.0, m3=0.00, m4=0.2)
     # adaptiveface
     main_adaptivemargin()
 

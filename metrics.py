@@ -117,10 +117,10 @@ class MarginProduct(nn.Module):
 
 class MarginLoss(nn.Module):
 
-    def __init__(self, s=32.0, m1=2.00, m2=0.50, m3=0.35):
+    def __init__(self, s=32.0, m1=2.00, m2=0.50, m3=0.35, m4=1.00):
         super(MarginLoss, self).__init__()
 
-        self.margin = MarginProduct(s, m1, m2, m3)
+        self.margin = MarginProduct(s, m1, m2, m3, m4)
         self.classifier = nn.CrossEntropyLoss()
 
     def forward(self, pred, gt):

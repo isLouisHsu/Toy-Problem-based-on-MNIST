@@ -126,7 +126,7 @@ def main_parammargin(num_classes=10, feature_size=2, s=32.0):
     params = [
         {'params': base_params, 'weight_decay': 4e-5},
         {'params': net.cosine_layer.weights, 'weight_decay': 4e-4},
-        {'params': criterion.margin.m, 'weight_decay': 4e-4},
+        {'params': criterion.parameters(), 'weight_decay': 4e-4},
     ]
 
     trainset = MNIST('train'); validset = MNIST('valid')

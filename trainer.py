@@ -369,8 +369,7 @@ class MarginTrainerWithParameter(SupervisedTrainer):
         super(MarginTrainerWithParameter, self).__init__(configer, net, params, trainset, validset, criterion, 
                     optimizer, lr_scheduler, num_to_keep, resume, valid_freq)
         
-        # subdir = "param|s:%.2f" % (self.criterion.margin.s)
-        subdir = "param"
+        subdir = "param|s:%.2f" % (self.criterion.margin.s)
         self.logdir = os.path.join(self.logdir, subdir)
         if not os.path.exists(self.logdir): os.makedirs(self.logdir)
         self.writer.close(); self.writer = SummaryWriter(self.logdir)

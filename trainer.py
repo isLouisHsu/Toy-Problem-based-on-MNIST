@@ -3,6 +3,7 @@ import cv2
 import time
 import numpy as np
 import matplotlib.pyplot as plt
+from scipy import io
 
 from torchstat import stat
 from collections import OrderedDict
@@ -41,7 +42,7 @@ class SupervisedTrainer(object):
         self.trainset = trainset
         self.validset = validset
         self.trainloader = DataLoader(trainset, configer.batchsize, True)
-        self.validloader = DataLoader(validset, configer.batchsize, True)
+        self.validloader = DataLoader(validset, configer.batchsize, False)
 
         ## for optimization
         self.criterion = criterion
@@ -360,6 +361,8 @@ class MarginTrainer(SupervisedTrainer):
         if self.show_embedding and (self.cur_epoch % 10 == 0):
             self.writer.add_embedding(mat, metadata, global_step=self.cur_epoch*2)
             self.writer.add_embedding(F.normalize(mat), metadata, global_step=self.cur_epoch*2 + 1)
+            io.savemat(os.path.join(self.logdir, "valid.mat"), 
+                    {'mat': mat.cpu().detach().numpy(), 'metadata': metadata.cpu().detach().numpy()})
         
         if self.show_video:
             m = mat.cpu().detach().numpy()

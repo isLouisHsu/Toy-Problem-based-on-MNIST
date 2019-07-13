@@ -136,13 +136,19 @@ def main_unsupervised(num_classes, feature_size):
 
 if __name__ == "__main__":
     main_modified_softmax()
+
+    main_cosmargin()
+    main_spheremargin()
+
     main_arcmargin(s=1)
     main_arcmargin(s=8)
     main_arcmargin(s=16)
     main_arcmargin(s=32)
-    main_cosmargin()
-    main_spheremargin()
-    main_multiplymargin()
+
+    main_multiplymargin(s=0.8)
+    main_multiplymargin(s=0.5)
+    main_multiplymargin(s=0.2)
+
     exit(0)
 
 if __name__ == "__main__":

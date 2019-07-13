@@ -253,7 +253,7 @@ class MarginTrainer(SupervisedTrainer):
         super(MarginTrainer, self).__init__(configer, net, params, trainset, validset, criterion, 
                     optimizer, lr_scheduler, num_to_keep, resume, valid_freq)
         
-        sm1m2m3 = "%.2fm1%.2fm2%.2fm3%.2fm4%.2f" % (self.criterion.margin.s, 
+        sm1m2m3 = "s:%.2f|m1:%.2f|m2:|%.2f|m3:%.2f|m4:%.2f" % (self.criterion.margin.s, 
                         self.criterion.margin.m1, self.criterion.margin.m2, 
                         self.criterion.margin.m3, self.criterion.margin.m4)
         self.logdir = os.path.join(self.logdir, sm1m2m3)

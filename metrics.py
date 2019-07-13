@@ -3,6 +3,33 @@ import torch
 import torch.nn as nn
 from torch.nn import Parameter
 
+def arccos(x, n=5):
+    """
+    Params:
+        x: {tensor}
+        n: {int}
+    """
+    gt = lambda x, n: (math.factorial(2 * n - 1) /\
+                        math.factorial(2 * n)) *\
+                        (x**(2 * n + 1) / (2 * n + 1))
+    y = math.pi / 2 - x
+    for i in range(1, n):
+        y -= gt(x, i)
+    
+    return y
+
+def monocos(x):
+    """
+    Params:
+        x: {tensor}
+    Notes:
+        y = \cos (x - n \pi) - 2n
+        where n = \lfloor{} \frac{\theta}{\pi} \rfloor{}
+    """
+    n = x // math.pi
+    y = torch.cos(x - n*math.pi) - 2*n
+
+    return y
 
 class MarginProduct(nn.Module):
     """
@@ -20,7 +47,7 @@ class MarginProduct(nn.Module):
         $$
     """
 
-    def __init__(self, s=32.0, m1=2.00, m2=0.50, m3=0.35, m4=1.00):
+    def __init__(self, s=32.0, m1=2.00, m2=0.50, m3=0.35, m4=0.50):
 
         super(MarginProduct, self).__init__()
         self.s = s
@@ -28,69 +55,6 @@ class MarginProduct(nn.Module):
         self.m2 = m2
         self.m3 = m3
         self.m4 = m4
-
-    def _acos(self, x):
-        """
-        Params:
-            x: {tensor}
-        Notes:
-            防止梯度计算不稳定，arccos泰勒展开，近似计算
-        """
-        y = math.pi / 2 - x - x**3 / 6
-        return y
-
-    def _cosPhi(self, x):
-        """
-        Params:
-            x: {tensor} [0, pi]
-        Noets:
-            由于$m_1*\theta + m_2 \in [m_2, m_1*pi + m_2]$在该区间内$cos(\theta)$不单调，故做相应处理
-            $$
-            \Phi(\theta) = m_4 \cos (\phi(\theta) - \pi t) - 2 t - m_3
-            $$
-
-            其中
-            $$
-            \phi(\theta) = m_1*\theta + m_2
-            $$
-
-            其函数图像可做出，代码如下
-            ``` python
-            import numpy as np
-            import matplotlib.pyplot as plt
-
-            def cosPhi(x, m1=2, m2=0.5, m3=0.35, m4=2):
-                """"""
-                Params:
-                    x: [0, pi]
-                Notes:
-                    周期函数，单调递减
-                """"""
-
-                phi = m1*x + m2
-                t = phi // np.pi
-
-                y = m4 * (np.cos(phi - np.pi*t) - 2*t - m3)
-
-                return y
-
-
-            if __name__ == '__main__':
-
-                x = np.linspace(0, 3*np.pi, 200)
-                y = cosPhi(x, m1=2, m2=0.5, m3=0.35, m4=2)
-
-                plt.figure(0)
-                plt.plot(x, y)
-                plt.show()
-            ```
-        """
-        phi = self.m1*x + self.m2
-        t   = phi // math.pi
-
-        y = self.m4 * (torch.cos(phi - math.pi*t) - 2*t - self.m3)
-
-        return y
 
     def forward(self, cosTheta, label):
         """
@@ -105,8 +69,8 @@ class MarginProduct(nn.Module):
         one_hot.scatter_(1, label.view(-1, 1).long(), 1)
 
         # theta  = torch.acos(cosTheta)
-        theta  = self._acos(cosTheta)
-        cosPhi = self._cosPhi(theta)
+        theta  = arccos(cosTheta)
+        cosPhi = self.m4 * (monocos(self.m1*theta + self.m2) - self.m3)
         
         output = torch.where(one_hot > 0, cosPhi, cosTheta)
 
@@ -117,16 +81,67 @@ class MarginProduct(nn.Module):
 
 class MarginLoss(nn.Module):
 
-    def __init__(self, s=32.0, m1=2.00, m2=0.50, m3=0.35, m4=1.00):
+    def __init__(self, s=32.0, m1=2.00, m2=0.50, m3=0.35, m4=0.50):
         super(MarginLoss, self).__init__()
 
         self.margin = MarginProduct(s, m1, m2, m3, m4)
-        self.classifier = nn.CrossEntropyLoss()
+        self.crossent = nn.CrossEntropyLoss()
 
     def forward(self, pred, gt):
 
         output = self.margin(pred, gt)
-        loss   = self.classifier(output, gt)
+        loss   = self.crossent(output, gt)
+
+        return loss
+
+
+class MarginProductWithParameter(nn.Module):
+    """
+    Notes:
+        based on ArcFace
+    """
+
+    def __init__(self, num_classes, s=32.0):
+
+        super(MarginProductWithParameter, self).__init__()
+        self.s = s
+        self.m = Parameter(torch.ones(num_classes)*0.5)
+
+    def forward(self, cosTheta, label):
+        """
+        Params:
+            cosTheta: {tensor(N, n_classes)} 每个样本(N)，到各类别(n_classes)矢量的余弦值
+            label:  {tensor(N)}
+        Returns:
+            output: {tensor(N, n_classes)}
+        """
+        one_hot = torch.zeros(cosTheta.size(), device='cuda' if \
+                        torch.cuda.is_available() else 'cpu')
+        one_hot.scatter_(1, label.view(-1, 1).long(), 1)
+
+        # theta  = torch.acos(cosTheta)
+        theta  = arccos(cosTheta)
+        cosPhi = monocos(theta + self.m[label.long()].view(-1, 1))
+        
+        output = torch.where(one_hot > 0, cosPhi, cosTheta)
+
+        output = self.s * output
+        
+        return output
+
+
+class MarginLossWithParameter(nn.Module):
+
+    def __init__(self, num_classes, s=32.0):
+        super(MarginLossWithParameter, self).__init__()
+
+        self.margin = MarginProductWithParameter(num_classes, s)
+        self.crossent = nn.CrossEntropyLoss()
+
+    def forward(self, pred, gt):
+
+        output = self.margin(pred, gt)
+        loss   = self.crossent(output, gt)
 
         return loss
 

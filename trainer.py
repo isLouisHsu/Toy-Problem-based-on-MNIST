@@ -249,15 +249,15 @@ class SupervisedTrainer(object):
 class MarginTrainer(SupervisedTrainer):
 
     def __init__(self, configer, net, params, trainset, validset, criterion, 
-                    optimizer, lr_scheduler, num_to_keep=5, resume=False, valid_freq=1, show_embedding=False, show_video=False):
+                    optimizer, lr_scheduler, num_to_keep=5, resume=False, valid_freq=1, show_embedding=False):
 
         super(MarginTrainer, self).__init__(configer, net, params, trainset, validset, criterion, 
                     optimizer, lr_scheduler, num_to_keep, resume, valid_freq)
         
-        sm1m2m3 = "s:%.2f|m1:%.2f|m2:|%.2f|m3:%.2f|m4:%.2f" % (self.criterion.margin.s, 
+        subdir = "s:%.2f|m1:%.2f|m2:|%.2f|m3:%.2f|m4:%.2f" % (self.criterion.margin.s, 
                         self.criterion.margin.m1, self.criterion.margin.m2, 
                         self.criterion.margin.m3, self.criterion.margin.m4)
-        self.logdir = os.path.join(self.logdir, sm1m2m3)
+        self.logdir = os.path.join(self.logdir, subdir)
         if not os.path.exists(self.logdir): os.makedirs(self.logdir)
         self.writer.close(); self.writer = SummaryWriter(self.logdir)
             
@@ -275,16 +275,6 @@ class MarginTrainer(SupervisedTrainer):
         print("==============================================================================================")
 
         self.show_embedding = show_embedding
-
-        self.show_video = show_video
-        if show_video:
-            fourcc = cv2.VideoWriter_fourcc(*'XVID')
-            self.videoWriter = cv2.VideoWriter(os.path.join(self.logdir, "process.avi"), fourcc, 30, (1200, 600))
-    
-    def __del__(self):
-        self.writer.close()
-        if self.show_video:
-            self.videoWriter.release()
 
     def train_epoch(self):
         
@@ -331,7 +321,7 @@ class MarginTrainer(SupervisedTrainer):
         start_time = time.time()
         n_batch = len(self.validset) // self.configer.batchsize
 
-        if self.show_embedding or self.show_video:
+        if self.show_embedding:
             mat = None
             metadata = None
 
@@ -359,27 +349,126 @@ class MarginTrainer(SupervisedTrainer):
             start_time = time.time()
 
         if self.show_embedding and ((self.cur_epoch - 1) % 10 == 0):
-            self.writer.add_embedding(mat, metadata, global_step=self.cur_epoch*2)
-            self.writer.add_embedding(F.normalize(mat), metadata, global_step=self.cur_epoch*2 + 1)
+            self.writer.add_embedding(mat, metadata, global_step=self.cur_epoch)
 
             matname = 'valid0.mat' if self.cur_epoch == 1 else 'valid.mat'
             io.savemat(os.path.join(self.logdir, matname), 
-                    {'mat': mat.cpu().detach().numpy(), 'metadata': metadata.cpu().detach().numpy()})
+                    {'mat': mat.cpu().detach().numpy(), 
+                    'metadata': metadata.cpu().detach().numpy()})
+
+        avg_loss = np.mean(np.array(avg_loss))
+        avg_acc  = np.mean(np.array(avg_acc))
+        return avg_loss, avg_acc
+
+
+class MarginTrainerWithParameter(SupervisedTrainer):
+
+    def __init__(self, configer, net, params, trainset, validset, criterion, 
+                    optimizer, lr_scheduler, num_to_keep=5, resume=False, valid_freq=1, show_embedding=False):
+
+        super(MarginTrainerWithParameter, self).__init__(configer, net, params, trainset, validset, criterion, 
+                    optimizer, lr_scheduler, num_to_keep, resume, valid_freq)
         
-        if self.show_video:
-            m = mat.cpu().detach().numpy()
-            md = metadata.cpu().detach().numpy()
+        # subdir = "param|s:%.2f" % (self.criterion.margin.s)
+        subdir = "param"
+        self.logdir = os.path.join(self.logdir, subdir)
+        if not os.path.exists(self.logdir): os.makedirs(self.logdir)
+        self.writer.close(); self.writer = SummaryWriter(self.logdir)
             
-            plt.figure(0, figsize=(8, 4))
-            plt.subplot(1, 2, 1)
-            plt.scatter(m[:, 0], m[:, 1], c=md)
-            plt.subplot(1, 2, 2)
-            m = m / np.linalg.norm(m, axis=1).reshape(-1, 1)
-            plt.scatter(m[:, 0], m[:, 1], c=md)
+        print("==============================================================================================")
+        print("model:           {}".format(self.net._get_name()))
+        print("logdir:          {}".format(self.logdir))
+        print("ckptdir:         {}".format(self.ckptdir))
+        print("train samples:   {}k".format(len(trainset)/1000))
+        print("valid samples:   {}k".format(len(validset)/1000))
+        print("batch size:      {}".format(configer.batchsize))
+        print("batch per epoch: {}".format(len(trainset)/configer.batchsize))
+        print("epoch:           [{:4d}]/[{:4d}]".format(self.cur_epoch, configer.n_epoch))
+        print("val frequency:   {}".format(self.valid_freq))
+        print("learing rate:    {}".format(configer.lrbase))
+        print("==============================================================================================")
+
+        self.show_embedding = show_embedding
+
+    def train_epoch(self):
+        
+        self.net.train()
+        avg_loss = []; avg_acc = []
+        start_time = time.time()
+        n_batch = len(self.trainset) // self.configer.batchsize
+
+        for i_batch, (X, y) in enumerate(self.trainloader):
+
+            self.cur_batch += 1
+
+            X = Variable(X.float()); y = Variable(y.long())
+            if self.configer.cuda and cuda.is_available(): X = X.cuda(); y = y.cuda()
             
-            imgpath = os.path.join(self.logdir, 'temp.png')
-            plt.savefig(imgpath); img = cv2.imread(imgpath, cv2.IMREAD_COLOR)
-            self.videoWriter.write(img)
+            costh   = self.net(X)
+            loss_i = self.criterion(costh, y)
+            y_pred = torch.argmax(costh, dim=1)
+            acc_i  = torch.mean((y_pred==y).float())
+
+            self.optimizer.zero_grad()
+            loss_i.backward()
+            self.optimizer.step()
+
+            avg_loss += [loss_i.detach().cpu().numpy()]
+            avg_acc += [acc_i.detach().cpu().numpy()]
+            self.writer.add_scalar('{}/train/loss_i'.format(self.net._get_name()), loss_i, self.cur_epoch*n_batch + i_batch)
+            self.writer.add_scalar('{}/train/acc_i'.format(self.net._get_name()), acc_i, self.cur_epoch*n_batch + i_batch)
+
+            duration_time = time.time() - start_time
+            start_time = time.time()
+            self.elapsed_time += duration_time
+            total_time = duration_time * self.configer.n_epoch * len(self.trainset) // self.configer.batchsize
+            left_time = total_time - self.elapsed_time
+
+        avg_loss = np.mean(np.array(avg_loss))
+        avg_acc  = np.mean(np.array(avg_acc))
+        return avg_loss, avg_acc
+
+    def valid_epoch(self):
+        
+        self.net.eval()
+        avg_loss = []; avg_acc = []
+        start_time = time.time()
+        n_batch = len(self.validset) // self.configer.batchsize
+
+        if self.show_embedding:
+            mat = None
+            metadata = None
+
+        for i_batch, (X, y) in enumerate(self.validloader):
+
+            X = Variable(X.float()); y = Variable(y.long())
+            if self.configer.cuda and cuda.is_available(): X = X.cuda(); y = y.cuda()
+            
+            costh   = self.net(X)
+            loss_i = self.criterion(costh, y)
+            y_pred = torch.argmax(costh, dim=1)
+            acc_i  = torch.mean((y_pred==y).float())
+
+            avg_loss += [loss_i.detach().cpu().numpy()]
+            avg_acc += [acc_i.detach().cpu().numpy()]
+            self.writer.add_scalar('{}/valid/loss_i'.format(self.net._get_name()), loss_i, self.cur_epoch*n_batch + i_batch)
+            self.writer.add_scalar('{}/valid/acc_i'.format(self.net._get_name()), acc_i, self.cur_epoch*n_batch + i_batch)
+
+            if self.show_embedding:
+                feat = self.net.get_feature(X)
+                mat = torch.cat([mat, feat], dim=0) if mat is not None else feat
+                metadata = torch.cat([metadata, y], dim=0) if metadata is not None else y
+
+            duration_time = time.time() - start_time
+            start_time = time.time()
+
+        if self.show_embedding and ((self.cur_epoch - 1) % 10 == 0):
+            self.writer.add_embedding(mat, metadata, global_step=self.cur_epoch)
+
+            matname = 'valid0.mat' if self.cur_epoch == 1 else 'valid.mat'
+            io.savemat(os.path.join(self.logdir, matname), 
+                    {'mat': mat.cpu().detach().numpy(), 
+                    'metadata': metadata.cpu().detach().numpy()})
 
         avg_loss = np.mean(np.array(avg_loss))
         avg_acc  = np.mean(np.array(avg_acc))

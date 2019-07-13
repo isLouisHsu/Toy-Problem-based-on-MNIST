@@ -36,6 +36,27 @@ class Network(nn.Module):
         return  x
 
 
+class CosineLayer(nn.Module):
+    """
+    Attributes:
+        weight: {Parameter(num_classes, feature_size)}
+    """
+    def __init__(self, num_classes, feature_size):
+        super(CosineLayer, self).__init__()
+        
+        self.weights = Parameter(torch.Tensor(num_classes, feature_size))
+        nn.init.xavier_uniform_(self.weights)
+
+    def forward(self, x):
+        """
+        Params:
+            x: {tensor(N, feature_size)}
+        Notes:
+            \cos \theta^{(i)}_j = \frac{W_j^T f^{(i)}}{||W_j|| ||f^{(i)}||}
+        """
+        x = F.linear(F.normalize(x), F.normalize(self.weights))
+        return x
+
 class NetworkMargin(nn.Module):
 
     def __init__(self, num_classes, feature_size):
@@ -53,8 +74,7 @@ class NetworkMargin(nn.Module):
             nn.Conv2d( 64,  feature_size, 7),
         )
 
-        self.center = Parameter(torch.Tensor(num_classes, feature_size))
-        nn.init.xavier_uniform_(self.center)
+        self.cosine_layer = CosineLayer(num_classes, feature_size)
 
     def get_feature(self, x):
         
@@ -66,7 +86,7 @@ class NetworkMargin(nn.Module):
     def forward(self, x):
 
         x = self.get_feature(x)
-        x = F.linear(F.normalize(x), F.normalize(self.center))
+        x = self.cosine_layer(x)
 
         return  x
 

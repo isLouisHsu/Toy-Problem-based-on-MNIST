@@ -252,8 +252,10 @@ class MarginTrainer(SupervisedTrainer):
         super(MarginTrainer, self).__init__(configer, net, params, trainset, validset, criterion, 
                     optimizer, lr_scheduler, num_to_keep, resume, valid_freq)
         
-        m1m2m3 = '_'.join(list(map(str, [self.criterion.margin.m1, self.criterion.margin.m2, self.criterion.margin.m3])))
-        self.logdir = os.path.join(self.logdir, m1m2m3)
+        sm1m2m3 = "%fm1%fm2%fm3%fm4%f" % (self.criterion.margin.s, 
+                        self.criterion.margin.m1, self.criterion.margin.m2, 
+                        self.criterion.margin.m3, self.criterion.margin.m4)
+        self.logdir = os.path.join(self.logdir, sm1m2m3)
         if not os.path.exists(self.logdir): os.makedirs(self.logdir)
         self.writer.close(); self.writer = SummaryWriter(self.logdir)
             
@@ -354,7 +356,7 @@ class MarginTrainer(SupervisedTrainer):
             duration_time = time.time() - start_time
             start_time = time.time()
 
-        if self.show_embedding:
+        if self.show_embedding and (self.cur_epoch % 5 == 0):
             self.writer.add_embedding(mat, metadata, global_step=self.cur_epoch)
         
         if self.show_video:

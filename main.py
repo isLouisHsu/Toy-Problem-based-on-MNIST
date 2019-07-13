@@ -33,12 +33,12 @@ def main_modified_softmax(num_classes=10, feature_size=2):
     ]
 
     trainset = MNIST('train'); validset = MNIST('valid')
-    criterion = MarginLoss(s=1.0, m1=1, m2=0, m3=0)
+    criterion = MarginLoss(s=32.0, m1=1, m2=0, m3=0, m4=1)
     optimizer = optim.Adam
     lr_scheduler = MultiStepLR
 
     trainer = MarginTrainer(configer, net, params, trainset, validset, criterion, 
-                    optimizer, lr_scheduler, num_to_keep=5, resume=False, valid_freq=1, show_embedding=True, show_video=True)
+                    optimizer, lr_scheduler, num_to_keep=5, resume=False, valid_freq=1, show_embedding=True)
     trainer.train()
     del trainer
 
@@ -52,12 +52,12 @@ def main_spheremargin(num_classes=10, feature_size=2):
     ]
 
     trainset = MNIST('train'); validset = MNIST('valid')
-    criterion = MarginLoss(s=1.0, m1=2.00, m2=0, m3=0)
+    criterion = MarginLoss(s=32.0, m1=2.00, m2=0, m3=0, m4=1)
     optimizer = optim.Adam
     lr_scheduler = MultiStepLR
 
     trainer = MarginTrainer(configer, net, params, trainset, validset, criterion, 
-                    optimizer, lr_scheduler, num_to_keep=5, resume=False, valid_freq=1, show_embedding=True, show_video=True)
+                    optimizer, lr_scheduler, num_to_keep=5, resume=False, valid_freq=1, show_embedding=True)
     trainer.train()
     del trainer
 
@@ -71,12 +71,12 @@ def main_arcmargin(num_classes=10, feature_size=2):
     ]
 
     trainset = MNIST('train'); validset = MNIST('valid')
-    criterion = MarginLoss(s=1.0, m1=1, m2=0.5, m3=0)
+    criterion = MarginLoss(s=32.0, m1=1, m2=0.5, m3=0, m4=1)
     optimizer = optim.Adam
     lr_scheduler = MultiStepLR
 
     trainer = MarginTrainer(configer, net, params, trainset, validset, criterion, 
-                    optimizer, lr_scheduler, num_to_keep=5, resume=False, valid_freq=1, show_embedding=True, show_video=True)
+                    optimizer, lr_scheduler, num_to_keep=5, resume=False, valid_freq=1, show_embedding=True)
     trainer.train()
     del trainer
 
@@ -90,12 +90,31 @@ def main_cosmargin(num_classes=10, feature_size=2):
     ]
 
     trainset = MNIST('train'); validset = MNIST('valid')
-    criterion = MarginLoss(s=1.0, m1=1, m2=0, m3=0.35)
+    criterion = MarginLoss(s=32.0, m1=1, m2=0, m3=0.35, m4=1)
     optimizer = optim.Adam
     lr_scheduler = MultiStepLR
 
     trainer = MarginTrainer(configer, net, params, trainset, validset, criterion, 
-                    optimizer, lr_scheduler, num_to_keep=5, resume=False, valid_freq=1, show_embedding=True, show_video=True)
+                    optimizer, lr_scheduler, num_to_keep=5, resume=False, valid_freq=1, show_embedding=True)
+    trainer.train()
+    del trainer
+
+def main_multiplymargin(num_classes=10, feature_size=2):
+    net = NetworkMargin(num_classes=num_classes, feature_size=feature_size)
+
+    base_params = list(filter(lambda x: id(x) != id(net.center), net.parameters()))
+    params = [
+        {'params': base_params, 'weight_decay': 4e-5},
+        {'params': net.center, 'weight_decay': 4e-4},
+    ]
+
+    trainset = MNIST('train'); validset = MNIST('valid')
+    criterion = MarginLoss(s=32.0, m1=1, m2=0, m3=0, m4=2)
+    optimizer = optim.Adam
+    lr_scheduler = MultiStepLR
+
+    trainer = MarginTrainer(configer, net, params, trainset, validset, criterion, 
+                    optimizer, lr_scheduler, num_to_keep=5, resume=False, valid_freq=1, show_embedding=True)
     trainer.train()
     del trainer
 
@@ -120,6 +139,7 @@ if __name__ == "__main__":
     main_arcmargin()
     main_cosmargin()
     main_spheremargin()
+    main_multiplymargin()
     exit(0)
 
 if __name__ == "__main__":

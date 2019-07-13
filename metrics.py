@@ -14,19 +14,20 @@ class MarginProduct(nn.Module):
         $\text{where}$
         $$
         \tilde{y} = \begin{cases}
-            s(\cos(m_1 \theta_{j, i} + m_2) + m_3) & j = y_i \\
-            s(\cos(    \theta_{j, i}))             & j \neq y_i
+            s(m4 \cos(m_1 \theta_{j, i} + m_2) + m_3) & j = y_i \\
+            s(m4 \cos(    \theta_{j, i}))             & j \neq y_i
         \end{cases}
         $$
     """
 
-    def __init__(self, s=32.0, m1=2.00, m2=0.50, m3=0.35):
+    def __init__(self, s=32.0, m1=2.00, m2=0.50, m3=0.35, m4=1.00):
 
         super(MarginProduct, self).__init__()
         self.s = s
         self.m1 = m1
         self.m2 = m2
         self.m3 = m3
+        self.m4 = m4
 
     def _acos(self, x):
         """
@@ -45,10 +46,12 @@ class MarginProduct(nn.Module):
         Noets:
             由于$m_1*\theta + m_2 \in [m_2, m_1*pi + m_2]$在该区间内$cos(\theta)$不单调，故做相应处理
             $$
-            \Phi(\theta) = \begin{cases}
-                \cos (m_1*\theta + m_2) - m_3 & m_1*\theta + m_2 < \pi \\
-                - 2 + \cos (m_1*\theta + m_2 - \pi) - m_3 & otherwise
-            \end{cases}
+            \Phi(\theta) = - 2 t + \cos (\phi(\theta) - \pi t) - m_3
+            $$
+
+            其中
+            $$
+            \phi(\theta) = m_1*\theta + m_2
             $$
 
             其函数图像可做出，代码如下
@@ -57,18 +60,24 @@ class MarginProduct(nn.Module):
             import matplotlib.pyplot as plt
 
             def cosPhi(x, m1=1, m2=0.5, m3=0.35):
+                """"""
+                Params:
+                    x: [0, pi]
+                Notes:
+                    周期函数，单调递减
+                """"""
 
                 phi = m1*x + m2
-                cosPhi = np.cos(phi)
-                y = np.where(phi < np.pi, cosPhi, - cosPhi - 2)
-                y = y - m3
+                t   = phi // np.pi
+
+                y = np.cos(phi - np.pi*t) - 2*t - m3
 
                 return y
 
 
             if __name__ == '__main__':
 
-                x = np.linspace(0, np.pi, 200)
+                x = np.linspace(0, 3*np.pi, 200)
                 y = cosPhi(x, m1=1, m2=0.5, m3=0)
 
                 plt.figure(0)
@@ -77,10 +86,9 @@ class MarginProduct(nn.Module):
             ```
         """
         phi = self.m1*x + self.m2
-        cos_phi = torch.cos(phi)
+        t   = phi // math.pi
 
-        y = torch.where(phi > math.pi, - cos_phi - 2, cos_phi)
-        y = y - self.m3
+        y = self.m4 * torch.cos(phi - math.pi*t) - 2*t - self.m3
 
         return y
 
@@ -99,6 +107,7 @@ class MarginProduct(nn.Module):
         # theta  = torch.acos(cosTheta)
         theta  = self._acos(cosTheta)
         cosPhi = self._cosPhi(theta)
+        
         output = torch.where(one_hot > 0, cosPhi, cosTheta)
 
         output = self.s * output

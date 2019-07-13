@@ -99,7 +99,7 @@ def main_cosmargin(num_classes=10, feature_size=2, s=32.0, m1=1, m2=0, m3=0.35, 
     trainer.train()
     del trainer
 
-def main_multiplymargin(num_classes=10, feature_size=2, s=32.0, m1=1, m2=0, m3=0, m4=2):
+def main_multiplymargin(num_classes=10, feature_size=2, s=32.0, m1=1, m2=0, m3=0, m4=0.3):
     net = NetworkMargin(num_classes=num_classes, feature_size=feature_size)
 
     base_params = list(filter(lambda x: id(x) != id(net.center), net.parameters()))
@@ -135,13 +135,13 @@ def main_unsupervised(num_classes, feature_size):
     del trainer
 
 if __name__ == "__main__":
-    main_modified_softmax()
-    main_arcmargin(s=1)
-    main_arcmargin(s=8)
-    main_arcmargin(s=16)
-    main_arcmargin(s=32)
-    main_cosmargin()
-    main_spheremargin()
+    # main_modified_softmax()
+    # main_arcmargin(s=1)
+    # main_arcmargin(s=8)
+    # main_arcmargin(s=16)
+    # main_arcmargin(s=32)
+    # main_cosmargin()
+    # main_spheremargin()
     main_multiplymargin()
     exit(0)
 

@@ -465,7 +465,7 @@ class MarginTrainerWithParameter(SupervisedTrainer):
             self.writer.add_embedding(mat, metadata, global_step=self.cur_epoch)
 
             mat = mat.cpu().detach().numpy()
-            metadata = .cpu().detach().numpy()
+            metadata = metadata.cpu().detach().numpy()
 
             fig = plt.figure('valid')
             plt.scatter(mat[:, 0], mat[:, 1], c=metadata, marker='.')

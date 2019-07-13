@@ -354,7 +354,7 @@ class MarginTrainer(SupervisedTrainer):
             mat = mat.cpu().detach().numpy()
             metadata = metadata.cpu().detach().numpy()
 
-            fig = plt.figure('valid')
+            fig = plt.figure('valid', figsize=(4, 8))
             plt.subplot(211)
             plt.scatter(mat[:, 0], mat[:, 1], c=metadata, marker='.')
             plt.subplot(212)
@@ -477,7 +477,7 @@ class MarginTrainerWithParameter(SupervisedTrainer):
             mat = mat.cpu().detach().numpy()
             metadata = metadata.cpu().detach().numpy()
 
-            fig = plt.figure('valid')
+            fig = plt.figure('valid', figsize=(4, 8))
             plt.subplot(211)
             plt.scatter(mat[:, 0], mat[:, 1], c=metadata, marker='.')
             plt.subplot(212)

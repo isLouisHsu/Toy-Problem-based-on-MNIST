@@ -11,6 +11,7 @@ from sklearn.metrics import adjusted_mutual_info_score
 import torch
 import torch.nn as nn
 import torch.cuda as cuda
+import torch.nn.functional as F
 from torch.autograd import Variable
 from torch.utils.data import DataLoader
 from tensorboardX import SummaryWriter

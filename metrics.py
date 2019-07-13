@@ -46,7 +46,7 @@ class MarginProduct(nn.Module):
         Noets:
             由于$m_1*\theta + m_2 \in [m_2, m_1*pi + m_2]$在该区间内$cos(\theta)$不单调，故做相应处理
             $$
-            \Phi(\theta) = - 2 t + \cos (\phi(\theta) - \pi t) - m_3
+            \Phi(\theta) = m_4 \cos (\phi(\theta) - \pi t) - 2 t - m_3
             $$
 
             其中
@@ -59,7 +59,7 @@ class MarginProduct(nn.Module):
             import numpy as np
             import matplotlib.pyplot as plt
 
-            def cosPhi(x, m1=1, m2=0.5, m3=0.35):
+            def cosPhi(x, m1=2, m2=0.5, m3=0.35, m4=2):
                 """"""
                 Params:
                     x: [0, pi]
@@ -68,9 +68,9 @@ class MarginProduct(nn.Module):
                 """"""
 
                 phi = m1*x + m2
-                t   = phi // np.pi
+                t = phi // np.pi
 
-                y = np.cos(phi - np.pi*t) - 2*t - m3
+                y = m4 * (np.cos(phi - np.pi*t) - 2*t - m3)
 
                 return y
 
@@ -78,7 +78,7 @@ class MarginProduct(nn.Module):
             if __name__ == '__main__':
 
                 x = np.linspace(0, 3*np.pi, 200)
-                y = cosPhi(x, m1=1, m2=0.5, m3=0)
+                y = cosPhi(x, m1=2, m2=0.5, m3=0.35, m4=2)
 
                 plt.figure(0)
                 plt.plot(x, y)
@@ -88,7 +88,7 @@ class MarginProduct(nn.Module):
         phi = self.m1*x + self.m2
         t   = phi // math.pi
 
-        y = self.m4 * torch.cos(phi - math.pi*t) - 2*t - self.m3
+        y = self.m4 * (torch.cos(phi - math.pi*t) - 2*t - self.m3)
 
         return y
 

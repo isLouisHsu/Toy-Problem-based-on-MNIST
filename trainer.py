@@ -474,7 +474,11 @@ class MarginTrainerWithParameter(SupervisedTrainer):
             metadata = metadata.cpu().detach().numpy()
 
             fig = plt.figure('valid')
+            plt.subplot(211)
             plt.scatter(mat[:, 0], mat[:, 1], c=metadata, marker='.')
+            plt.subplot(212)
+            mat_sphere = mat / np.linalg.norm(mat, axis=1).reshape(-1, 1)
+            plt.scatter(mat_sphere[:, 0], mat_sphere[:, 1], c=metadata, marker='.')
             self.writer.add_figure('valid data', fig, global_step=self.cur_epoch)
 
             matname = 'valid0.mat' if self.cur_epoch == 1 else 'valid.mat'

@@ -23,7 +23,7 @@ def main_crossent(num_classes, feature_size):
     trainer.train()
     del trainer
 
-def main_modified_softmax(num_classes=10, feature_size=2, s=32.0, m1=1, m2=0, m3=0, m4=1):
+def main_margin(num_classes=10, feature_size=2, s=32.0, m1=2.00, m2=0.5, m3=0.35, m4=0.5):
     net = NetworkMargin(num_classes=num_classes, feature_size=feature_size)
 
     base_params = list(filter(lambda x: id(x) != id(net.cosine_layer.weights), net.parameters()))
@@ -42,83 +42,7 @@ def main_modified_softmax(num_classes=10, feature_size=2, s=32.0, m1=1, m2=0, m3
     trainer.train()
     del trainer
 
-def main_spheremargin(num_classes=10, feature_size=2, s=32.0, m1=2.00, m2=0, m3=0, m4=1):
-    net = NetworkMargin(num_classes=num_classes, feature_size=feature_size)
-
-    base_params = list(filter(lambda x: id(x) != id(net.cosine_layer.weights), net.parameters()))
-    params = [
-        {'params': base_params, 'weight_decay': 4e-5},
-        {'params': net.cosine_layer.weights, 'weight_decay': 4e-4},
-    ]
-
-    trainset = MNIST('train'); validset = MNIST('valid')
-    criterion = MarginLoss(s, m1, m2, m3, m4)
-    optimizer = optim.Adam
-    lr_scheduler = MultiStepLR
-
-    trainer = MarginTrainer(configer, net, params, trainset, validset, criterion, 
-                    optimizer, lr_scheduler, num_to_keep=5, resume=False, valid_freq=1, show_embedding=True)
-    trainer.train()
-    del trainer
-
-def main_arcmargin(num_classes=10, feature_size=2, s=32.0, m1=1, m2=0.5, m3=0, m4=1):
-    net = NetworkMargin(num_classes=num_classes, feature_size=feature_size)
-
-    base_params = list(filter(lambda x: id(x) != id(net.cosine_layer.weights), net.parameters()))
-    params = [
-        {'params': base_params, 'weight_decay': 4e-5},
-        {'params': net.cosine_layer.weights, 'weight_decay': 4e-4},
-    ]
-
-    trainset = MNIST('train'); validset = MNIST('valid')
-    criterion = MarginLoss(s, m1, m2, m3, m4)
-    optimizer = optim.Adam
-    lr_scheduler = MultiStepLR
-
-    trainer = MarginTrainer(configer, net, params, trainset, validset, criterion, 
-                    optimizer, lr_scheduler, num_to_keep=5, resume=False, valid_freq=1, show_embedding=True)
-    trainer.train()
-    del trainer
-
-def main_cosmargin(num_classes=10, feature_size=2, s=32.0, m1=1, m2=0, m3=0.35, m4=1):
-    net = NetworkMargin(num_classes=num_classes, feature_size=feature_size)
-
-    base_params = list(filter(lambda x: id(x) != id(net.cosine_layer.weights), net.parameters()))
-    params = [
-        {'params': base_params, 'weight_decay': 4e-5},
-        {'params': net.cosine_layer.weights, 'weight_decay': 4e-4},
-    ]
-
-    trainset = MNIST('train'); validset = MNIST('valid')
-    criterion = MarginLoss(s, m1, m2, m3, m4)
-    optimizer = optim.Adam
-    lr_scheduler = MultiStepLR
-
-    trainer = MarginTrainer(configer, net, params, trainset, validset, criterion, 
-                    optimizer, lr_scheduler, num_to_keep=5, resume=False, valid_freq=1, show_embedding=True)
-    trainer.train()
-    del trainer
-
-def main_cosmulmargin(num_classes=10, feature_size=2, s=32.0, m1=1, m2=0, m3=0, m4=0.5):
-    net = NetworkMargin(num_classes=num_classes, feature_size=feature_size)
-
-    base_params = list(filter(lambda x: id(x) != id(net.cosine_layer.weights), net.parameters()))
-    params = [
-        {'params': base_params, 'weight_decay': 4e-5},
-        {'params': net.cosine_layer.weights, 'weight_decay': 4e-4},
-    ]
-
-    trainset = MNIST('train'); validset = MNIST('valid')
-    criterion = MarginLoss(s, m1, m2, m3, m4)
-    optimizer = optim.Adam
-    lr_scheduler = MultiStepLR
-
-    trainer = MarginTrainer(configer, net, params, trainset, validset, criterion, 
-                    optimizer, lr_scheduler, num_to_keep=5, resume=False, valid_freq=1, show_embedding=True)
-    trainer.train()
-    del trainer
-
-def main_parammargin(num_classes=10, feature_size=2, s=32.0):
+def main_adaptivemargin(num_classes=10, feature_size=2, s=32.0):
     net = NetworkMargin(num_classes=num_classes, feature_size=feature_size)
     criterion = MarginLossWithParameter(num_classes, s)
 
@@ -155,21 +79,24 @@ def main_unsupervised(num_classes, feature_size):
     del trainer
 
 if __name__ == "__main__":
-    main_modified_softmax()
 
-    main_cosmargin()
-    main_spheremargin()
-
-    main_arcmargin(s=1)
-    main_arcmargin(s=8)
-    main_arcmargin(s=16)
-    main_arcmargin(s=32)
-
-    main_cosmulmargin(m4=0.8)
-    main_cosmulmargin(m4=0.5)
-    main_cosmulmargin(m4=0.2)
-
-    main_parammargin()
+    # modified
+    main_margin(num_classes=10, feature_size=2, s=32.0, m1=1.00, m2=0.0, m3=0.00, m4=1.0)
+    # cosface
+    main_margin(num_classes=10, feature_size=2, s=32.0, m1=1.00, m2=0.0, m3=0.35, m4=1.0)
+    # sphereface
+    main_margin(num_classes=10, feature_size=2, s=32.0, m1=2.00, m2=0.0, m3=0.00, m4=1.0)
+    # arcface
+    main_margin(num_classes=10, feature_size=2, s=32.0, m1=1.00, m2=0.5, m3=0.00, m4=1.0)
+    main_margin(num_classes=10, feature_size=2, s=16.0, m1=1.00, m2=0.5, m3=0.00, m4=1.0)
+    main_margin(num_classes=10, feature_size=2, s= 8.0, m1=1.00, m2=0.5, m3=0.00, m4=1.0)
+    main_margin(num_classes=10, feature_size=2, s= 1.0, m1=1.00, m2=0.5, m3=0.00, m4=1.0)
+    # cosmulface
+    main_margin(num_classes=10, feature_size=2, s=32.0, m1=1.00, m2=0.0, m3=0.00, m4=0.8)
+    main_margin(num_classes=10, feature_size=2, s=32.0, m1=1.00, m2=0.0, m3=0.00, m4=0.5)
+    main_margin(num_classes=10, feature_size=2, s=32.0, m1=1.00, m2=0.0, m3=0.00, m4=0.2)
+    # adaptiveface
+    main_adaptivemargin()
 
     exit(0)
 

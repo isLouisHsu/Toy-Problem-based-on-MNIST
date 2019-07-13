@@ -135,13 +135,13 @@ def main_unsupervised(num_classes, feature_size):
     del trainer
 
 if __name__ == "__main__":
-    # main_modified_softmax()
-    # main_arcmargin(s=1)
-    # main_arcmargin(s=8)
-    # main_arcmargin(s=16)
-    # main_arcmargin(s=32)
-    # main_cosmargin()
-    # main_spheremargin()
+    main_modified_softmax()
+    main_arcmargin(s=1)
+    main_arcmargin(s=8)
+    main_arcmargin(s=16)
+    main_arcmargin(s=32)
+    main_cosmargin()
+    main_spheremargin()
     main_multiplymargin()
     exit(0)
 

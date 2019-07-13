@@ -23,7 +23,7 @@ def main_crossent(num_classes, feature_size):
     trainer.train()
     del trainer
 
-def main_modified_softmax(num_classes=10, feature_size=2):
+def main_modified_softmax(num_classes=10, feature_size=2, s=32.0, m1=1, m2=0, m3=0, m4=1):
     net = NetworkMargin(num_classes=num_classes, feature_size=feature_size)
 
     base_params = list(filter(lambda x: id(x) != id(net.center), net.parameters()))
@@ -33,7 +33,7 @@ def main_modified_softmax(num_classes=10, feature_size=2):
     ]
 
     trainset = MNIST('train'); validset = MNIST('valid')
-    criterion = MarginLoss(s=32.0, m1=1, m2=0, m3=0, m4=1)
+    criterion = MarginLoss(s, m1, m2, m3, m4)
     optimizer = optim.Adam
     lr_scheduler = MultiStepLR
 
@@ -42,7 +42,7 @@ def main_modified_softmax(num_classes=10, feature_size=2):
     trainer.train()
     del trainer
 
-def main_spheremargin(num_classes=10, feature_size=2):
+def main_spheremargin(num_classes=10, feature_size=2, s=32.0, m1=2.00, m2=0, m3=0, m4=1):
     net = NetworkMargin(num_classes=num_classes, feature_size=feature_size)
 
     base_params = list(filter(lambda x: id(x) != id(net.center), net.parameters()))
@@ -52,7 +52,7 @@ def main_spheremargin(num_classes=10, feature_size=2):
     ]
 
     trainset = MNIST('train'); validset = MNIST('valid')
-    criterion = MarginLoss(s=32.0, m1=2.00, m2=0, m3=0, m4=1)
+    criterion = MarginLoss(s, m1, m2, m3, m4)
     optimizer = optim.Adam
     lr_scheduler = MultiStepLR
 
@@ -61,7 +61,7 @@ def main_spheremargin(num_classes=10, feature_size=2):
     trainer.train()
     del trainer
 
-def main_arcmargin(num_classes=10, feature_size=2):
+def main_arcmargin(num_classes=10, feature_size=2, s=32.0, m1=1, m2=0.5, m3=0, m4=1):
     net = NetworkMargin(num_classes=num_classes, feature_size=feature_size)
 
     base_params = list(filter(lambda x: id(x) != id(net.center), net.parameters()))
@@ -71,7 +71,7 @@ def main_arcmargin(num_classes=10, feature_size=2):
     ]
 
     trainset = MNIST('train'); validset = MNIST('valid')
-    criterion = MarginLoss(s=32.0, m1=1, m2=0.5, m3=0, m4=1)
+    criterion = MarginLoss(s, m1, m2, m3, m4)
     optimizer = optim.Adam
     lr_scheduler = MultiStepLR
 
@@ -80,7 +80,7 @@ def main_arcmargin(num_classes=10, feature_size=2):
     trainer.train()
     del trainer
 
-def main_cosmargin(num_classes=10, feature_size=2):
+def main_cosmargin(num_classes=10, feature_size=2, s=32.0, m1=1, m2=0, m3=0.35, m4=1):
     net = NetworkMargin(num_classes=num_classes, feature_size=feature_size)
 
     base_params = list(filter(lambda x: id(x) != id(net.center), net.parameters()))
@@ -90,7 +90,7 @@ def main_cosmargin(num_classes=10, feature_size=2):
     ]
 
     trainset = MNIST('train'); validset = MNIST('valid')
-    criterion = MarginLoss(s=32.0, m1=1, m2=0, m3=0.35, m4=1)
+    criterion = MarginLoss(s, m1, m2, m3, m4)
     optimizer = optim.Adam
     lr_scheduler = MultiStepLR
 
@@ -99,7 +99,7 @@ def main_cosmargin(num_classes=10, feature_size=2):
     trainer.train()
     del trainer
 
-def main_multiplymargin(num_classes=10, feature_size=2):
+def main_multiplymargin(num_classes=10, feature_size=2, s=32.0, m1=1, m2=0, m3=0, m4=2):
     net = NetworkMargin(num_classes=num_classes, feature_size=feature_size)
 
     base_params = list(filter(lambda x: id(x) != id(net.center), net.parameters()))
@@ -109,7 +109,7 @@ def main_multiplymargin(num_classes=10, feature_size=2):
     ]
 
     trainset = MNIST('train'); validset = MNIST('valid')
-    criterion = MarginLoss(s=32.0, m1=1, m2=0, m3=0, m4=2)
+    criterion = MarginLoss(s, m1, m2, m3, m4)
     optimizer = optim.Adam
     lr_scheduler = MultiStepLR
 
@@ -136,7 +136,10 @@ def main_unsupervised(num_classes, feature_size):
 
 if __name__ == "__main__":
     main_modified_softmax()
-    main_arcmargin()
+    main_arcmargin(s=1)
+    main_arcmargin(s=8)
+    main_arcmargin(s=16)
+    main_arcmargin(s=32)
     main_cosmargin()
     main_spheremargin()
     main_multiplymargin()

@@ -464,10 +464,16 @@ class MarginTrainerWithParameter(SupervisedTrainer):
         if self.show_embedding and ((self.cur_epoch - 1) % 10 == 0):
             self.writer.add_embedding(mat, metadata, global_step=self.cur_epoch)
 
+            mat = mat.cpu().detach().numpy()
+            metadata = .cpu().detach().numpy()
+
+            fig = plt.figure('valid')
+            plt.scatter(mat[:, 0], mat[:, 1], c=metadata, marker='.')
+            self.writer.add_figure('valid data', fig, global_step=self.cur_epoch)
+
             matname = 'valid0.mat' if self.cur_epoch == 1 else 'valid.mat'
             io.savemat(os.path.join(self.logdir, matname), 
-                    {'mat': mat.cpu().detach().numpy(), 
-                    'metadata': metadata.cpu().detach().numpy()})
+                    {'mat': mat, 'metadata': metadata})
 
         avg_loss = np.mean(np.array(avg_loss))
         avg_acc  = np.mean(np.array(avg_acc))

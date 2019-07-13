@@ -125,7 +125,7 @@ class MarginProductWithParameter(nn.Module):
         theta  = arccos(cosTheta)
 
         m1, m2, m3, m4 = list(map(lambda x: x[label.long()].view(-1, 1), 
-                                [self.m1, self.m2, self.m3, self.m4])))
+                                [self.m1, self.m2, self.m3, self.m4]))
         cosPhi = m4 * (monocos(m1 * theta + m2) - m3)
         
         output = torch.where(one_hot > 0, cosPhi, cosTheta)

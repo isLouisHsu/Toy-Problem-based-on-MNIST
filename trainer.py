@@ -358,10 +358,12 @@ class MarginTrainer(SupervisedTrainer):
             duration_time = time.time() - start_time
             start_time = time.time()
 
-        if self.show_embedding and (self.cur_epoch % 10 == 0):
+        if self.show_embedding and ((self.cur_epoch - 1) % 10 == 0):
             self.writer.add_embedding(mat, metadata, global_step=self.cur_epoch*2)
             self.writer.add_embedding(F.normalize(mat), metadata, global_step=self.cur_epoch*2 + 1)
-            io.savemat(os.path.join(self.logdir, "valid.mat"), 
+
+            matname = 'valid0.mat' if self.cur_epoch == 1 else 'valid.mat'
+            io.savemat(os.path.join(self.logdir, matname), 
                     {'mat': mat.cpu().detach().numpy(), 'metadata': metadata.cpu().detach().numpy()})
         
         if self.show_video:

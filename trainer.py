@@ -3,6 +3,7 @@ import cv2
 import time
 import numpy as np
 import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
 from scipy import io
 
 from torchstat import stat
@@ -249,17 +250,15 @@ class SupervisedTrainer(object):
 class MarginTrainer(SupervisedTrainer):
 
     def __init__(self, configer, net, params, trainset, validset, criterion, 
-                    optimizer, lr_scheduler, num_to_keep=5, resume=False, valid_freq=1, show_embedding=False):
+                    optimizer, lr_scheduler, num_to_keep=5, resume=False, valid_freq=1, show_embedding=False, subdir=None):
 
         super(MarginTrainer, self).__init__(configer, net, params, trainset, validset, criterion, 
                     optimizer, lr_scheduler, num_to_keep, resume, valid_freq)
         
-        subdir = "s:%.2f|m1:%.2f|m2:%.2f|m3:%.2f|m4:%.2f" % (self.criterion.margin.s, 
-                        self.criterion.margin.m1, self.criterion.margin.m2, 
-                        self.criterion.margin.m3, self.criterion.margin.m4)
-        self.logdir = os.path.join(self.logdir, subdir)
-        if not os.path.exists(self.logdir): os.makedirs(self.logdir)
-        self.writer.close(); self.writer = SummaryWriter(self.logdir)
+        if subdir is not None:
+            self.logdir = os.path.join(self.logdir, subdir)
+            if not os.path.exists(self.logdir): os.makedirs(self.logdir)
+            self.writer.close(); self.writer = SummaryWriter(self.logdir)
             
         print("==============================================================================================")
         print("model:           {}".format(self.net._get_name()))
@@ -354,13 +353,14 @@ class MarginTrainer(SupervisedTrainer):
             mat = mat.cpu().detach().numpy()
             metadata = metadata.cpu().detach().numpy()
 
-            fig = plt.figure('valid', figsize=(4, 8))
-            plt.subplot(211)
-            plt.scatter(mat[:, 0], mat[:, 1], c=metadata, marker='.')
-            plt.subplot(212)
-            mat_sphere = mat / np.linalg.norm(mat, axis=1).reshape(-1, 1)
-            plt.scatter(mat_sphere[:, 0], mat_sphere[:, 1], c=metadata, marker='.')
-            self.writer.add_figure('valid data', fig, global_step=self.cur_epoch)
+            if mat.shape[1] == 2:
+                fig = plt.figure('valid', figsize=(4, 8))
+                plt.subplot(211)
+                plt.scatter(mat[:, 0], mat[:, 1], c=metadata, marker='.')
+                plt.subplot(212)
+                mat_sphere = mat / np.linalg.norm(mat, axis=1).reshape(-1, 1)
+                plt.scatter(mat_sphere[:, 0], mat_sphere[:, 1], c=metadata, marker='.')
+                self.writer.add_figure('valid data', fig, global_step=self.cur_epoch)
 
             matname = 'valid0.mat' if self.cur_epoch == 1 else 'valid.mat'
             io.savemat(os.path.join(self.logdir, matname), 
@@ -374,15 +374,15 @@ class MarginTrainer(SupervisedTrainer):
 class MarginTrainerWithParameter(SupervisedTrainer):
 
     def __init__(self, configer, net, params, trainset, validset, criterion, 
-                    optimizer, lr_scheduler, num_to_keep=5, resume=False, valid_freq=1, show_embedding=False):
+                    optimizer, lr_scheduler, num_to_keep=5, resume=False, valid_freq=1, show_embedding=False, subdir=None):
 
         super(MarginTrainerWithParameter, self).__init__(configer, net, params, trainset, validset, criterion, 
                     optimizer, lr_scheduler, num_to_keep, resume, valid_freq)
         
-        subdir = "param|s:%.2f" % (self.criterion.margin.s)
-        self.logdir = os.path.join(self.logdir, subdir)
-        if not os.path.exists(self.logdir): os.makedirs(self.logdir)
-        self.writer.close(); self.writer = SummaryWriter(self.logdir)
+        if subdir is not None:
+            self.logdir = os.path.join(self.logdir, subdir)
+            if not os.path.exists(self.logdir): os.makedirs(self.logdir)
+            self.writer.close(); self.writer = SummaryWriter(self.logdir)
             
         if configer.cuda and cuda.is_available(): self.criterion.cuda()
 
@@ -479,13 +479,14 @@ class MarginTrainerWithParameter(SupervisedTrainer):
             mat = mat.cpu().detach().numpy()
             metadata = metadata.cpu().detach().numpy()
 
-            fig = plt.figure('valid', figsize=(4, 8))
-            plt.subplot(211)
-            plt.scatter(mat[:, 0], mat[:, 1], c=metadata, marker='.')
-            plt.subplot(212)
-            mat_sphere = mat / np.linalg.norm(mat, axis=1).reshape(-1, 1)
-            plt.scatter(mat_sphere[:, 0], mat_sphere[:, 1], c=metadata, marker='.')
-            self.writer.add_figure('valid data', fig, global_step=self.cur_epoch)
+            if mat.shape[1] == 2:
+                fig = plt.figure('valid', figsize=(4, 8))
+                plt.subplot(211)
+                plt.scatter(mat[:, 0], mat[:, 1], c=metadata, marker='.')
+                plt.subplot(212)
+                mat_sphere = mat / np.linalg.norm(mat, axis=1).reshape(-1, 1)
+                plt.scatter(mat_sphere[:, 0], mat_sphere[:, 1], c=metadata, marker='.')
+                self.writer.add_figure('valid data', fig, global_step=self.cur_epoch)
 
             matname = 'valid0.mat' if self.cur_epoch == 1 else 'valid.mat'
             io.savemat(os.path.join(self.logdir, matname), 

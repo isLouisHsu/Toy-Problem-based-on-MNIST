@@ -78,7 +78,7 @@ class NetworkMargin(nn.Module):
         self.cosine_layer = CosineLayer(num_classes, feature_size)
 
         if init_once:
-            pklpath = '%s.pkl'%self._get_name()
+            pklpath = '%s_dim%d.pkl' % (self._get_name(), feature_size)
             if os.path.exists(pklpath):
                 state = torch.load(pklpath)
                 self.load_state_dict(state)

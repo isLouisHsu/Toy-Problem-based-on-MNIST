@@ -259,6 +259,8 @@ class MarginTrainer(SupervisedTrainer):
             self.logdir = os.path.join(self.logdir, subdir)
             if not os.path.exists(self.logdir): os.makedirs(self.logdir)
             self.writer.close(); self.writer = SummaryWriter(self.logdir)
+            self.ckptdir = os.path.join(self.ckptdir, subdir)
+            if not os.path.exists(self.ckptdir): os.makedirs(self.ckptdir)
             
         print("==============================================================================================")
         print("model:           {}".format(self.net._get_name()))
@@ -383,6 +385,8 @@ class MarginTrainerWithParameter(SupervisedTrainer):
             self.logdir = os.path.join(self.logdir, subdir)
             if not os.path.exists(self.logdir): os.makedirs(self.logdir)
             self.writer.close(); self.writer = SummaryWriter(self.logdir)
+            self.ckptdir = os.path.join(self.ckptdir, subdir)
+            if not os.path.exists(self.ckptdir): os.makedirs(self.ckptdir)
             
         if configer.cuda and cuda.is_available(): self.criterion.cuda()
 

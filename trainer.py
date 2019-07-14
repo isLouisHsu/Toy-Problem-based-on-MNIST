@@ -62,9 +62,9 @@ class SupervisedTrainer(object):
         if resume:
             self.load_checkpoint()
 
-        ## print information
         if configer.cuda and cuda.is_available(): self.net.cuda()
-            
+
+        ## print information
         print("==============================================================================================")
         print("model:           {}".format(self.net._get_name()))
         print("logdir:          {}".format(self.logdir))
@@ -384,6 +384,8 @@ class MarginTrainerWithParameter(SupervisedTrainer):
         if not os.path.exists(self.logdir): os.makedirs(self.logdir)
         self.writer.close(); self.writer = SummaryWriter(self.logdir)
             
+        if configer.cuda and cuda.is_available(): self.criterion.cuda()
+
         print("==============================================================================================")
         print("model:           {}".format(self.net._get_name()))
         print("logdir:          {}".format(self.logdir))

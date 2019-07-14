@@ -42,9 +42,9 @@ def main_margin(num_classes=10, feature_size=2, s=8.0, m1=2.00, m2=0.5, m3=0.35,
     trainer.train()
     del trainer
 
-def main_adaptivemargin(num_classes=10, feature_size=2, subdir=None):
+def main_adaptivemargin(num_classes=10, feature_size=2, s=8.0, subdir=None):
     net = NetworkMargin(num_classes=num_classes, feature_size=feature_size)
-    criterion = MarginLossWithParameter(num_classes)
+    criterion = MarginLossWithParameter(num_classes, s)
 
     base_params = list(filter(lambda x: id(x) != id(net.cosine_layer.weights), net.parameters()))
     params = [
@@ -80,45 +80,43 @@ def main_unsupervised(num_classes, feature_size):
 
 if __name__ == "__main__":
 
-    # modified
-    main_margin(num_classes=10, feature_size=2, s=8.0, m1=1.00, m2=0.0, m3=0.00, m4=1.0, subdir='modified_feat2')
-    # cosface
-    main_margin(num_classes=10, feature_size=2, s=8.0, m1=1.00, m2=0.0, m3=0.35, m4=1.0, subdir='cosface_feat2')
-    # sphereface
-    main_margin(num_classes=10, feature_size=2, s=8.0, m1=2.00, m2=0.0, m3=0.00, m4=1.0, subdir='sphereface_feat2')
-    # arcface
-    main_margin(num_classes=10, feature_size=2, s=16.0, m1=1.00, m2=0.5, m3=0.00, m4=1.0, subdir='arcface_feat2_s16')
-    main_margin(num_classes=10, feature_size=2, s= 8.0, m1=1.00, m2=0.5, m3=0.00, m4=1.0, subdir='arcface_feat2')
-    main_margin(num_classes=10, feature_size=2, s= 4.0, m1=1.00, m2=0.5, m3=0.00, m4=1.0, subdir='arcface_feat2_s4')
-    main_margin(num_classes=10, feature_size=2, s= 1.0, m1=1.00, m2=0.5, m3=0.00, m4=1.0, subdir='arcface_feat2_s1')
+    # cosmulface
+    main_margin(num_classes=10, feature_size=2, s=8.0, m1=1.00, m2=0.0, m3=0.00, m4=1.00, subdir='cosmulface_dim2_m4=1.00')
+    main_margin(num_classes=10, feature_size=2, s=8.0, m1=1.00, m2=0.0, m3=0.00, m4=1.50, subdir='cosmulface_dim2_m4=1.50')
+    main_margin(num_classes=10, feature_size=2, s=8.0, m1=1.00, m2=0.0, m3=0.00, m4=2.00, subdir='cosmulface_dim2_m4=2.00')
+    main_margin(num_classes=10, feature_size=2, s=8.0, m1=1.00, m2=0.0, m3=0.00, m4=2.50, subdir='cosmulface_dim2_m4=2.50')
+    # adaptiveface
+    main_adaptivemargin(num_classes=10, feature_size=2, s=8.0, subdir='adaptiveface_dim2')
 
-    # modified
-    main_margin(num_classes=10, feature_size=3, s=8.0, m1=1.00, m2=0.0, m3=0.00, m4=1.0, subdir='modified_feat3')
-    # cosface
-    main_margin(num_classes=10, feature_size=3, s=8.0, m1=1.00, m2=0.0, m3=0.35, m4=1.0, subdir='cosface_feat3')
-    # sphereface
-    main_margin(num_classes=10, feature_size=3, s=8.0, m1=2.00, m2=0.0, m3=0.00, m4=1.0, subdir='sphereface_feat3')
-    # arcface
-    main_margin(num_classes=10, feature_size=3, s=8.0, m1=1.00, m2=0.5, m3=0.00, m4=1.0, subdir='arcface_feat3')
+    # cosmulface
+    main_margin(num_classes=10, feature_size=3, s=8.0, m1=1.00, m2=0.0, m3=0.00, m4=1.00, subdir='cosmulface_dim3_m4=1.00')
+    main_margin(num_classes=10, feature_size=3, s=8.0, m1=1.00, m2=0.0, m3=0.00, m4=1.50, subdir='cosmulface_dim3_m4=1.50')
+    main_margin(num_classes=10, feature_size=3, s=8.0, m1=1.00, m2=0.0, m3=0.00, m4=2.00, subdir='cosmulface_dim3_m4=2.00')
+    main_margin(num_classes=10, feature_size=3, s=8.0, m1=1.00, m2=0.0, m3=0.00, m4=2.50, subdir='cosmulface_dim3_m4=2.50')
+    # adaptiveface
+    main_adaptivemargin(num_classes=10, feature_size=3, s=8.0, subdir='adaptiveface_dim3')
 
 if __name__ == "__main__":
 
-    # cosmulface
-    main_margin(num_classes=10, feature_size=2, s=8.0, m1=1.00, m2=0.0, m3=0.00, m4=1.50, subdir='cosmulface_feat2_m41.50')
-    main_margin(num_classes=10, feature_size=2, s=8.0, m1=1.00, m2=0.0, m3=0.00, m4=1.25, subdir='cosmulface_feat2_m41.25')
-    main_margin(num_classes=10, feature_size=2, s=8.0, m1=1.00, m2=0.0, m3=0.00, m4=1.00, subdir='cosmulface_feat2_m41.00')
-    main_margin(num_classes=10, feature_size=2, s=8.0, m1=1.00, m2=0.0, m3=0.00, m4=0.75, subdir='cosmulface_feat2_m40.75')
-    main_margin(num_classes=10, feature_size=2, s=8.0, m1=1.00, m2=0.0, m3=0.00, m4=0.50, subdir='cosmulface_feat2_m40.50')
-    # adaptiveface
-    main_adaptivemargin(num_classes=10, feature_size=2, subdir='adaptiveface_feat2')
+    # modified
+    main_margin(num_classes=10, feature_size=2, s= 8.0, m1=1.00, m2=0.0, m3=0.00, m4=1.0, subdir='modified_dim2')
+    # sphereface
+    main_margin(num_classes=10, feature_size=2, s= 8.0, m1=2.00, m2=0.0, m3=0.00, m4=1.0, subdir='sphereface_dim2_m1=2.00')
+    # arcface
+    main_margin(num_classes=10, feature_size=2, s=16.0, m1=1.00, m2=0.5, m3=0.00, m4=1.0, subdir='arcface_dim2_m2=0.5_s=16')
+    main_margin(num_classes=10, feature_size=2, s= 8.0, m1=1.00, m2=0.5, m3=0.00, m4=1.0, subdir='arcface_dim2_m2=0.5_s=8')
+    main_margin(num_classes=10, feature_size=2, s= 4.0, m1=1.00, m2=0.5, m3=0.00, m4=1.0, subdir='arcface_dim2_m2=0.5_s=4')
+    main_margin(num_classes=10, feature_size=2, s= 1.0, m1=1.00, m2=0.5, m3=0.00, m4=1.0, subdir='arcface_dim2_m2=0.5_s=1')
+    # cosface
+    main_margin(num_classes=10, feature_size=2, s= 8.0, m1=1.00, m2=0.0, m3=0.35, m4=1.0, subdir='cosface_dim2_m3=0.35')
 
-    # cosmulface
-    main_margin(num_classes=10, feature_size=3, s=8.0, m1=1.00, m2=0.0, m3=0.00, m4=1.50, subdir='cosmulface_feat3_m41.50')
-    main_margin(num_classes=10, feature_size=3, s=8.0, m1=1.00, m2=0.0, m3=0.00, m4=1.25, subdir='cosmulface_feat3_m41.25')
-    main_margin(num_classes=10, feature_size=3, s=8.0, m1=1.00, m2=0.0, m3=0.00, m4=1.00, subdir='cosmulface_feat3_m41.00')
-    main_margin(num_classes=10, feature_size=3, s=8.0, m1=1.00, m2=0.0, m3=0.00, m4=0.75, subdir='cosmulface_feat3_m40.75')
-    main_margin(num_classes=10, feature_size=3, s=8.0, m1=1.00, m2=0.0, m3=0.00, m4=0.50, subdir='cosmulface_feat3_m40.50')
-    # adaptiveface
-    main_adaptivemargin(num_classes=10, feature_size=3, subdir='adaptiveface_feat3')
+    # modified
+    main_margin(num_classes=10, feature_size=3, s= 8.0, m1=1.00, m2=0.0, m3=0.00, m4=1.0, subdir='modified_dim3')
+    # sphereface
+    main_margin(num_classes=10, feature_size=3, s= 8.0, m1=2.00, m2=0.0, m3=0.00, m4=1.0, subdir='sphereface_dim3_m1=2.00')
+    # arcface
+    main_margin(num_classes=10, feature_size=3, s= 8.0, m1=1.00, m2=0.5, m3=0.00, m4=1.0, subdir='arcface_dim3_m2=0.5')
+    # cosface
+    main_margin(num_classes=10, feature_size=3, s= 8.0, m1=1.00, m2=0.0, m3=0.35, m4=1.0, subdir='cosface_dim3_m3=0.35')
 
     exit(0)

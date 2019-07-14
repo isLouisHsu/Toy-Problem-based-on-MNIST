@@ -47,7 +47,7 @@ class MarginProduct(nn.Module):
         $$
     """
 
-    def __init__(self, s=32.0, m1=2.00, m2=0.50, m3=0.35, m4=0.50):
+    def __init__(self, s=32.0, m1=2.00, m2=0.50, m3=0.35, m4=2.00):
 
         super(MarginProduct, self).__init__()
         self.s = s
@@ -70,9 +70,9 @@ class MarginProduct(nn.Module):
 
         # theta  = torch.acos(cosTheta)
         theta  = arccos(cosTheta)
-        cosPhi = self.m4 * (monocos(self.m1*theta + self.m2) - self.m3)
+        cosPhi = self.m4 * (monocos(self.m1*theta + self.m2) - self.m3 - 1)
         
-        output = torch.where(one_hot > 0, cosPhi, cosTheta)
+        output = torch.where(one_hot > 0, cosPhi, cosTheta - 1)
         output = self.s * output
         
         return output
@@ -80,7 +80,7 @@ class MarginProduct(nn.Module):
 
 class MarginLoss(nn.Module):
 
-    def __init__(self, s=32.0, m1=2.00, m2=0.50, m3=0.35, m4=0.50):
+    def __init__(self, s=32.0, m1=2.00, m2=0.50, m3=0.35, m4=2.00):
         super(MarginLoss, self).__init__()
 
         self.margin = MarginProduct(s, m1, m2, m3, m4)
@@ -100,14 +100,16 @@ class MarginProductWithParameter(nn.Module):
         based on ArcFace
     """
 
-    def __init__(self, num_classes):
+    def __init__(self, num_classes, s=8.0):
 
         super(MarginProductWithParameter, self).__init__()
-        self.s  = Parameter(torch.ones(1)*8.0)
-        self.m1 = Parameter(torch.ones(num_classes)*2.0)
-        self.m2 = Parameter(torch.ones(num_classes)*0.5)
+
+        self.s  = s
+        
+        self.m1 = Parameter(torch.ones(num_classes)*2.00)
+        self.m2 = Parameter(torch.ones(num_classes)*0.50)
         self.m3 = Parameter(torch.ones(num_classes)*0.35)
-        self.m4 = Parameter(torch.ones(num_classes)*0.5)
+        self.m4 = Parameter(torch.ones(num_classes)*2.00)
 
     def forward(self, cosTheta, label):
         """
@@ -126,9 +128,9 @@ class MarginProductWithParameter(nn.Module):
 
         m1, m2, m3, m4 = list(map(lambda x: x[label.long()].view(-1, 1), 
                                 [self.m1, self.m2, self.m3, self.m4]))
-        cosPhi = m4 * (monocos(m1 * theta + m2) - m3)
+        cosPhi = m4 * (monocos(m1 * theta + m2) - m3 - 1)
         
-        output = torch.where(one_hot > 0, cosPhi, cosTheta)
+        output = torch.where(one_hot > 0, cosPhi, cosTheta - 1)
         output = self.s * output
         
         return output
@@ -136,10 +138,10 @@ class MarginProductWithParameter(nn.Module):
 
 class MarginLossWithParameter(nn.Module):
 
-    def __init__(self, num_classes):
+    def __init__(self, num_classes, s=8.0):
         super(MarginLossWithParameter, self).__init__()
 
-        self.margin = MarginProductWithParameter(num_classes)
+        self.margin = MarginProductWithParameter(num_classes, s)
         self.crossent = nn.CrossEntropyLoss()
 
     def forward(self, pred, gt):

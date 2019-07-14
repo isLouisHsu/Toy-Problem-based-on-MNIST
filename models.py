@@ -1,3 +1,4 @@
+import os
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -59,7 +60,7 @@ class CosineLayer(nn.Module):
 
 class NetworkMargin(nn.Module):
 
-    def __init__(self, num_classes, feature_size):
+    def __init__(self, num_classes, feature_size, init_once=True):
         super(NetworkMargin, self).__init__()
 
         self.pre_layers = nn.Sequential(
@@ -75,6 +76,15 @@ class NetworkMargin(nn.Module):
         )
 
         self.cosine_layer = CosineLayer(num_classes, feature_size)
+
+        if init_once:
+            pklpath = '%s.pkl'%self._get_name()
+            if os.path.exists(pklpath):
+                state = torch.load(pklpath)
+                self.load_state_dict(state)
+            else:
+                state = self.state_dict()
+                torch.save(state, pklpath)
 
     def get_feature(self, x):
         

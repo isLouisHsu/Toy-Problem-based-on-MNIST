@@ -349,7 +349,7 @@ class MarginTrainer(SupervisedTrainer):
             duration_time = time.time() - start_time
             start_time = time.time()
 
-        if self.show_embedding and ((self.cur_epoch - 1) % 3 == 0):
+        if self.show_embedding:
             self.writer.add_embedding(mat, metadata, global_step=self.cur_epoch)
 
             mat = mat.cpu().detach().numpy()
@@ -477,7 +477,7 @@ class MarginTrainerWithParameter(SupervisedTrainer):
             duration_time = time.time() - start_time
             start_time = time.time()
 
-        if self.show_embedding and ((self.cur_epoch - 1) % 3 == 0):
+        if self.show_embedding:
             self.writer.add_embedding(mat, metadata, global_step=self.cur_epoch)
 
             mat = mat.cpu().detach().numpy()

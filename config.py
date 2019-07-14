@@ -10,8 +10,8 @@ configer.batchsize = 256
 configer.n_epoch = 200
 configer.valid_freq = 1
 
-configer.lrbase = 0.0005
-configer.adjstep = [120, 170]
+configer.lrbase = 0.001
+configer.adjstep = [80, 150]
 configer.gamma = 0.1
 
 configer.cuda = True

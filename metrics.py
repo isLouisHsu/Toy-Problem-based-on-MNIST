@@ -136,7 +136,7 @@ class MarginProductWithParameter(nn.Module):
 
 class MarginLossWithParameter(nn.Module):
 
-    def __init__(self, num_classes, s=32.0):
+    def __init__(self, num_classes):
         super(MarginLossWithParameter, self).__init__()
 
         self.margin = MarginProductWithParameter(num_classes)

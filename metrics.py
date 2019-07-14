@@ -100,10 +100,10 @@ class MarginProductWithParameter(nn.Module):
         based on ArcFace
     """
 
-    def __init__(self, num_classes, s=32.0):
+    def __init__(self, num_classes):
 
         super(MarginProductWithParameter, self).__init__()
-        self.s = s
+        self.s  = Parameter(torch.ones(1)*8.0)
         self.m1 = Parameter(torch.ones(num_classes)*2.0)
         self.m2 = Parameter(torch.ones(num_classes)*0.5)
         self.m3 = Parameter(torch.ones(num_classes)*0.35)
@@ -139,7 +139,7 @@ class MarginLossWithParameter(nn.Module):
     def __init__(self, num_classes, s=32.0):
         super(MarginLossWithParameter, self).__init__()
 
-        self.margin = MarginProductWithParameter(num_classes, s)
+        self.margin = MarginProductWithParameter(num_classes)
         self.crossent = nn.CrossEntropyLoss()
 
     def forward(self, pred, gt):

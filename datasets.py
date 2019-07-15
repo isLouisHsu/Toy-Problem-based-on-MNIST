@@ -33,7 +33,12 @@ class MNIST(Dataset):
             self.images = self.images[selected]
             self.labels = self.labels[selected]
         
-        self.n_classes = np.unique(self.labels).shape[0]
+        labels_set = set(list(self.labels))
+        labels_dict = dict(zip(labels_set, range(len(labels_set))))
+        for k, v in labels_dict.items():
+            self.labels[self.labels == k] = v
+            
+        self.n_classes = len(labels_set)
 
     def __getitem__(self, index):
 

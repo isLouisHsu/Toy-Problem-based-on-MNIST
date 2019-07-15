@@ -122,15 +122,20 @@ def main_unsupervised(num_classes, feature_size):
 if __name__ == "__main__":
 
     # arcface
-    main_margin_with_opposite_loss(num_classes=10, feature_size=2, s= 8.0, m1=1.00, m2=0.5, m3=0.00, m4=1.0, lda=0.2, subdir='arcface_dim2_m2=0.5_lda=0.2')
-    main_margin_with_opposite_loss(num_classes=10, feature_size=2, s= 8.0, m1=1.00, m2=0.5, m3=0.00, m4=1.0, lda=0.4, subdir='arcface_dim2_m2=0.5_lda=0.4')
-    main_margin_with_opposite_loss(num_classes=10, feature_size=2, s= 8.0, m1=1.00, m2=0.5, m3=0.00, m4=1.0, lda=0.6, subdir='arcface_dim2_m2=0.5_lda=0.6')
-    main_margin_with_opposite_loss(num_classes=10, feature_size=2, s= 8.0, m1=1.00, m2=0.5, m3=0.00, m4=1.0, lda=0.8, subdir='arcface_dim2_m2=0.5_lda=0.8')
-
-    main_margin_with_opposite_loss(num_classes=10, feature_size=3, s= 8.0, m1=1.00, m2=0.5, m3=0.00, m4=1.0, lda=0.2, subdir='arcface_dim3_m2=0.5_lda=0.2')
-    main_margin_with_opposite_loss(num_classes=10, feature_size=3, s= 8.0, m1=1.00, m2=0.5, m3=0.00, m4=1.0, lda=0.4, subdir='arcface_dim3_m2=0.5_lda=0.4')
-    main_margin_with_opposite_loss(num_classes=10, feature_size=3, s= 8.0, m1=1.00, m2=0.5, m3=0.00, m4=1.0, lda=0.6, subdir='arcface_dim3_m2=0.5_lda=0.6')
-    main_margin_with_opposite_loss(num_classes=10, feature_size=3, s= 8.0, m1=1.00, m2=0.5, m3=0.00, m4=1.0, lda=0.8, subdir='arcface_dim3_m2=0.5_lda=0.8')
+    main_margin_with_opposite_loss(num_classes=10, feature_size= 2, s= 8.0, m1=1.00, m2=0.5, m3=0.00, m4=1.0, lda=1.0, subdir='arcface_dim2_lda=1.0')
+    main_margin_with_opposite_loss(num_classes=10, feature_size= 2, s= 8.0, m1=1.00, m2=0.5, m3=0.00, m4=1.0, lda=2.0, subdir='arcface_dim2_lda=2.0')
+    main_margin_with_opposite_loss(num_classes=10, feature_size= 2, s= 8.0, m1=1.00, m2=0.5, m3=0.00, m4=1.0, lda=4.0, subdir='arcface_dim2_lda=4.0')
+    main_margin_with_opposite_loss(num_classes=10, feature_size= 2, s= 8.0, m1=1.00, m2=0.5, m3=0.00, m4=1.0, lda=8.0, subdir='arcface_dim2_lda=8.0')
+    
+    main_margin_with_opposite_loss(num_classes=10, feature_size= 3, s= 8.0, m1=1.00, m2=0.5, m3=0.00, m4=1.0, lda=1.0, subdir='arcface_dim3_lda=1.0')
+    main_margin_with_opposite_loss(num_classes=10, feature_size= 3, s= 8.0, m1=1.00, m2=0.5, m3=0.00, m4=1.0, lda=2.0, subdir='arcface_dim3_lda=2.0')
+    main_margin_with_opposite_loss(num_classes=10, feature_size= 3, s= 8.0, m1=1.00, m2=0.5, m3=0.00, m4=1.0, lda=4.0, subdir='arcface_dim3_lda=4.0')
+    main_margin_with_opposite_loss(num_classes=10, feature_size= 3, s= 8.0, m1=1.00, m2=0.5, m3=0.00, m4=1.0, lda=8.0, subdir='arcface_dim3_lda=8.0')
+    
+    main_margin_with_opposite_loss(num_classes=10, feature_size=64, s= 8.0, m1=1.00, m2=0.5, m3=0.00, m4=1.0, lda=1.0, subdir='arcface_dim64_lda=1.0')
+    main_margin_with_opposite_loss(num_classes=10, feature_size=64, s= 8.0, m1=1.00, m2=0.5, m3=0.00, m4=1.0, lda=2.0, subdir='arcface_dim64_lda=2.0')
+    main_margin_with_opposite_loss(num_classes=10, feature_size=64, s= 8.0, m1=1.00, m2=0.5, m3=0.00, m4=1.0, lda=4.0, subdir='arcface_dim64_lda=4.0')
+    main_margin_with_opposite_loss(num_classes=10, feature_size=64, s= 8.0, m1=1.00, m2=0.5, m3=0.00, m4=1.0, lda=8.0, subdir='arcface_dim64_lda=8.0')
 
     exit(0)
 

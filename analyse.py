@@ -6,7 +6,7 @@ import torch.nn.functional as F
 def analyse_margin_angular(ckptpath):
 
     state = torch.load(ckptpath)['net_state']
-    weights = state[cosine_layer.weights]
+    weights = state['cosine_layer.weights']
 
     weights = F.normalize(weights)
 

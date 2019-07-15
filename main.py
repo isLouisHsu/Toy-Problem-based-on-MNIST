@@ -1,5 +1,8 @@
+import numpy as np
+
 import torch
 from torch import nn
+from torch.nn import functional as F
 from torch import optim
 from torch.optim.lr_scheduler import MultiStepLR
 
@@ -22,7 +25,8 @@ def main_crossent(num_classes, feature_size):
                     optimizer, lr_scheduler, num_to_keep=5, resume=False, valid_freq=1, show_embedding=True)
     trainer.train()
     del trainer
-
+    
+# ==============================================================================================================================
 def main_margin(num_classes=10, feature_size=2, s=8.0, m1=2.00, m2=0.5, m3=0.35, m4=0.5, subdir=None):
     net = NetworkMargin(num_classes=num_classes, feature_size=feature_size)
 
@@ -62,7 +66,7 @@ def main_adaptivemargin(num_classes=10, feature_size=2, s=8.0, each_class=False,
     trainer.train()
     del trainer
 
-def main_margin_with_opposite_loss(num_classes=10, feature_size=2, s=8.0, m1=2.00, m2=0.5, m3=0.35, m4=0.5, lda=0.2, subdir=None):
+def main_margin_with_vector_loss(num_classes=10, feature_size=2, s=8.0, m1=2.00, m2=0.5, m3=0.35, m4=0.5, lda=0.2, subdir=None):
     net = NetworkMargin(num_classes=num_classes, feature_size=feature_size)
 
     base_params = list(filter(lambda x: id(x) != id(net.cosine_layer.weights), net.parameters()))
@@ -81,6 +85,19 @@ def main_margin_with_opposite_loss(num_classes=10, feature_size=2, s=8.0, m1=2.0
     trainer.train()
     del trainer
 
+def analyse_angular(ckptpath):
+
+    state = torch.load(ckptpath)['net_state']
+    weights = state[cosine_layer.weights]
+
+    weights = F.normalize(weights)
+
+    cosine = weights.mm(weights.t())
+    angular = torch.acos(cosine) / np.pi * 180
+
+    return cosine, angular
+
+# ==============================================================================================================================
 def main_unsupervised(num_classes, feature_size):
     net = Network(num_classes=num_classes, feature_size=feature_size)
     criterion = LossUnsupervised(num_classes, feature_size)
@@ -122,20 +139,20 @@ def main_unsupervised(num_classes, feature_size):
 if __name__ == "__main__":
 
     # arcface
-    main_margin_with_opposite_loss(num_classes=10, feature_size= 2, s= 8.0, m1=1.00, m2=0.5, m3=0.00, m4=1.0, lda=1.0, subdir='arcface_dim2_lda=1.0')
-    main_margin_with_opposite_loss(num_classes=10, feature_size= 2, s= 8.0, m1=1.00, m2=0.5, m3=0.00, m4=1.0, lda=2.0, subdir='arcface_dim2_lda=2.0')
-    main_margin_with_opposite_loss(num_classes=10, feature_size= 2, s= 8.0, m1=1.00, m2=0.5, m3=0.00, m4=1.0, lda=4.0, subdir='arcface_dim2_lda=4.0')
-    main_margin_with_opposite_loss(num_classes=10, feature_size= 2, s= 8.0, m1=1.00, m2=0.5, m3=0.00, m4=1.0, lda=8.0, subdir='arcface_dim2_lda=8.0')
+    main_margin_with_vector_loss(num_classes=10, feature_size= 2, s= 8.0, m1=1.00, m2=0.5, m3=0.00, m4=1.0, lda=1.0, subdir='arcface_dim2_lda=1.0')
+    main_margin_with_vector_loss(num_classes=10, feature_size= 2, s= 8.0, m1=1.00, m2=0.5, m3=0.00, m4=1.0, lda=2.0, subdir='arcface_dim2_lda=2.0')
+    main_margin_with_vector_loss(num_classes=10, feature_size= 2, s= 8.0, m1=1.00, m2=0.5, m3=0.00, m4=1.0, lda=4.0, subdir='arcface_dim2_lda=4.0')
+    main_margin_with_vector_loss(num_classes=10, feature_size= 2, s= 8.0, m1=1.00, m2=0.5, m3=0.00, m4=1.0, lda=8.0, subdir='arcface_dim2_lda=8.0')
     
-    main_margin_with_opposite_loss(num_classes=10, feature_size= 3, s= 8.0, m1=1.00, m2=0.5, m3=0.00, m4=1.0, lda=1.0, subdir='arcface_dim3_lda=1.0')
-    main_margin_with_opposite_loss(num_classes=10, feature_size= 3, s= 8.0, m1=1.00, m2=0.5, m3=0.00, m4=1.0, lda=2.0, subdir='arcface_dim3_lda=2.0')
-    main_margin_with_opposite_loss(num_classes=10, feature_size= 3, s= 8.0, m1=1.00, m2=0.5, m3=0.00, m4=1.0, lda=4.0, subdir='arcface_dim3_lda=4.0')
-    main_margin_with_opposite_loss(num_classes=10, feature_size= 3, s= 8.0, m1=1.00, m2=0.5, m3=0.00, m4=1.0, lda=8.0, subdir='arcface_dim3_lda=8.0')
+    main_margin_with_vector_loss(num_classes=10, feature_size= 3, s= 8.0, m1=1.00, m2=0.5, m3=0.00, m4=1.0, lda=1.0, subdir='arcface_dim3_lda=1.0')
+    main_margin_with_vector_loss(num_classes=10, feature_size= 3, s= 8.0, m1=1.00, m2=0.5, m3=0.00, m4=1.0, lda=2.0, subdir='arcface_dim3_lda=2.0')
+    main_margin_with_vector_loss(num_classes=10, feature_size= 3, s= 8.0, m1=1.00, m2=0.5, m3=0.00, m4=1.0, lda=4.0, subdir='arcface_dim3_lda=4.0')
+    main_margin_with_vector_loss(num_classes=10, feature_size= 3, s= 8.0, m1=1.00, m2=0.5, m3=0.00, m4=1.0, lda=8.0, subdir='arcface_dim3_lda=8.0')
     
-    main_margin_with_opposite_loss(num_classes=10, feature_size=64, s= 8.0, m1=1.00, m2=0.5, m3=0.00, m4=1.0, lda=1.0, subdir='arcface_dim64_lda=1.0')
-    main_margin_with_opposite_loss(num_classes=10, feature_size=64, s= 8.0, m1=1.00, m2=0.5, m3=0.00, m4=1.0, lda=2.0, subdir='arcface_dim64_lda=2.0')
-    main_margin_with_opposite_loss(num_classes=10, feature_size=64, s= 8.0, m1=1.00, m2=0.5, m3=0.00, m4=1.0, lda=4.0, subdir='arcface_dim64_lda=4.0')
-    main_margin_with_opposite_loss(num_classes=10, feature_size=64, s= 8.0, m1=1.00, m2=0.5, m3=0.00, m4=1.0, lda=8.0, subdir='arcface_dim64_lda=8.0')
+    main_margin_with_vector_loss(num_classes=10, feature_size=64, s= 8.0, m1=1.00, m2=0.5, m3=0.00, m4=1.0, lda=1.0, subdir='arcface_dim64_lda=1.0')
+    main_margin_with_vector_loss(num_classes=10, feature_size=64, s= 8.0, m1=1.00, m2=0.5, m3=0.00, m4=1.0, lda=2.0, subdir='arcface_dim64_lda=2.0')
+    main_margin_with_vector_loss(num_classes=10, feature_size=64, s= 8.0, m1=1.00, m2=0.5, m3=0.00, m4=1.0, lda=4.0, subdir='arcface_dim64_lda=4.0')
+    main_margin_with_vector_loss(num_classes=10, feature_size=64, s= 8.0, m1=1.00, m2=0.5, m3=0.00, m4=1.0, lda=8.0, subdir='arcface_dim64_lda=8.0')
 
     exit(0)
 

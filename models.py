@@ -103,5 +103,6 @@ class NetworkMargin(nn.Module):
 
 if __name__ == "__main__":
     net = NetworkMargin(10, 2)
+    state = net.state_dict()
     X = torch.rand(32, 1, 28, 28)
     net(X)

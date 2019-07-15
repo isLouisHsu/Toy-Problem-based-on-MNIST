@@ -12,10 +12,10 @@ from metrics import LossUnsupervised, MarginLoss, MarginLossWithParameter
 from models import Network, NetworkMargin
 from trainer import SupervisedTrainer, UnsupervisedTrainer, MarginTrainer, MarginTrainerWithParameter, MarginTrainerWithVectorLoss
 
-def main_crossent(used_labels=None, feature_size):
-    net = Network(num_classes=len(used_labels), feature_size=feature_size)
-    params = net.parameters()
+def main_crossent(feature_size, used_labels=None):
     trainset = MNIST('train', used_labels); validset = MNIST('valid', used_labels)
+    net = Network(trainset.n_classes, feature_size=feature_size)
+    params = net.parameters()
     criterion = nn.CrossEntropyLoss()
     optimizer = optim.SGD
     lr_scheduler = MultiStepLR
@@ -27,7 +27,8 @@ def main_crossent(used_labels=None, feature_size):
     
 # ==============================================================================================================================
 def main_margin(used_labels=None, feature_size=2, s=8.0, m1=2.00, m2=0.5, m3=0.35, m4=0.5, subdir=None):
-    net = NetworkMargin(num_classes=len(used_labels), feature_size=feature_size)
+    trainset = MNIST('train', used_labels); validset = MNIST('valid', used_labels)
+    net = NetworkMargin(num_classes=trainset.n_classes, feature_size=feature_size)
 
     base_params = list(filter(lambda x: id(x) != id(net.cosine_layer.weights), net.parameters()))
     params = [
@@ -35,7 +36,6 @@ def main_margin(used_labels=None, feature_size=2, s=8.0, m1=2.00, m2=0.5, m3=0.3
         {'params': net.cosine_layer.weights, 'weight_decay': 4e-4},
     ]
 
-    trainset = MNIST('train', used_labels); validset = MNIST('valid', used_labels)
     criterion = MarginLoss(s, m1, m2, m3, m4)
     optimizer = optim.Adam
     lr_scheduler = MultiStepLR
@@ -46,8 +46,9 @@ def main_margin(used_labels=None, feature_size=2, s=8.0, m1=2.00, m2=0.5, m3=0.3
     del trainer
 
 def main_adaptivemargin(used_labels=None, feature_size=2, s=8.0, each_class=False, subdir=None):
-    net = NetworkMargin(num_classes=len(used_labels), feature_size=feature_size)
-    criterion = MarginLossWithParameter(num_classes, s, each_class)
+    trainset = MNIST('train', used_labels); validset = MNIST('valid', used_labels)
+    net = NetworkMargin(num_classes=trainset.n_classes, feature_size=feature_size)
+    criterion = MarginLossWithParameter(trainset.n_classes, s, each_class)
 
     base_params = list(filter(lambda x: id(x) != id(net.cosine_layer.weights), net.parameters()))
     params = [
@@ -56,7 +57,6 @@ def main_adaptivemargin(used_labels=None, feature_size=2, s=8.0, each_class=Fals
         {'params': criterion.parameters(), 'weight_decay': 4e-4},
     ]
 
-    trainset = MNIST('train', used_labels); validset = MNIST('valid', used_labels)
     optimizer = optim.Adam
     lr_scheduler = MultiStepLR
 
@@ -66,7 +66,8 @@ def main_adaptivemargin(used_labels=None, feature_size=2, s=8.0, each_class=Fals
     del trainer
 
 def main_margin_with_vector_loss(used_labels=None, feature_size=2, s=8.0, m1=2.00, m2=0.5, m3=0.35, m4=0.5, lda=0.2, subdir=None):
-    net = NetworkMargin(num_classes=len(used_labels), feature_size=feature_size)
+    trainset = MNIST('train', used_labels); validset = MNIST('valid', used_labels)
+    net = NetworkMargin(num_classes=trainset.n_classes, feature_size=feature_size)
 
     base_params = list(filter(lambda x: id(x) != id(net.cosine_layer.weights), net.parameters()))
     params = [
@@ -74,7 +75,6 @@ def main_margin_with_vector_loss(used_labels=None, feature_size=2, s=8.0, m1=2.0
         {'params': net.cosine_layer.weights, 'weight_decay': 4e-4},
     ]
 
-    trainset = MNIST('train', used_labels); validset = MNIST('valid', used_labels)
     criterion = MarginLoss(s, m1, m2, m3, m4)
     optimizer = optim.Adam
     lr_scheduler = MultiStepLR
@@ -85,13 +85,12 @@ def main_margin_with_vector_loss(used_labels=None, feature_size=2, s=8.0, m1=2.0
     del trainer
 
 # ==============================================================================================================================
-def main_unsupervised(num_classes, feature_size):
-    net = Network(num_classes=len(used_labels), feature_size=feature_size)
-    criterion = LossUnsupervised(num_classes, feature_size)
+def main_unsupervised(feature_size, used_labels=None):
+    trainset = MNIST('train', used_labels); validset = MNIST('valid', used_labels)
+    net = Network(num_classes=trainset.n_classes, feature_size=feature_size)
+    criterion = LossUnsupervised(trainset.n_classes, feature_size)
     # params = [{'params': net.parameters(), }, {'params': criterion.m, }]
     params = [{'params': net.parameters(), }, {'params': criterion.parameters(), }]
-    trainset = MNIST('train', used_labels)
-    validset = MNIST('valid', used_labels)
     optimizer = optim.SGD
     lr_scheduler = MultiStepLR
 

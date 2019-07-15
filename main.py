@@ -102,24 +102,22 @@ def main_unsupervised(num_classes, feature_size):
 if __name__ == "__main__":
 
     # cosmulface
-    main_margin(num_classes=10, feature_size=2, s=8.0, m1=1.00, m2=0.0, m3=0.00, m4=1.00, subdir='cosmulface_dim2_m4=1.00')
-    main_margin(num_classes=10, feature_size=2, s=8.0, m1=1.00, m2=0.0, m3=0.00, m4=1.50, subdir='cosmulface_dim2_m4=1.50')
     main_margin(num_classes=10, feature_size=2, s=8.0, m1=1.00, m2=0.0, m3=0.00, m4=2.00, subdir='cosmulface_dim2_m4=2.00')
-    main_margin(num_classes=10, feature_size=2, s=8.0, m1=1.00, m2=0.0, m3=0.00, m4=2.50, subdir='cosmulface_dim2_m4=2.50')
+    main_margin(num_classes=10, feature_size=2, s=8.0, m1=1.00, m2=0.0, m3=0.00, m4=3.00, subdir='cosmulface_dim2_m4=3.00')
+    main_margin(num_classes=10, feature_size=2, s=8.0, m1=1.00, m2=0.0, m3=0.00, m4=4.00, subdir='cosmulface_dim2_m4=4.00')
     # adaptiveface
     main_adaptivemargin(num_classes=10, feature_size=2, s=8.0, each_class=False, subdir='adaptiveface_dim2_F')
     main_adaptivemargin(num_classes=10, feature_size=2, s=8.0, each_class=True,  subdir='adaptiveface_dim2_T')
 
     # cosmulface
-    main_margin(num_classes=10, feature_size=3, s=8.0, m1=1.00, m2=0.0, m3=0.00, m4=1.00, subdir='cosmulface_dim3_m4=1.00')
-    main_margin(num_classes=10, feature_size=3, s=8.0, m1=1.00, m2=0.0, m3=0.00, m4=1.50, subdir='cosmulface_dim3_m4=1.50')
     main_margin(num_classes=10, feature_size=3, s=8.0, m1=1.00, m2=0.0, m3=0.00, m4=2.00, subdir='cosmulface_dim3_m4=2.00')
-    main_margin(num_classes=10, feature_size=3, s=8.0, m1=1.00, m2=0.0, m3=0.00, m4=2.50, subdir='cosmulface_dim3_m4=2.50')
+    main_margin(num_classes=10, feature_size=3, s=8.0, m1=1.00, m2=0.0, m3=0.00, m4=3.00, subdir='cosmulface_dim3_m4=3.00')
+    main_margin(num_classes=10, feature_size=3, s=8.0, m1=1.00, m2=0.0, m3=0.00, m4=4.00, subdir='cosmulface_dim3_m4=4.00')
     # adaptiveface
     main_adaptivemargin(num_classes=10, feature_size=3, s=8.0, each_class=False, subdir='adaptiveface_dim3_F')
     main_adaptivemargin(num_classes=10, feature_size=3, s=8.0, each_class=True,  subdir='adaptiveface_dim3_T')
 
-    exit(0)
+    # exit(0)
 
 # ==============================================================================================================================
 if __name__ == "__main__":

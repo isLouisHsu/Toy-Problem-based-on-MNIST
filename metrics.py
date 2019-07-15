@@ -106,17 +106,13 @@ class MarginProductWithParameter(nn.Module):
         super(MarginProductWithParameter, self).__init__()
 
         self.s  = s
+        self.each_class = each_class
         
-        if each_class:
-            self.m1 = Parameter(torch.ones(num_classes)*2.00)
-            self.m2 = Parameter(torch.ones(num_classes)*0.50)
-            self.m3 = Parameter(torch.ones(num_classes)*0.35)
-            self.m4 = Parameter(torch.ones(num_classes)*2.00)
-        else:
-            self.m1 = Parameter(torch.ones(1)*2.00)
-            self.m2 = Parameter(torch.ones(1)*0.50)
-            self.m3 = Parameter(torch.ones(1)*0.35)
-            self.m4 = Parameter(torch.ones(1)*2.00)
+        num_classes = 1 if not each_class else num_classes
+        self.m1 = Parameter(torch.ones(num_classes)*2.00)
+        self.m2 = Parameter(torch.ones(num_classes)*0.50)
+        self.m3 = Parameter(torch.ones(num_classes)*0.35)
+        self.m4 = Parameter(torch.ones(num_classes)*2.00)
 
     def forward(self, cosTheta, label):
         """
@@ -133,7 +129,7 @@ class MarginProductWithParameter(nn.Module):
         # theta  = torch.acos(cosTheta)
         theta  = arccos(cosTheta)
 
-        if each_class:
+        if self.each_class:
             m1, m2, m3, m4 = list(map(lambda x: x[label.long()].view(-1, 1), 
                                     [self.m1, self.m2, self.m3, self.m4]))
             cosPhi = m4 * (monocos(m1 * theta + m2) - m3 - 1)

@@ -155,19 +155,19 @@ if __name__ == "__main__":
 
     # -------------------------------------------------------- dim=2 ---------------------------------------------------------
     # arcface
-    main_margin_with_vector_loss(used_labels=[2, 5, 8, 9], feature_size= 2, s= 8.0, m1=1.00, m2=0.5, m3=0.00, m4=1.0, lda= 0.0, subdir='arcface_dim2_lda=0.0')
-    main_margin_with_vector_loss(used_labels=[2, 5, 8, 9], feature_size= 2, s= 8.0, m1=1.00, m2=0.5, m3=0.00, m4=1.0, lda= 4.0, subdir='arcface_dim2_lda=4.0')
-    main_margin_with_vector_loss(used_labels=[2, 5, 8, 9], feature_size= 2, s= 8.0, m1=1.00, m2=0.5, m3=0.00, m4=1.0, lda= 8.0, subdir='arcface_dim2_lda=8.0')
-    main_margin_with_vector_loss(used_labels=[2, 5, 8, 9], feature_size= 2, s= 8.0, m1=1.00, m2=0.5, m3=0.00, m4=1.0, lda=16.0, subdir='arcface_dim2_lda=16.0')
+    main_margin_with_vector_loss(used_labels=[0, 1, 4, 7], feature_size= 2, s= 8.0, m1=1.00, m2=0.5, m3=0.00, m4=1.0, lda= 0.0, subdir='arcface_dim2_lda=0.0')
+    main_margin_with_vector_loss(used_labels=[0, 1, 4, 7], feature_size= 2, s= 8.0, m1=1.00, m2=0.5, m3=0.00, m4=1.0, lda= 2.0, subdir='arcface_dim2_lda=2.0')
+    main_margin_with_vector_loss(used_labels=[0, 1, 4, 7], feature_size= 2, s= 8.0, m1=1.00, m2=0.5, m3=0.00, m4=1.0, lda= 8.0, subdir='arcface_dim2_lda=8.0')
+    main_margin_with_vector_loss(used_labels=[0, 1, 4, 7], feature_size= 2, s= 8.0, m1=1.00, m2=0.5, m3=0.00, m4=1.0, lda=16.0, subdir='arcface_dim2_lda=16.0')
     
     # -------------------------------------------------------- dim=3 ---------------------------------------------------------
-    main_margin_with_vector_loss(used_labels=[2, 5, 8, 9], feature_size= 3, s= 8.0, m1=1.00, m2=0.5, m3=0.00, m4=1.0, lda= 0.0, subdir='arcface_dim3_lda=0.0')
-    main_margin_with_vector_loss(used_labels=[2, 5, 8, 9], feature_size= 3, s= 8.0, m1=1.00, m2=0.5, m3=0.00, m4=1.0, lda= 4.0, subdir='arcface_dim3_lda=4.0')
-    main_margin_with_vector_loss(used_labels=[2, 5, 8, 9], feature_size= 3, s= 8.0, m1=1.00, m2=0.5, m3=0.00, m4=1.0, lda= 8.0, subdir='arcface_dim3_lda=8.0')
-    main_margin_with_vector_loss(used_labels=[2, 5, 8, 9], feature_size= 3, s= 8.0, m1=1.00, m2=0.5, m3=0.00, m4=1.0, lda=16.0, subdir='arcface_dim3_lda=16.0')
+    main_margin_with_vector_loss(used_labels=[0, 1, 4, 7], feature_size= 3, s= 8.0, m1=1.00, m2=0.5, m3=0.00, m4=1.0, lda= 0.0, subdir='arcface_dim3_lda=0.0')
+    main_margin_with_vector_loss(used_labels=[0, 1, 4, 7], feature_size= 3, s= 8.0, m1=1.00, m2=0.5, m3=0.00, m4=1.0, lda= 2.0, subdir='arcface_dim3_lda=2.0')
+    main_margin_with_vector_loss(used_labels=[0, 1, 4, 7], feature_size= 3, s= 8.0, m1=1.00, m2=0.5, m3=0.00, m4=1.0, lda= 8.0, subdir='arcface_dim3_lda=8.0')
+    main_margin_with_vector_loss(used_labels=[0, 1, 4, 7], feature_size= 3, s= 8.0, m1=1.00, m2=0.5, m3=0.00, m4=1.0, lda=16.0, subdir='arcface_dim3_lda=16.0')
     
-    main_margin_with_vector_loss(used_labels=[2, 5, 8],       feature_size= 3, s= 8.0, m1=1.00, m2=0.5, m3=0.00, m4=1.0, lda=16.0, subdir='arcface_dim3_lda=16.0_c3')   # n_classes = 3
-    main_margin_with_vector_loss(used_labels=[2, 4, 5, 8, 9], feature_size= 3, s= 8.0, m1=1.00, m2=0.5, m3=0.00, m4=1.0, lda=16.0, subdir='arcface_dim3_lda=16.0_c5')   # n_classes = 5
+    main_margin_with_vector_loss(used_labels=[1, 4, 7],       feature_size= 3, s= 8.0, m1=1.00, m2=0.5, m3=0.00, m4=1.0, lda=16.0, subdir='arcface_dim3_lda=16.0_c3')   # n_classes = 3
+    main_margin_with_vector_loss(used_labels=[0, 1, 4, 5, 7], feature_size= 3, s= 8.0, m1=1.00, m2=0.5, m3=0.00, m4=1.0, lda=16.0, subdir='arcface_dim3_lda=16.0_c5')   # n_classes = 5
 
     exit(0)
 

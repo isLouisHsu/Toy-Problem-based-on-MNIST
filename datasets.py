@@ -8,7 +8,7 @@ from torch.utils.data import Dataset
 
 class MNIST(Dataset):
 
-    def __init__(self, mode='train'):
+    def __init__(self, mode='train', used_labels=None):
         if mode == 'train':
             images_path = './data/train-images.idx3-ubyte'
             labels_path = './data/train-labels.idx1-ubyte'
@@ -25,6 +25,16 @@ class MNIST(Dataset):
             magic, n = struct.unpack('>II', f.read(8))
             self.labels = np.fromfile(f, dtype = np.uint8).astype(np.float)
 
+        if used_labels is not None:
+            selected = np.zeros_like(self.labels, dtype=np.bool)
+            for label in used_labels:
+                selected = np.bitwise_or(selected, (self.labels == label))
+
+            self.images = self.images[selected]
+            self.labels = self.labels[selected]
+        
+        self.n_classes = np.unique(self.labels).shape[0]
+
     def __getitem__(self, index):
 
         image = self.images[index]
@@ -40,7 +50,7 @@ class MNIST(Dataset):
 
 if __name__ == "__main__":
     
-    D = MNIST('train')
+    D = MNIST('train', [1, 2])
     for i in range(10):
         X, y = D[i]
         

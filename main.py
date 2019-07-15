@@ -12,11 +12,10 @@ from metrics import LossUnsupervised, MarginLoss, MarginLossWithParameter
 from models import Network, NetworkMargin
 from trainer import SupervisedTrainer, UnsupervisedTrainer, MarginTrainer, MarginTrainerWithParameter, MarginTrainerWithVectorLoss
 
-def main_crossent(num_classes, feature_size):
-    net = Network(num_classes=num_classes, feature_size=feature_size)
+def main_crossent(used_labels=None, feature_size):
+    net = Network(num_classes=len(used_labels), feature_size=feature_size)
     params = net.parameters()
-    trainset = MNIST('train')
-    validset = MNIST('valid')
+    trainset = MNIST('train', used_labels); validset = MNIST('valid', used_labels)
     criterion = nn.CrossEntropyLoss()
     optimizer = optim.SGD
     lr_scheduler = MultiStepLR
@@ -27,8 +26,8 @@ def main_crossent(num_classes, feature_size):
     del trainer
     
 # ==============================================================================================================================
-def main_margin(num_classes=10, feature_size=2, s=8.0, m1=2.00, m2=0.5, m3=0.35, m4=0.5, subdir=None):
-    net = NetworkMargin(num_classes=num_classes, feature_size=feature_size)
+def main_margin(used_labels=None, feature_size=2, s=8.0, m1=2.00, m2=0.5, m3=0.35, m4=0.5, subdir=None):
+    net = NetworkMargin(num_classes=len(used_labels), feature_size=feature_size)
 
     base_params = list(filter(lambda x: id(x) != id(net.cosine_layer.weights), net.parameters()))
     params = [
@@ -36,7 +35,7 @@ def main_margin(num_classes=10, feature_size=2, s=8.0, m1=2.00, m2=0.5, m3=0.35,
         {'params': net.cosine_layer.weights, 'weight_decay': 4e-4},
     ]
 
-    trainset = MNIST('train'); validset = MNIST('valid')
+    trainset = MNIST('train', used_labels); validset = MNIST('valid', used_labels)
     criterion = MarginLoss(s, m1, m2, m3, m4)
     optimizer = optim.Adam
     lr_scheduler = MultiStepLR
@@ -46,8 +45,8 @@ def main_margin(num_classes=10, feature_size=2, s=8.0, m1=2.00, m2=0.5, m3=0.35,
     trainer.train()
     del trainer
 
-def main_adaptivemargin(num_classes=10, feature_size=2, s=8.0, each_class=False, subdir=None):
-    net = NetworkMargin(num_classes=num_classes, feature_size=feature_size)
+def main_adaptivemargin(used_labels=None, feature_size=2, s=8.0, each_class=False, subdir=None):
+    net = NetworkMargin(num_classes=len(used_labels), feature_size=feature_size)
     criterion = MarginLossWithParameter(num_classes, s, each_class)
 
     base_params = list(filter(lambda x: id(x) != id(net.cosine_layer.weights), net.parameters()))
@@ -57,7 +56,7 @@ def main_adaptivemargin(num_classes=10, feature_size=2, s=8.0, each_class=False,
         {'params': criterion.parameters(), 'weight_decay': 4e-4},
     ]
 
-    trainset = MNIST('train'); validset = MNIST('valid')
+    trainset = MNIST('train', used_labels); validset = MNIST('valid', used_labels)
     optimizer = optim.Adam
     lr_scheduler = MultiStepLR
 
@@ -66,8 +65,8 @@ def main_adaptivemargin(num_classes=10, feature_size=2, s=8.0, each_class=False,
     trainer.train()
     del trainer
 
-def main_margin_with_vector_loss(num_classes=10, feature_size=2, s=8.0, m1=2.00, m2=0.5, m3=0.35, m4=0.5, lda=0.2, subdir=None):
-    net = NetworkMargin(num_classes=num_classes, feature_size=feature_size)
+def main_margin_with_vector_loss(used_labels=None, feature_size=2, s=8.0, m1=2.00, m2=0.5, m3=0.35, m4=0.5, lda=0.2, subdir=None):
+    net = NetworkMargin(num_classes=len(used_labels), feature_size=feature_size)
 
     base_params = list(filter(lambda x: id(x) != id(net.cosine_layer.weights), net.parameters()))
     params = [
@@ -75,7 +74,7 @@ def main_margin_with_vector_loss(num_classes=10, feature_size=2, s=8.0, m1=2.00,
         {'params': net.cosine_layer.weights, 'weight_decay': 4e-4},
     ]
 
-    trainset = MNIST('train'); validset = MNIST('valid')
+    trainset = MNIST('train', used_labels); validset = MNIST('valid', used_labels)
     criterion = MarginLoss(s, m1, m2, m3, m4)
     optimizer = optim.Adam
     lr_scheduler = MultiStepLR
@@ -87,12 +86,12 @@ def main_margin_with_vector_loss(num_classes=10, feature_size=2, s=8.0, m1=2.00,
 
 # ==============================================================================================================================
 def main_unsupervised(num_classes, feature_size):
-    net = Network(num_classes=num_classes, feature_size=feature_size)
+    net = Network(num_classes=len(used_labels), feature_size=feature_size)
     criterion = LossUnsupervised(num_classes, feature_size)
     # params = [{'params': net.parameters(), }, {'params': criterion.m, }]
     params = [{'params': net.parameters(), }, {'params': criterion.parameters(), }]
-    trainset = MNIST('train')
-    validset = MNIST('valid')
+    trainset = MNIST('train', used_labels)
+    validset = MNIST('valid', used_labels)
     optimizer = optim.SGD
     lr_scheduler = MultiStepLR
 
@@ -106,20 +105,41 @@ def main_unsupervised(num_classes, feature_size):
 # if __name__ == "__main__":
 
 #     # cosmulface
-#     main_margin(num_classes=10, feature_size=2, s=8.0, m1=1.00, m2=0.0, m3=0.00, m4=2.00, subdir='cosmulface_dim2_m4=2.00')
-#     main_margin(num_classes=10, feature_size=2, s=8.0, m1=1.00, m2=0.0, m3=0.00, m4=3.00, subdir='cosmulface_dim2_m4=3.00')
-#     main_margin(num_classes=10, feature_size=2, s=8.0, m1=1.00, m2=0.0, m3=0.00, m4=4.00, subdir='cosmulface_dim2_m4=4.00')
+#     main_margin(used_labels=None, feature_size=2, s=8.0, m1=1.00, m2=0.0, m3=0.00, m4=2.00, subdir='cosmulface_dim2_m4=2.00')
+#     main_margin(used_labels=None, feature_size=2, s=8.0, m1=1.00, m2=0.0, m3=0.00, m4=3.00, subdir='cosmulface_dim2_m4=3.00')
+#     main_margin(used_labels=None, feature_size=2, s=8.0, m1=1.00, m2=0.0, m3=0.00, m4=4.00, subdir='cosmulface_dim2_m4=4.00')
 #     # adaptiveface
-#     main_adaptivemargin(num_classes=10, feature_size=2, s=8.0, each_class=False, subdir='adaptiveface_dim2_F')
-#     main_adaptivemargin(num_classes=10, feature_size=2, s=8.0, each_class=True,  subdir='adaptiveface_dim2_T')
+#     main_adaptivemargin(used_labels=None, feature_size=2, s=8.0, each_class=False, subdir='adaptiveface_dim2_F')
+#     main_adaptivemargin(used_labels=None, feature_size=2, s=8.0, each_class=True,  subdir='adaptiveface_dim2_T')
 
 #     # cosmulface
-#     main_margin(num_classes=10, feature_size=3, s=8.0, m1=1.00, m2=0.0, m3=0.00, m4=2.00, subdir='cosmulface_dim3_m4=2.00')
-#     main_margin(num_classes=10, feature_size=3, s=8.0, m1=1.00, m2=0.0, m3=0.00, m4=3.00, subdir='cosmulface_dim3_m4=3.00')
-#     main_margin(num_classes=10, feature_size=3, s=8.0, m1=1.00, m2=0.0, m3=0.00, m4=4.00, subdir='cosmulface_dim3_m4=4.00')
+#     main_margin(used_labels=None, feature_size=3, s=8.0, m1=1.00, m2=0.0, m3=0.00, m4=2.00, subdir='cosmulface_dim3_m4=2.00')
+#     main_margin(used_labels=None, feature_size=3, s=8.0, m1=1.00, m2=0.0, m3=0.00, m4=3.00, subdir='cosmulface_dim3_m4=3.00')
+#     main_margin(used_labels=None, feature_size=3, s=8.0, m1=1.00, m2=0.0, m3=0.00, m4=4.00, subdir='cosmulface_dim3_m4=4.00')
 #     # adaptiveface
-#     main_adaptivemargin(num_classes=10, feature_size=3, s=8.0, each_class=False, subdir='adaptiveface_dim3_F')
-#     main_adaptivemargin(num_classes=10, feature_size=3, s=8.0, each_class=True,  subdir='adaptiveface_dim3_T')
+#     main_adaptivemargin(used_labels=None, feature_size=3, s=8.0, each_class=False, subdir='adaptiveface_dim3_F')
+#     main_adaptivemargin(used_labels=None, feature_size=3, s=8.0, each_class=True,  subdir='adaptiveface_dim3_T')
+
+#     exit(0)
+
+# ==============================================================================================================================
+# if __name__ == "__main__":
+
+#     # arcface
+#     main_margin_with_vector_loss(used_labels=None, feature_size= 2, s= 8.0, m1=1.00, m2=0.5, m3=0.00, m4=1.0, lda=1.0, subdir='arcface_dim2_lda=1.0')
+#     main_margin_with_vector_loss(used_labels=None, feature_size= 2, s= 8.0, m1=1.00, m2=0.5, m3=0.00, m4=1.0, lda=2.0, subdir='arcface_dim2_lda=2.0')
+#     main_margin_with_vector_loss(used_labels=None, feature_size= 2, s= 8.0, m1=1.00, m2=0.5, m3=0.00, m4=1.0, lda=4.0, subdir='arcface_dim2_lda=4.0')
+#     main_margin_with_vector_loss(used_labels=None, feature_size= 2, s= 8.0, m1=1.00, m2=0.5, m3=0.00, m4=1.0, lda=8.0, subdir='arcface_dim2_lda=8.0')
+    
+#     main_margin_with_vector_loss(used_labels=None, feature_size= 3, s= 8.0, m1=1.00, m2=0.5, m3=0.00, m4=1.0, lda=1.0, subdir='arcface_dim3_lda=1.0')
+#     main_margin_with_vector_loss(used_labels=None, feature_size= 3, s= 8.0, m1=1.00, m2=0.5, m3=0.00, m4=1.0, lda=2.0, subdir='arcface_dim3_lda=2.0')
+#     main_margin_with_vector_loss(used_labels=None, feature_size= 3, s= 8.0, m1=1.00, m2=0.5, m3=0.00, m4=1.0, lda=4.0, subdir='arcface_dim3_lda=4.0')
+#     main_margin_with_vector_loss(used_labels=None, feature_size= 3, s= 8.0, m1=1.00, m2=0.5, m3=0.00, m4=1.0, lda=8.0, subdir='arcface_dim3_lda=8.0')
+    
+#     main_margin_with_vector_loss(used_labels=None, feature_size=64, s= 8.0, m1=1.00, m2=0.5, m3=0.00, m4=1.0, lda=1.0, subdir='arcface_dim64_lda=1.0')
+#     main_margin_with_vector_loss(used_labels=None, feature_size=64, s= 8.0, m1=1.00, m2=0.5, m3=0.00, m4=1.0, lda=2.0, subdir='arcface_dim64_lda=2.0')
+#     main_margin_with_vector_loss(used_labels=None, feature_size=64, s= 8.0, m1=1.00, m2=0.5, m3=0.00, m4=1.0, lda=4.0, subdir='arcface_dim64_lda=4.0')
+#     main_margin_with_vector_loss(used_labels=None, feature_size=64, s= 8.0, m1=1.00, m2=0.5, m3=0.00, m4=1.0, lda=8.0, subdir='arcface_dim64_lda=8.0')
 
 #     exit(0)
 
@@ -127,48 +147,43 @@ def main_unsupervised(num_classes, feature_size):
 if __name__ == "__main__":
 
     # arcface
-    main_margin_with_vector_loss(num_classes=10, feature_size= 2, s= 8.0, m1=1.00, m2=0.5, m3=0.00, m4=1.0, lda=1.0, subdir='arcface_dim2_lda=1.0')
-    main_margin_with_vector_loss(num_classes=10, feature_size= 2, s= 8.0, m1=1.00, m2=0.5, m3=0.00, m4=1.0, lda=2.0, subdir='arcface_dim2_lda=2.0')
-    main_margin_with_vector_loss(num_classes=10, feature_size= 2, s= 8.0, m1=1.00, m2=0.5, m3=0.00, m4=1.0, lda=4.0, subdir='arcface_dim2_lda=4.0')
-    main_margin_with_vector_loss(num_classes=10, feature_size= 2, s= 8.0, m1=1.00, m2=0.5, m3=0.00, m4=1.0, lda=8.0, subdir='arcface_dim2_lda=8.0')
+    main_margin_with_vector_loss(used_labels=[1, 2, 3, 4], feature_size= 2, s= 8.0, m1=1.00, m2=0.5, m3=0.00, m4=1.0, lda=1.0, subdir='arcface_dim2_lda=1.0')
+    main_margin_with_vector_loss(used_labels=[1, 2, 3, 4], feature_size= 2, s= 8.0, m1=1.00, m2=0.5, m3=0.00, m4=1.0, lda=2.0, subdir='arcface_dim2_lda=2.0')
+    main_margin_with_vector_loss(used_labels=[1, 2, 3, 4], feature_size= 2, s= 8.0, m1=1.00, m2=0.5, m3=0.00, m4=1.0, lda=4.0, subdir='arcface_dim2_lda=4.0')
+    main_margin_with_vector_loss(used_labels=[1, 2, 3, 4], feature_size= 2, s= 8.0, m1=1.00, m2=0.5, m3=0.00, m4=1.0, lda=8.0, subdir='arcface_dim2_lda=8.0')
     
-    main_margin_with_vector_loss(num_classes=10, feature_size= 3, s= 8.0, m1=1.00, m2=0.5, m3=0.00, m4=1.0, lda=1.0, subdir='arcface_dim3_lda=1.0')
-    main_margin_with_vector_loss(num_classes=10, feature_size= 3, s= 8.0, m1=1.00, m2=0.5, m3=0.00, m4=1.0, lda=2.0, subdir='arcface_dim3_lda=2.0')
-    main_margin_with_vector_loss(num_classes=10, feature_size= 3, s= 8.0, m1=1.00, m2=0.5, m3=0.00, m4=1.0, lda=4.0, subdir='arcface_dim3_lda=4.0')
-    main_margin_with_vector_loss(num_classes=10, feature_size= 3, s= 8.0, m1=1.00, m2=0.5, m3=0.00, m4=1.0, lda=8.0, subdir='arcface_dim3_lda=8.0')
-    
-    main_margin_with_vector_loss(num_classes=10, feature_size=64, s= 8.0, m1=1.00, m2=0.5, m3=0.00, m4=1.0, lda=1.0, subdir='arcface_dim64_lda=1.0')
-    main_margin_with_vector_loss(num_classes=10, feature_size=64, s= 8.0, m1=1.00, m2=0.5, m3=0.00, m4=1.0, lda=2.0, subdir='arcface_dim64_lda=2.0')
-    main_margin_with_vector_loss(num_classes=10, feature_size=64, s= 8.0, m1=1.00, m2=0.5, m3=0.00, m4=1.0, lda=4.0, subdir='arcface_dim64_lda=4.0')
-    main_margin_with_vector_loss(num_classes=10, feature_size=64, s= 8.0, m1=1.00, m2=0.5, m3=0.00, m4=1.0, lda=8.0, subdir='arcface_dim64_lda=8.0')
+    main_margin_with_vector_loss(used_labels=[1, 2, 3, 4], feature_size= 3, s= 8.0, m1=1.00, m2=0.5, m3=0.00, m4=1.0, lda=1.0, subdir='arcface_dim3_lda=1.0')
+    main_margin_with_vector_loss(used_labels=[1, 2, 3, 4], feature_size= 3, s= 8.0, m1=1.00, m2=0.5, m3=0.00, m4=1.0, lda=2.0, subdir='arcface_dim3_lda=2.0')
+    main_margin_with_vector_loss(used_labels=[1, 2, 3, 4], feature_size= 3, s= 8.0, m1=1.00, m2=0.5, m3=0.00, m4=1.0, lda=4.0, subdir='arcface_dim3_lda=4.0')
+    main_margin_with_vector_loss(used_labels=[1, 2, 3, 4], feature_size= 3, s= 8.0, m1=1.00, m2=0.5, m3=0.00, m4=1.0, lda=8.0, subdir='arcface_dim3_lda=8.0')
 
     exit(0)
 
 ## ==============================================================================================================================
-if __name__ == "__main__":
+# if __name__ == "__main__":
 
-    # modified
-    main_margin(num_classes=10, feature_size=2, s= 8.0, m1=1.00, m2=0.0, m3=0.00, m4=1.0, subdir='modified_dim2')
-    # sphereface
-    main_margin(num_classes=10, feature_size=2, s= 8.0, m1=2.00, m2=0.0, m3=0.00, m4=1.0, subdir='sphereface_dim2_m1=2.00')
-    # arcface
-    main_margin(num_classes=10, feature_size=2, s=16.0, m1=1.00, m2=0.5, m3=0.00, m4=1.0, subdir='arcface_dim2_m2=0.5_s=16')
-    main_margin(num_classes=10, feature_size=2, s= 8.0, m1=1.00, m2=0.5, m3=0.00, m4=1.0, subdir='arcface_dim2_m2=0.5_s=8')
-    main_margin(num_classes=10, feature_size=2, s= 4.0, m1=1.00, m2=0.5, m3=0.00, m4=1.0, subdir='arcface_dim2_m2=0.5_s=4')
-    main_margin(num_classes=10, feature_size=2, s= 1.0, m1=1.00, m2=0.5, m3=0.00, m4=1.0, subdir='arcface_dim2_m2=0.5_s=1')
-    # cosface
-    main_margin(num_classes=10, feature_size=2, s= 8.0, m1=1.00, m2=0.0, m3=0.35, m4=1.0, subdir='cosface_dim2_m3=0.35')
+#     # modified
+#     main_margin(used_labels=None, feature_size=2, s= 8.0, m1=1.00, m2=0.0, m3=0.00, m4=1.0, subdir='modified_dim2')
+#     # sphereface
+#     main_margin(used_labels=None, feature_size=2, s= 8.0, m1=2.00, m2=0.0, m3=0.00, m4=1.0, subdir='sphereface_dim2_m1=2.00')
+#     # arcface
+#     main_margin(used_labels=None, feature_size=2, s=16.0, m1=1.00, m2=0.5, m3=0.00, m4=1.0, subdir='arcface_dim2_m2=0.5_s=16')
+#     main_margin(used_labels=None, feature_size=2, s= 8.0, m1=1.00, m2=0.5, m3=0.00, m4=1.0, subdir='arcface_dim2_m2=0.5_s=8')
+#     main_margin(used_labels=None, feature_size=2, s= 4.0, m1=1.00, m2=0.5, m3=0.00, m4=1.0, subdir='arcface_dim2_m2=0.5_s=4')
+#     main_margin(used_labels=None, feature_size=2, s= 1.0, m1=1.00, m2=0.5, m3=0.00, m4=1.0, subdir='arcface_dim2_m2=0.5_s=1')
+#     # cosface
+#     main_margin(used_labels=None, feature_size=2, s= 8.0, m1=1.00, m2=0.0, m3=0.35, m4=1.0, subdir='cosface_dim2_m3=0.35')
 
-    # modified
-    main_margin(num_classes=10, feature_size=3, s= 8.0, m1=1.00, m2=0.0, m3=0.00, m4=1.0, subdir='modified_dim3')
-    # sphereface
-    main_margin(num_classes=10, feature_size=3, s= 8.0, m1=2.00, m2=0.0, m3=0.00, m4=1.0, subdir='sphereface_dim3_m1=2.00')
-    # arcface
-    main_margin(num_classes=10, feature_size=3, s=16.0, m1=1.00, m2=0.5, m3=0.00, m4=1.0, subdir='arcface_dim3_m2=0.5_s=16')
-    main_margin(num_classes=10, feature_size=3, s= 8.0, m1=1.00, m2=0.5, m3=0.00, m4=1.0, subdir='arcface_dim3_m2=0.5_s=8')
-    main_margin(num_classes=10, feature_size=3, s= 4.0, m1=1.00, m2=0.5, m3=0.00, m4=1.0, subdir='arcface_dim3_m2=0.5_s=4')
-    main_margin(num_classes=10, feature_size=3, s= 1.0, m1=1.00, m2=0.5, m3=0.00, m4=1.0, subdir='arcface_dim3_m2=0.5_s=1')
-    # cosface
-    main_margin(num_classes=10, feature_size=3, s= 8.0, m1=1.00, m2=0.0, m3=0.35, m4=1.0, subdir='cosface_dim3_m3=0.35')
+#     # modified
+#     main_margin(used_labels=None, feature_size=3, s= 8.0, m1=1.00, m2=0.0, m3=0.00, m4=1.0, subdir='modified_dim3')
+#     # sphereface
+#     main_margin(used_labels=None, feature_size=3, s= 8.0, m1=2.00, m2=0.0, m3=0.00, m4=1.0, subdir='sphereface_dim3_m1=2.00')
+#     # arcface
+#     main_margin(used_labels=None, feature_size=3, s=16.0, m1=1.00, m2=0.5, m3=0.00, m4=1.0, subdir='arcface_dim3_m2=0.5_s=16')
+#     main_margin(used_labels=None, feature_size=3, s= 8.0, m1=1.00, m2=0.5, m3=0.00, m4=1.0, subdir='arcface_dim3_m2=0.5_s=8')
+#     main_margin(used_labels=None, feature_size=3, s= 4.0, m1=1.00, m2=0.5, m3=0.00, m4=1.0, subdir='arcface_dim3_m2=0.5_s=4')
+#     main_margin(used_labels=None, feature_size=3, s= 1.0, m1=1.00, m2=0.5, m3=0.00, m4=1.0, subdir='arcface_dim3_m2=0.5_s=1')
+#     # cosface
+#     main_margin(used_labels=None, feature_size=3, s= 8.0, m1=1.00, m2=0.0, m3=0.35, m4=1.0, subdir='cosface_dim3_m3=0.35')
 
-    exit(0)
+#     exit(0)

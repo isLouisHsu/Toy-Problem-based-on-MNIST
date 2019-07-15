@@ -85,18 +85,6 @@ def main_margin_with_vector_loss(num_classes=10, feature_size=2, s=8.0, m1=2.00,
     trainer.train()
     del trainer
 
-def analyse_angular(ckptpath):
-
-    state = torch.load(ckptpath)['net_state']
-    weights = state[cosine_layer.weights]
-
-    weights = F.normalize(weights)
-
-    cosine = weights.mm(weights.t())
-    angular = torch.acos(cosine) / np.pi * 180
-
-    return cosine, angular
-
 # ==============================================================================================================================
 def main_unsupervised(num_classes, feature_size):
     net = Network(num_classes=num_classes, feature_size=feature_size)

@@ -5,9 +5,9 @@ from torch.optim.lr_scheduler import MultiStepLR
 
 from config import configer
 from datasets import MNIST
-from metrics import LossUnsupervised, MarginLoss, MarginLossWithParameter, OppositeVectorLoss
+from metrics import LossUnsupervised, MarginLoss, MarginLossWithParameter
 from models import Network, NetworkMargin
-from trainer import SupervisedTrainer, UnsupervisedTrainer, MarginTrainer, MarginTrainerWithParameter
+from trainer import SupervisedTrainer, UnsupervisedTrainer, MarginTrainer, MarginTrainerWithParameter, MarginTrainerWithVectorLoss
 
 def main_crossent(num_classes, feature_size):
     net = Network(num_classes=num_classes, feature_size=feature_size)
@@ -72,8 +72,7 @@ def main_margin_with_opposite_loss(num_classes=10, feature_size=2, s=8.0, m1=2.0
     ]
 
     trainset = MNIST('train'); validset = MNIST('valid')
-    criterion = lambda x: MarginLoss(s, m1, m2, m3, m4)(x) +\
-                            lda * OppositeVectorLoss()(net.cosine_layer.weights)
+    criterion = MarginLoss(s, m1, m2, m3, m4)
     optimizer = optim.Adam
     lr_scheduler = MultiStepLR
 
@@ -117,7 +116,7 @@ if __name__ == "__main__":
     main_adaptivemargin(num_classes=10, feature_size=3, s=8.0, each_class=False, subdir='adaptiveface_dim3_F')
     main_adaptivemargin(num_classes=10, feature_size=3, s=8.0, each_class=True,  subdir='adaptiveface_dim3_T')
 
-    # exit(0)
+    exit(0)
 
 # ==============================================================================================================================
 if __name__ == "__main__":

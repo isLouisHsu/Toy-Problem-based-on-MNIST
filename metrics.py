@@ -157,28 +157,6 @@ class MarginLossWithParameter(nn.Module):
 
         return loss
 
-
-class OppositeVectorLoss(nn.Module):
-
-    def __init__(self):
-        super(OppositeVectorLoss, self).__init__()
-
-    def forward(self, x):
-        """
-        Params:
-            x: {tensor(C, D)} C表示类别数目，D表示特征维度
-        """
-        C = x.shape[0]
-        t = torch.sum(x, dim=0)
-
-        x = list(map(lambda x: torch.sum(F.normalize((t - x).view(-1, 1)) *\
-                                         F.normalize(x.view(-1, 1))).\
-                                            view(-1, 1), x))        # 计算余弦
-        x = torch.mean(torch.cat(x))
-
-        return x
-
-
 class LossUnsupervised(nn.Module):
 
     def __init__(self, num_clusters, feature_size=128):

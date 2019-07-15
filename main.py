@@ -76,7 +76,7 @@ def main_margin_with_opposite_loss(num_classes=10, feature_size=2, s=8.0, m1=2.0
     optimizer = optim.Adam
     lr_scheduler = MultiStepLR
 
-    trainer = MarginTrainer(configer, net, params, trainset, validset, criterion, 
+    trainer = MarginTrainerWithVectorLoss(configer, net, params, trainset, validset, criterion, lda,
                     optimizer, lr_scheduler, num_to_keep=5, resume=False, valid_freq=1, show_embedding=True, subdir=subdir)
     trainer.train()
     del trainer
@@ -98,25 +98,25 @@ def main_unsupervised(num_classes, feature_size):
     del trainer
 
 # ==============================================================================================================================
-if __name__ == "__main__":
+# if __name__ == "__main__":
 
-    # cosmulface
-    main_margin(num_classes=10, feature_size=2, s=8.0, m1=1.00, m2=0.0, m3=0.00, m4=2.00, subdir='cosmulface_dim2_m4=2.00')
-    main_margin(num_classes=10, feature_size=2, s=8.0, m1=1.00, m2=0.0, m3=0.00, m4=3.00, subdir='cosmulface_dim2_m4=3.00')
-    main_margin(num_classes=10, feature_size=2, s=8.0, m1=1.00, m2=0.0, m3=0.00, m4=4.00, subdir='cosmulface_dim2_m4=4.00')
-    # adaptiveface
-    main_adaptivemargin(num_classes=10, feature_size=2, s=8.0, each_class=False, subdir='adaptiveface_dim2_F')
-    main_adaptivemargin(num_classes=10, feature_size=2, s=8.0, each_class=True,  subdir='adaptiveface_dim2_T')
+#     # cosmulface
+#     main_margin(num_classes=10, feature_size=2, s=8.0, m1=1.00, m2=0.0, m3=0.00, m4=2.00, subdir='cosmulface_dim2_m4=2.00')
+#     main_margin(num_classes=10, feature_size=2, s=8.0, m1=1.00, m2=0.0, m3=0.00, m4=3.00, subdir='cosmulface_dim2_m4=3.00')
+#     main_margin(num_classes=10, feature_size=2, s=8.0, m1=1.00, m2=0.0, m3=0.00, m4=4.00, subdir='cosmulface_dim2_m4=4.00')
+#     # adaptiveface
+#     main_adaptivemargin(num_classes=10, feature_size=2, s=8.0, each_class=False, subdir='adaptiveface_dim2_F')
+#     main_adaptivemargin(num_classes=10, feature_size=2, s=8.0, each_class=True,  subdir='adaptiveface_dim2_T')
 
-    # cosmulface
-    main_margin(num_classes=10, feature_size=3, s=8.0, m1=1.00, m2=0.0, m3=0.00, m4=2.00, subdir='cosmulface_dim3_m4=2.00')
-    main_margin(num_classes=10, feature_size=3, s=8.0, m1=1.00, m2=0.0, m3=0.00, m4=3.00, subdir='cosmulface_dim3_m4=3.00')
-    main_margin(num_classes=10, feature_size=3, s=8.0, m1=1.00, m2=0.0, m3=0.00, m4=4.00, subdir='cosmulface_dim3_m4=4.00')
-    # adaptiveface
-    main_adaptivemargin(num_classes=10, feature_size=3, s=8.0, each_class=False, subdir='adaptiveface_dim3_F')
-    main_adaptivemargin(num_classes=10, feature_size=3, s=8.0, each_class=True,  subdir='adaptiveface_dim3_T')
+#     # cosmulface
+#     main_margin(num_classes=10, feature_size=3, s=8.0, m1=1.00, m2=0.0, m3=0.00, m4=2.00, subdir='cosmulface_dim3_m4=2.00')
+#     main_margin(num_classes=10, feature_size=3, s=8.0, m1=1.00, m2=0.0, m3=0.00, m4=3.00, subdir='cosmulface_dim3_m4=3.00')
+#     main_margin(num_classes=10, feature_size=3, s=8.0, m1=1.00, m2=0.0, m3=0.00, m4=4.00, subdir='cosmulface_dim3_m4=4.00')
+#     # adaptiveface
+#     main_adaptivemargin(num_classes=10, feature_size=3, s=8.0, each_class=False, subdir='adaptiveface_dim3_F')
+#     main_adaptivemargin(num_classes=10, feature_size=3, s=8.0, each_class=True,  subdir='adaptiveface_dim3_T')
 
-    exit(0)
+#     exit(0)
 
 # ==============================================================================================================================
 if __name__ == "__main__":

@@ -109,10 +109,10 @@ class MarginProductWithParameter(nn.Module):
         self.each_class = each_class
         
         num_classes = 1 if not each_class else num_classes
-        self.m1 = Parameter(torch.ones(num_classes)*2.00)
-        self.m2 = Parameter(torch.ones(num_classes)*0.50)
-        self.m3 = Parameter(torch.ones(num_classes)*0.35)
-        self.m4 = Parameter(torch.ones(num_classes)*2.00)
+        self.m1 = Parameter(torch.ones(num_classes)*1.00)
+        self.m2 = Parameter(torch.ones(num_classes)*0.00)
+        self.m3 = Parameter(torch.ones(num_classes)*0.00)
+        self.m4 = Parameter(torch.ones(num_classes)*1.00)
 
     def forward(self, cosTheta, label):
         """

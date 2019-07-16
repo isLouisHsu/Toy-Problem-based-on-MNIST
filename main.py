@@ -54,7 +54,7 @@ def main_adaptivemargin(used_labels=None, feature_size=2, s=8.0, each_class=Fals
     params = [
         {'params': base_params, 'weight_decay': 4e-5},
         {'params': net.cosine_layer.weights, 'weight_decay': 4e-4},
-        {'params': criterion.parameters(), 'weight_decay': 4e-4},
+        {'params': criterion.parameters(), 'lr': 0.1*configer.lrbase, 'weight_decay': 4e-4},
     ]
 
     optimizer = optim.Adam
@@ -101,7 +101,22 @@ def main_unsupervised(feature_size, used_labels=None):
     del trainer
 
 # ==============================================================================================================================
-# 实验一： cosmulface & main_adaptivemargin
+# 实验一： adaptiveface
+if __name__ == "__main__":
+
+    # -------------------------------------------------------- dim=2 ---------------------------------------------------------
+    # adaptiveface
+    main_adaptivemargin(used_labels=None, feature_size=2, s=8.0, each_class=False, subdir='adaptiveface_dim2_F')
+    main_adaptivemargin(used_labels=None, feature_size=2, s=8.0, each_class=True,  subdir='adaptiveface_dim2_T')
+
+    # -------------------------------------------------------- dim=3 ---------------------------------------------------------
+    # adaptiveface
+    main_adaptivemargin(used_labels=None, feature_size=3, s=8.0, each_class=False, subdir='adaptiveface_dim3_F')
+    main_adaptivemargin(used_labels=None, feature_size=3, s=8.0, each_class=True,  subdir='adaptiveface_dim3_T')
+
+#     exit(0)
+
+# 实验一： cosmulface 
 # if __name__ == "__main__":
 
 #     # -------------------------------------------------------- dim=2 ---------------------------------------------------------
@@ -109,18 +124,12 @@ def main_unsupervised(feature_size, used_labels=None):
 #     main_margin(used_labels=None, feature_size=2, s=8.0, m1=1.00, m2=0.0, m3=0.00, m4=2.00, subdir='cosmulface_dim2_m4=2.00')
 #     main_margin(used_labels=None, feature_size=2, s=8.0, m1=1.00, m2=0.0, m3=0.00, m4=3.00, subdir='cosmulface_dim2_m4=3.00')
 #     main_margin(used_labels=None, feature_size=2, s=8.0, m1=1.00, m2=0.0, m3=0.00, m4=4.00, subdir='cosmulface_dim2_m4=4.00')
-#     # adaptiveface
-#     main_adaptivemargin(used_labels=None, feature_size=2, s=8.0, each_class=False, subdir='adaptiveface_dim2_F')
-#     main_adaptivemargin(used_labels=None, feature_size=2, s=8.0, each_class=True,  subdir='adaptiveface_dim2_T')
 
 #     # -------------------------------------------------------- dim=3 ---------------------------------------------------------
 #     # cosmulface
 #     main_margin(used_labels=None, feature_size=3, s=8.0, m1=1.00, m2=0.0, m3=0.00, m4=2.00, subdir='cosmulface_dim3_m4=2.00')
 #     main_margin(used_labels=None, feature_size=3, s=8.0, m1=1.00, m2=0.0, m3=0.00, m4=3.00, subdir='cosmulface_dim3_m4=3.00')
 #     main_margin(used_labels=None, feature_size=3, s=8.0, m1=1.00, m2=0.0, m3=0.00, m4=4.00, subdir='cosmulface_dim3_m4=4.00')
-#     # adaptiveface
-#     main_adaptivemargin(used_labels=None, feature_size=3, s=8.0, each_class=False, subdir='adaptiveface_dim3_F')
-#     main_adaptivemargin(used_labels=None, feature_size=3, s=8.0, each_class=True,  subdir='adaptiveface_dim3_T')
 
 #     exit(0)
 
@@ -151,25 +160,25 @@ def main_unsupervised(feature_size, used_labels=None):
 
 # ==============================================================================================================================
 # 实验三：arcface with_vector_loss， 更少的类别
-if __name__ == "__main__":
+# if __name__ == "__main__":
 
-    # -------------------------------------------------------- dim=2 ---------------------------------------------------------
-    # arcface
-    main_margin_with_vector_loss(used_labels=[1, 2, 3, 4], feature_size= 2, s= 8.0, m1=1.00, m2=0.5, m3=0.00, m4=1.0, lda= 0.0, subdir='arcface_dim2_lda=0.0')
-    main_margin_with_vector_loss(used_labels=[1, 2, 3, 4], feature_size= 2, s= 8.0, m1=1.00, m2=0.5, m3=0.00, m4=1.0, lda= 2.0, subdir='arcface_dim2_lda=2.0')
-    main_margin_with_vector_loss(used_labels=[1, 2, 3, 4], feature_size= 2, s= 8.0, m1=1.00, m2=0.5, m3=0.00, m4=1.0, lda= 8.0, subdir='arcface_dim2_lda=8.0')
-    main_margin_with_vector_loss(used_labels=[1, 2, 3, 4], feature_size= 2, s= 8.0, m1=1.00, m2=0.5, m3=0.00, m4=1.0, lda=16.0, subdir='arcface_dim2_lda=16.0')
+#     # -------------------------------------------------------- dim=2 ---------------------------------------------------------
+#     # arcface
+#     main_margin_with_vector_loss(used_labels=[1, 2, 3, 4], feature_size= 2, s= 8.0, m1=1.00, m2=0.5, m3=0.00, m4=1.0, lda= 0.0, subdir='arcface_dim2_lda=0.0')
+#     main_margin_with_vector_loss(used_labels=[1, 2, 3, 4], feature_size= 2, s= 8.0, m1=1.00, m2=0.5, m3=0.00, m4=1.0, lda= 2.0, subdir='arcface_dim2_lda=2.0')
+#     main_margin_with_vector_loss(used_labels=[1, 2, 3, 4], feature_size= 2, s= 8.0, m1=1.00, m2=0.5, m3=0.00, m4=1.0, lda= 8.0, subdir='arcface_dim2_lda=8.0')
+#     main_margin_with_vector_loss(used_labels=[1, 2, 3, 4], feature_size= 2, s= 8.0, m1=1.00, m2=0.5, m3=0.00, m4=1.0, lda=16.0, subdir='arcface_dim2_lda=16.0')
     
-    # -------------------------------------------------------- dim=3 ---------------------------------------------------------
-    main_margin_with_vector_loss(used_labels=[1, 2, 3, 4], feature_size= 3, s= 8.0, m1=1.00, m2=0.5, m3=0.00, m4=1.0, lda= 0.0, subdir='arcface_dim3_lda=0.0')
-    main_margin_with_vector_loss(used_labels=[1, 2, 3, 4], feature_size= 3, s= 8.0, m1=1.00, m2=0.5, m3=0.00, m4=1.0, lda= 2.0, subdir='arcface_dim3_lda=2.0')
-    main_margin_with_vector_loss(used_labels=[1, 2, 3, 4], feature_size= 3, s= 8.0, m1=1.00, m2=0.5, m3=0.00, m4=1.0, lda= 8.0, subdir='arcface_dim3_lda=8.0')
-    main_margin_with_vector_loss(used_labels=[1, 2, 3, 4], feature_size= 3, s= 8.0, m1=1.00, m2=0.5, m3=0.00, m4=1.0, lda=16.0, subdir='arcface_dim3_lda=16.0')
+#     # -------------------------------------------------------- dim=3 ---------------------------------------------------------
+#     main_margin_with_vector_loss(used_labels=[1, 2, 3, 4], feature_size= 3, s= 8.0, m1=1.00, m2=0.5, m3=0.00, m4=1.0, lda= 0.0, subdir='arcface_dim3_lda=0.0')
+#     main_margin_with_vector_loss(used_labels=[1, 2, 3, 4], feature_size= 3, s= 8.0, m1=1.00, m2=0.5, m3=0.00, m4=1.0, lda= 2.0, subdir='arcface_dim3_lda=2.0')
+#     main_margin_with_vector_loss(used_labels=[1, 2, 3, 4], feature_size= 3, s= 8.0, m1=1.00, m2=0.5, m3=0.00, m4=1.0, lda= 8.0, subdir='arcface_dim3_lda=8.0')
+#     main_margin_with_vector_loss(used_labels=[1, 2, 3, 4], feature_size= 3, s= 8.0, m1=1.00, m2=0.5, m3=0.00, m4=1.0, lda=16.0, subdir='arcface_dim3_lda=16.0')
     
-    main_margin_with_vector_loss(used_labels=[1, 2, 3],       feature_size= 3, s= 8.0, m1=1.00, m2=0.5, m3=0.00, m4=1.0, lda=16.0, subdir='arcface_dim3_lda=16.0_c3')   # n_classes = 3
-    main_margin_with_vector_loss(used_labels=[0, 1, 2, 3, 4], feature_size= 3, s= 8.0, m1=1.00, m2=0.5, m3=0.00, m4=1.0, lda=16.0, subdir='arcface_dim3_lda=16.0_c5')   # n_classes = 5
+#     main_margin_with_vector_loss(used_labels=[1, 2, 3],       feature_size= 3, s= 8.0, m1=1.00, m2=0.5, m3=0.00, m4=1.0, lda=16.0, subdir='arcface_dim3_lda=16.0_c3')   # n_classes = 3
+#     main_margin_with_vector_loss(used_labels=[0, 1, 2, 3, 4], feature_size= 3, s= 8.0, m1=1.00, m2=0.5, m3=0.00, m4=1.0, lda=16.0, subdir='arcface_dim3_lda=16.0_c5')   # n_classes = 5
 
-    exit(0)
+#     exit(0)
 
 ## ==============================================================================================================================
 # 实验四：modified & sphereface & arcface & cosface

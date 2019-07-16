@@ -571,6 +571,10 @@ class MarginTrainerWithParameterWithVectorLoss(SupervisedTrainer):
             loss_i.backward()
             self.optimizer.step()
 
+            ###############################################
+            self.net.cosine_layer.weights.data = F.normalize(self.net.cosine_layer.weights.data)
+            ###############################################
+
             avg_loss += [loss_i.detach().cpu().numpy()]
             avg_acc += [acc_i.detach().cpu().numpy()]
             self.writer.add_scalar('{}/train/loss_i'.format(self.net._get_name()), loss_i, self.cur_epoch*n_batch + i_batch)

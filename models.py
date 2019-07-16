@@ -101,6 +101,37 @@ class NetworkMargin(nn.Module):
         return  x
 
 
+class NetworkUnsupervised(nn.Module):
+
+    def __init__(self, feature_size):
+        super(NetworkUnsupervised, self).__init__()
+
+        self.pre_layers = nn.Sequential(
+            nn.Conv2d(   1,  64, 3, 1, 1),
+            nn.ReLU(),
+            nn.MaxPool2d(2, 2),
+
+            nn.Conv2d(  64,  64, 3, 1, 1),
+            nn.ReLU(),
+            nn.MaxPool2d(2, 2),
+
+            nn.Conv2d( 64,  feature_size, 7),
+        )
+
+    def get_feature(self, x):
+        
+        x = self.pre_layers(x)
+        x = x.view(x.shape[0], -1)
+
+        return x
+
+    def forward(self, x):
+
+        x = self.get_feature(x)
+        
+        return  x
+
+
 if __name__ == "__main__":
     net = NetworkMargin(10, 2)
     state = net.state_dict()

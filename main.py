@@ -8,9 +8,9 @@ from torch.optim.lr_scheduler import MultiStepLR
 
 from config import configer
 from datasets import MNIST
-from metrics import LossUnsupervised, MarginLoss, MarginLossWithParameter
-from models import Network, NetworkMargin
-from trainer import SupervisedTrainer, UnsupervisedTrainer, MarginTrainer, MarginTrainerWithParameter, MarginTrainerWithVectorLoss
+from metrics import MarginLoss, MarginLossWithParameter, LossUnsupervised
+from models import Network, NetworkMargin, NetworkUnsupervised
+from trainer import SupervisedTrainer, MarginTrainer, MarginTrainerWithParameter, MarginTrainerWithVectorLoss, UnsupervisedTrainer
 
 def main_crossent(feature_size, used_labels=None):
     trainset = MNIST('train', used_labels); validset = MNIST('valid', used_labels)
@@ -85,11 +85,10 @@ def main_margin_with_vector_loss(used_labels=None, feature_size=2, s=8.0, m1=2.0
     del trainer
 
 # ==============================================================================================================================
-def main_unsupervised(feature_size, used_labels=None):
+def main_unsupervised(n_clusters, feature_size=128, used_labels=None):
     trainset = MNIST('train', used_labels); validset = MNIST('valid', used_labels)
-    net = Network(num_classes=trainset.n_classes, feature_size=feature_size)
-    criterion = LossUnsupervised(trainset.n_classes, feature_size)
-    # params = [{'params': net.parameters(), }, {'params': criterion.m, }]
+    net = NetworkUnsupervised(feature_size=feature_size)
+    criterion = LossUnsupervised(n_clusters, feature_size)
     params = [
         {'params': net.parameters(), }, 
         {'params': criterion.parameters(), },
@@ -102,7 +101,7 @@ def main_unsupervised(feature_size, used_labels=None):
     trainer.train()
     trainer.show_embedding_features(validset)
     del trainer
-
+    
 ## ==============================================================================================================================
 # 实验一：modified & sphereface & arcface & cosface
 # if __name__ == "__main__":

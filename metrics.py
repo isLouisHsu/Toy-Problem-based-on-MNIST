@@ -188,14 +188,15 @@ class LossUnsupervised(nn.Module):
     def _p(self, x, m, s=None):
         """
         Params:
-            x: {tensor(n_features(n_samples))}
-            m: {tensor(n_features(num_clusters, n_samples))}
+            x: {tensor(n_features(n_features))}
+            m: {tensor(n_features(num_clusters, n_features))}
             s: {tensor(n_features(num_clusters))}
         Returns:
-            y: {tensor(n_features(128))}
+            y: {tensor(num_clusters}
         Notes:
             p^{(i)}_k = \frac{\exp( - \frac{||x^{(i)} - m_k||^2}{s_k^2})}{\sum_j \exp( - \frac{||x^{(i)} - m_j||^2}{s_j^2})}
         """
+        a = x - m
         y = torch.norm(x - m, dim=1)
         if s is not None: y = y / s
             
@@ -207,41 +208,6 @@ class LossUnsupervised(nn.Module):
         """
         Params:
             p: tensor{(num_clusters)}
-        Notes(markdown):
-            # 类内熵分布：极小
-            $$
-            p^{(i)}_k = \frac{\exp( - \frac{||x^{(i)} - m_k||^2}{s_k^2})}{\sum_j \exp( - \frac{||x^{(i)} - m_j||^2}{s_j^2})}
-            $$
-
-            $$
-            L_{intra} = \frac{1}{N} \sum_{i=1}^N \sum_{k=1}^{C} p^{(i)}_k \log \frac{1}{p^{(i)}_k}
-            $$
-
-            其中$N$表示样本数，$C$表示指定的聚类数，$x^{(i)}$为第$i$个样本，$m_k$为第$k$类中心。
-
-            # 类间熵分布：极大
-
-            各类聚类中心矢量的中心
-
-            $$ m = \frac{1}{C} \sum_{k=1}^C m_k $$
-
-            $$
-            p^{(i)}_k = \frac{\exp( - \frac{||m - m_k||^2}{s_k^2})}{\sum_j \exp( - \frac{||m - m_j||^2}{s_j^2})}
-            $$
-
-            $$
-            L_{inter} = \frac{1}{N} \sum_{i=1}^N \sum_{k=1}^{C} p^{(i)}_k \log \frac{1}{p^{(i)}_k}
-            $$
-
-            # 总体损失
-
-            尝试了三种形式
-
-            $$ L = \frac{L_{intra}}{L_{inter}} $$
-
-            $$ L = L_{intra} - L_{inter} $$
-
-            $$ L = L_{intra} + \frac{1}{L_{inter}} $$
         """
         p = torch.where(p<=0, 1e-16*torch.ones_like(p), p)
         p = torch.sum(- p * torch.log(p))

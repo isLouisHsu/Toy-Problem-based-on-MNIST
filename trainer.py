@@ -764,7 +764,7 @@ class UnsupervisedTrainer():
         Notes:
             self.criterion.m: {tensor(num_clusters, n_features)}
         """
-        x = torch.cat(list(map(lambda x: self.criterion._f(x, 
+        x = torch.cat(list(map(lambda x: self.criterion._p(x, 
                     self.criterion.m, self.criterion.s1).unsqueeze(0), x)), dim=0)
         y = torch.argmin(x, dim=1)
         return y

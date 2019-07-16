@@ -511,14 +511,16 @@ class MarginTrainerWithVectorLoss(SupervisedTrainer):
         return avg_loss, avg_acc
 
 
-class MarginTrainerWithParameter(SupervisedTrainer):
+class MarginTrainerWithParameterWithVectorLoss(SupervisedTrainer):
 
-    def __init__(self, configer, net, params, trainset, validset, criterion, 
+    def __init__(self, configer, net, params, trainset, validset, criterion, lda,
                     optimizer, lr_scheduler, num_to_keep=5, resume=False, valid_freq=1, show_embedding=False, subdir=None):
 
-        super(MarginTrainerWithParameter, self).__init__(configer, net, params, trainset, validset, criterion, 
+        super(MarginTrainerWithParameterWithVectorLoss, self).__init__(configer, net, params, trainset, validset, criterion, 
                     optimizer, lr_scheduler, num_to_keep, resume, valid_freq)
         
+        self.lda = lda
+
         if subdir is not None:
             self.logdir = os.path.join(self.logdir, subdir)
             if not os.path.exists(self.logdir): os.makedirs(self.logdir)
@@ -558,7 +560,10 @@ class MarginTrainerWithParameter(SupervisedTrainer):
             if self.configer.cuda and cuda.is_available(): X = X.cuda(); y = y.cuda()
             
             costh   = self.net(X)
-            loss_i = self.criterion(costh, y)
+            # ====================================================== #
+            loss_i = self.criterion(costh, y)+ \
+                    self.lda * torch.norm(torch.sum(self.net.cosine_layer.weights, dim=0))
+            # ====================================================== #
             y_pred = torch.argmax(costh, dim=1)
             acc_i  = torch.mean((y_pred==y).float())
 
@@ -598,7 +603,10 @@ class MarginTrainerWithParameter(SupervisedTrainer):
             if self.configer.cuda and cuda.is_available(): X = X.cuda(); y = y.cuda()
             
             costh   = self.net(X)
-            loss_i = self.criterion(costh, y)
+            # ====================================================== #
+            loss_i = self.criterion(costh, y)+ \
+                    self.lda * torch.norm(torch.sum(self.net.cosine_layer.weights, dim=0))
+            # ====================================================== #
             y_pred = torch.argmax(costh, dim=1)
             acc_i  = torch.mean((y_pred==y).float())
 

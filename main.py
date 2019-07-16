@@ -10,7 +10,7 @@ from config import configer
 from datasets import MNIST
 from metrics import LossUnsupervised, MarginLoss, MarginLossWithParameter
 from models import Network, NetworkMargin
-from trainer import SupervisedTrainer, UnsupervisedTrainer, MarginTrainer, MarginTrainerWithParameter, MarginTrainerWithVectorLoss
+from trainer import SupervisedTrainer, UnsupervisedTrainer, MarginTrainer, MarginTrainerWithParameterWithVectorLoss, MarginTrainerWithVectorLoss
 
 def main_crossent(feature_size, used_labels=None):
     trainset = MNIST('train', used_labels); validset = MNIST('valid', used_labels)
@@ -45,7 +45,7 @@ def main_margin(used_labels=None, feature_size=2, s=8.0, m1=2.00, m2=0.5, m3=0.3
     trainer.train()
     del trainer
 
-def main_adaptivemargin(used_labels=None, feature_size=2, s=8.0, each_class=False, subdir=None):
+def main_adaptivemargin(used_labels=None, feature_size=2, s=8.0, lda=16.0, each_class=False, subdir=None):
     trainset = MNIST('train', used_labels); validset = MNIST('valid', used_labels)
     net = NetworkMargin(num_classes=trainset.n_classes, feature_size=feature_size)
     criterion = MarginLossWithParameter(trainset.n_classes, s, each_class)
@@ -60,7 +60,7 @@ def main_adaptivemargin(used_labels=None, feature_size=2, s=8.0, each_class=Fals
     optimizer = optim.Adam
     lr_scheduler = MultiStepLR
 
-    trainer = MarginTrainerWithParameter(configer, net, params, trainset, validset, criterion, 
+    trainer = MarginTrainerWithParameterWithVectorLoss(configer, net, params, trainset, validset, criterion, lda,
                     optimizer, lr_scheduler, num_to_keep=5, resume=False, valid_freq=1, show_embedding=True, subdir=subdir)
     trainer.train()
     del trainer

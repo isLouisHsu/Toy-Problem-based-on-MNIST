@@ -141,10 +141,16 @@ if __name__ == "__main__":
     main_adaptivemargin(used_labels=None, feature_size=2, s=8.0, each_class=False, subdir='adaptiveface_dim2_F')
     main_adaptivemargin(used_labels=None, feature_size=2, s=8.0, each_class=True,  subdir='adaptiveface_dim2_T')
 
+    main_adaptivemargin(used_labels=None, feature_size=2, s=8.0, lda=0.0, each_class=False, subdir='adaptiveface_dim2_F_lda0')
+    main_adaptivemargin(used_labels=None, feature_size=2, s=8.0, lda=0.0, each_class=True,  subdir='adaptiveface_dim2_T_lda0')
+
     # -------------------------------------------------------- dim=3 ---------------------------------------------------------
     # adaptiveface
     main_adaptivemargin(used_labels=None, feature_size=3, s=8.0, each_class=False, subdir='adaptiveface_dim3_F')
     main_adaptivemargin(used_labels=None, feature_size=3, s=8.0, each_class=True,  subdir='adaptiveface_dim3_T')
+    
+    main_adaptivemargin(used_labels=None, feature_size=3, s=8.0, lda=0.0, each_class=False, subdir='adaptiveface_dim3_F_lda0')
+    main_adaptivemargin(used_labels=None, feature_size=3, s=8.0, lda=0.0, each_class=True,  subdir='adaptiveface_dim3_T_lda0')
 
 #     exit(0)
 

@@ -90,7 +90,10 @@ def main_unsupervised(feature_size, used_labels=None):
     net = Network(num_classes=trainset.n_classes, feature_size=feature_size)
     criterion = LossUnsupervised(trainset.n_classes, feature_size)
     # params = [{'params': net.parameters(), }, {'params': criterion.m, }]
-    params = [{'params': net.parameters(), }, {'params': criterion.parameters(), }]
+    params = [
+        {'params': net.parameters(), }, 
+        {'params': criterion.parameters(), },
+    ]
     optimizer = optim.SGD
     lr_scheduler = MultiStepLR
 
@@ -138,11 +141,11 @@ if __name__ == "__main__":
 
     # -------------------------------------------------------- dim=2 ---------------------------------------------------------
     # adaptiveface
-    main_adaptivemargin(used_labels=None, feature_size=2, s=8.0, subdir='adaptiveface_dim2_F')
+    main_adaptivemargin(used_labels=None, feature_size=2, s=8.0, subdir='adaptiveface_dim2')
 
     # -------------------------------------------------------- dim=3 ---------------------------------------------------------
     # adaptiveface
-    main_adaptivemargin(used_labels=None, feature_size=3, s=8.0, subdir='adaptiveface_dim3_F')
+    main_adaptivemargin(used_labels=None, feature_size=3, s=8.0, subdir='adaptiveface_dim3')
 
     exit(0)
 

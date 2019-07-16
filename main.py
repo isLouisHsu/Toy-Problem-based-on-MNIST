@@ -10,7 +10,7 @@ from config import configer
 from datasets import MNIST
 from metrics import LossUnsupervised, MarginLoss, MarginLossWithParameter
 from models import Network, NetworkMargin
-from trainer import SupervisedTrainer, UnsupervisedTrainer, MarginTrainer, MarginTrainerWithParameterWithVectorLoss, MarginTrainerWithVectorLoss
+from trainer import SupervisedTrainer, UnsupervisedTrainer, MarginTrainer, MarginTrainerWithParameter, MarginTrainerWithVectorLoss
 
 def main_crossent(feature_size, used_labels=None):
     trainset = MNIST('train', used_labels); validset = MNIST('valid', used_labels)
@@ -45,7 +45,7 @@ def main_margin(used_labels=None, feature_size=2, s=8.0, m1=2.00, m2=0.5, m3=0.3
     trainer.train()
     del trainer
 
-def main_adaptivemargin(used_labels=None, feature_size=2, s=8.0, lda=16.0, each_class=False, subdir=None):
+def main_adaptivemargin(used_labels=None, feature_size=2, s=8.0, each_class=False, subdir=None):
     trainset = MNIST('train', used_labels); validset = MNIST('valid', used_labels)
     net = NetworkMargin(num_classes=trainset.n_classes, feature_size=feature_size)
     criterion = MarginLossWithParameter(trainset.n_classes, s, each_class)
@@ -60,7 +60,7 @@ def main_adaptivemargin(used_labels=None, feature_size=2, s=8.0, lda=16.0, each_
     optimizer = optim.Adam
     lr_scheduler = MultiStepLR
 
-    trainer = MarginTrainerWithParameterWithVectorLoss(configer, net, params, trainset, validset, criterion, lda,
+    trainer = MarginTrainerWithParameter(configer, net, params, trainset, validset, criterion, 
                     optimizer, lr_scheduler, num_to_keep=5, resume=False, valid_freq=1, show_embedding=True, subdir=subdir)
     trainer.train()
     del trainer
@@ -141,18 +141,12 @@ if __name__ == "__main__":
     main_adaptivemargin(used_labels=None, feature_size=2, s=8.0, each_class=False, subdir='adaptiveface_dim2_F')
     main_adaptivemargin(used_labels=None, feature_size=2, s=8.0, each_class=True,  subdir='adaptiveface_dim2_T')
 
-    main_adaptivemargin(used_labels=None, feature_size=2, s=8.0, lda=0.0, each_class=False, subdir='adaptiveface_dim2_F_lda0')
-    main_adaptivemargin(used_labels=None, feature_size=2, s=8.0, lda=0.0, each_class=True,  subdir='adaptiveface_dim2_T_lda0')
-
     # -------------------------------------------------------- dim=3 ---------------------------------------------------------
     # adaptiveface
     main_adaptivemargin(used_labels=None, feature_size=3, s=8.0, each_class=False, subdir='adaptiveface_dim3_F')
     main_adaptivemargin(used_labels=None, feature_size=3, s=8.0, each_class=True,  subdir='adaptiveface_dim3_T')
-    
-    main_adaptivemargin(used_labels=None, feature_size=3, s=8.0, lda=0.0, each_class=False, subdir='adaptiveface_dim3_F_lda0')
-    main_adaptivemargin(used_labels=None, feature_size=3, s=8.0, lda=0.0, each_class=True,  subdir='adaptiveface_dim3_T_lda0')
 
-#     exit(0)
+    exit(0)
 
 # 实验二： cosmulface 
 # if __name__ == "__main__":

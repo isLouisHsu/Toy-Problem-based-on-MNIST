@@ -816,6 +816,13 @@ class UnsupervisedTrainer():
             total_i.backward()
             self.optimizer.step()
 
+            # ================================================== #
+            self.criterion.m1.data = torch.clamp(self.criterion.m1.data, 1, float('inf'))
+            self.criterion.m2.data = torch.clamp(self.criterion.m2.data, 0, float('inf'))
+            self.criterion.m3.data = torch.clamp(self.criterion.m3.data, 0, float('inf'))
+            self.criterion.m4.data = torch.clamp(self.criterion.m4.data, 1, float('inf'))
+            # ================================================== #
+
             avg_loss += [total_i.detach().cpu().numpy()]; avg_ami += [ami_i]
             self.writer.add_scalars('{}/train/loss_i'.format(self.net._get_name()), {'total_i': total_i, 'intra_i': intra_i, 'inter_i': inter_i, }, self.cur_epoch*n_batch + i_batch)
             self.writer.add_scalar('{}/train/ami_i'.format(self.net._get_name()),  ami_i,  self.cur_epoch*n_batch + i_batch)

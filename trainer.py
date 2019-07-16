@@ -650,7 +650,7 @@ class MarginTrainerWithParameter(SupervisedTrainer):
             'save_times': self.save_times,
             
             'net_state': self.net.state_dict(),
-            'metric_state': self.metrics.state_dict(),
+            'criterion_state': self.criterion.state_dict(),
             'optimizer_state': self.optimizer.state_dict(),
             'lr_scheduler_state': self.lr_scheduler.state_dict(),
         }
@@ -679,7 +679,7 @@ class MarginTrainerWithParameter(SupervisedTrainer):
         self.save_times = checkpoint_state['save_times']
 
         self.net.load_state_dict(checkpoint_state['net_state'])
-        self.metrics.load_state_dict(checkpoint_state['metric_state'])
+        self.criterion.load_state_dict(checkpoint_state['criterion_state'])
         self.optimizer.load_state_dict(checkpoint_state['optimizer_state'])
         self.lr_scheduler.load_state_dict(checkpoint_state['lr_scheduler_state'])
 

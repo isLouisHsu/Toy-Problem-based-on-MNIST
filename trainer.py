@@ -573,10 +573,10 @@ class MarginTrainerWithParameterWithVectorLoss(SupervisedTrainer):
 
             # ====================================================== #
             self.net.cosine_layer.weights.data = F.normalize(self.net.cosine_layer.weights.data)
-            self.criterion.m1.data = torch.clamp(self.criterion.m1.data, 1, float('inf'))
-            self.criterion.m2.data = torch.clamp(self.criterion.m2.data, 0, float('inf'))
-            self.criterion.m3.data = torch.clamp(self.criterion.m3.data, 0, float('inf'))
-            self.criterion.m4.data = torch.clamp(self.criterion.m4.data, 1, float('inf'))
+            self.criterion.margin.m1.data = torch.clamp(self.criterion.margin.m1.data, 1, float('inf'))
+            self.criterion.margin.m2.data = torch.clamp(self.criterion.margin.m2.data, 0, float('inf'))
+            self.criterion.margin.m3.data = torch.clamp(self.criterion.margin.m3.data, 0, float('inf'))
+            self.criterion.margin.m4.data = torch.clamp(self.criterion.margin.m4.data, 1, float('inf'))
             # ====================================================== #
 
             avg_loss += [loss_i.detach().cpu().numpy()]

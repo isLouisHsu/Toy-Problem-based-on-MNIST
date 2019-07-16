@@ -558,7 +558,11 @@ class MarginTrainerWithParameter(SupervisedTrainer):
             if self.configer.cuda and cuda.is_available(): X = X.cuda(); y = y.cuda()
             
             costh   = self.net(X)
-            loss_i = self.criterion(costh, y)
+            ###############################################
+            loss_i = self.criterion(costh, y) - \
+                (self.criterion.margin.m1 + self.criterion.margin.m2 - \
+                    self.criterion.margin.m3 + self.criterion.margin.m4)
+            ###############################################
             y_pred = torch.argmax(costh, dim=1)
             acc_i  = torch.mean((y_pred==y).float())
 
@@ -603,7 +607,11 @@ class MarginTrainerWithParameter(SupervisedTrainer):
             if self.configer.cuda and cuda.is_available(): X = X.cuda(); y = y.cuda()
             
             costh   = self.net(X)
-            loss_i = self.criterion(costh, y)
+            ###############################################
+            loss_i = self.criterion(costh, y) - \
+                (self.criterion.margin.m1 + self.criterion.margin.m2 - \
+                    self.criterion.margin.m3 + self.criterion.margin.m4)
+            ###############################################
             y_pred = torch.argmax(costh, dim=1)
             acc_i  = torch.mean((y_pred==y).float())
 

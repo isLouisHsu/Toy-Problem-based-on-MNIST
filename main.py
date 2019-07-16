@@ -45,16 +45,16 @@ def main_margin(used_labels=None, feature_size=2, s=8.0, m1=2.00, m2=0.5, m3=0.3
     trainer.train()
     del trainer
 
-def main_adaptivemargin(used_labels=None, feature_size=2, s=8.0, each_class=False, subdir=None):
+def main_adaptivemargin(used_labels=None, feature_size=2, s=8.0, subdir=None):
     trainset = MNIST('train', used_labels); validset = MNIST('valid', used_labels)
     net = NetworkMargin(num_classes=trainset.n_classes, feature_size=feature_size)
-    criterion = MarginLossWithParameter(trainset.n_classes, s, each_class)
+    criterion = MarginLossWithParameter(trainset.n_classes, s)
 
     base_params = list(filter(lambda x: id(x) != id(net.cosine_layer.weights), net.parameters()))
     params = [
-        {'params': base_params, 'weight_decay': 4e-5},
+        {'params': base_params,              'weight_decay': 4e-5},
         {'params': net.cosine_layer.weights, 'weight_decay': 4e-4},
-        {'params': criterion.parameters(), 'lr': 0.1*configer.lrbase, 'weight_decay': 4e-4},
+        {'params': criterion.parameters(),   'weight_decay': 4e-4},
     ]
 
     optimizer = optim.Adam
@@ -138,13 +138,11 @@ if __name__ == "__main__":
 
     # -------------------------------------------------------- dim=2 ---------------------------------------------------------
     # adaptiveface
-    main_adaptivemargin(used_labels=None, feature_size=2, s=8.0, each_class=False, subdir='adaptiveface_dim2_F')
-    main_adaptivemargin(used_labels=None, feature_size=2, s=8.0, each_class=True,  subdir='adaptiveface_dim2_T')
+    main_adaptivemargin(used_labels=None, feature_size=2, s=8.0, subdir='adaptiveface_dim2_F')
 
     # -------------------------------------------------------- dim=3 ---------------------------------------------------------
     # adaptiveface
-    main_adaptivemargin(used_labels=None, feature_size=3, s=8.0, each_class=False, subdir='adaptiveface_dim3_F')
-    main_adaptivemargin(used_labels=None, feature_size=3, s=8.0, each_class=True,  subdir='adaptiveface_dim3_T')
+    main_adaptivemargin(used_labels=None, feature_size=3, s=8.0, subdir='adaptiveface_dim3_F')
 
     exit(0)
 

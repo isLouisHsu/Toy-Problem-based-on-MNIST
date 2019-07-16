@@ -638,6 +638,50 @@ class MarginTrainerWithParameter(SupervisedTrainer):
         avg_acc  = np.mean(np.array(avg_acc))
         return avg_loss, avg_acc
     
+    def save_checkpoint(self):
+        
+        checkpoint_state = {
+            'save_time': getTime(),
+
+            'cur_epoch': self.cur_epoch,
+            'cur_batch': self.cur_batch,
+            'elapsed_time': self.elapsed_time,
+            'valid_loss': self.valid_loss,
+            'save_times': self.save_times,
+            
+            'net_state': self.net.state_dict(),
+            'metric_state': self.metrics.state_dict(),
+            'optimizer_state': self.optimizer.state_dict(),
+            'lr_scheduler_state': self.lr_scheduler.state_dict(),
+        }
+
+        checkpoint_path = os.path.join(self.ckptdir, "{}_{:04d}.pkl".\
+                            format(self.net._get_name(), self.save_times))
+        torch.save(checkpoint_state, checkpoint_path)
+        
+        checkpoint_path = os.path.join(self.ckptdir, "{}_{:04d}.pkl".\
+                            format(self.net._get_name(), self.save_times-self.num_to_keep))
+        if os.path.exists(checkpoint_path): os.remove(checkpoint_path)
+
+        self.save_times += 1
+        
+
+    def load_checkpoint(self, index):
+        
+        checkpoint_path = os.path.join(self.ckptdir, "{}_{:04d}.pkl".\
+                            format(self.net._get_name(), index))
+        checkpoint_state = torch.load(checkpoint_path, map_location='cuda' if cuda.is_available() else 'cpu')
+        
+        self.cur_epoch = checkpoint_state['cur_epoch']
+        self.cur_batch = checkpoint_state['cur_batch']
+        self.elapsed_time = checkpoint_state['elapsed_time']
+        self.valid_loss = checkpoint_state['valid_loss']
+        self.save_times = checkpoint_state['save_times']
+
+        self.net.load_state_dict(checkpoint_state['net_state'])
+        self.metrics.load_state_dict(checkpoint_state['metric_state'])
+        self.optimizer.load_state_dict(checkpoint_state['optimizer_state'])
+        self.lr_scheduler.load_state_dict(checkpoint_state['lr_scheduler_state'])
 
 class UnsupervisedTrainer():
 

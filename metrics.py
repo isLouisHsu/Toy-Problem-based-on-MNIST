@@ -154,6 +154,8 @@ class MarginLossWithParameter(nn.Module):
 
 #############################################################################################
 
+class LossUnsupervised(nn.Module):
+
     def __init__(self, num_clusters, feature_size):
         super(LossUnsupervised, self).__init__()
 
@@ -228,7 +230,7 @@ class MarginLossWithParameter(nn.Module):
 
         ## 优化目标，最小化
         # total = intra / inter
-        # total = intra - inter
-        total = intra + 1. / inter
+        total = intra - inter
+        # total = intra + 1. / inter
 
         return total, intra, 1. / inter

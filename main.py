@@ -8,9 +8,9 @@ from torch.optim.lr_scheduler import MultiStepLR
 
 from config import configer
 from datasets import MNIST
-from metrics import MarginLoss, MarginLossWithParameter, LossUnsupervised
-from models import Network, NetworkMargin, NetworkUnsupervised
-from trainer import SupervisedTrainer, MarginTrainer, MarginTrainerWithParameter, MarginTrainerWithVectorLoss, UnsupervisedTrainer
+from metrics import *
+from models import *
+from trainer import *
 
 def main_crossent(feature_size, used_labels=None):
     trainset = MNIST('train', used_labels); validset = MNIST('valid', used_labels)
@@ -136,7 +136,6 @@ def main_unsupervised(feature_size, n_clusters=50, used_labels=None):
 # 实验二： adaptiveface
 # if __name__ == "__main__":
 
-<<<<<<< HEAD
 #     # -------------------------------------------------------- dim=2 ---------------------------------------------------------
 #     # adaptiveface
 #     main_adaptivemargin(used_labels=None, feature_size=2, s=8.0, subdir='adaptiveface_dim2_F')
@@ -144,15 +143,6 @@ def main_unsupervised(feature_size, n_clusters=50, used_labels=None):
 #     # -------------------------------------------------------- dim=3 ---------------------------------------------------------
 #     # adaptiveface
 #     main_adaptivemargin(used_labels=None, feature_size=3, s=8.0, subdir='adaptiveface_dim3_F')
-=======
-    # -------------------------------------------------------- dim=2 ---------------------------------------------------------
-    # adaptiveface
-    main_adaptivemargin(used_labels=None, feature_size=2, s=8.0, subdir='adaptiveface_dim2')
-
-    # -------------------------------------------------------- dim=3 ---------------------------------------------------------
-    # adaptiveface
-    main_adaptivemargin(used_labels=None, feature_size=3, s=8.0, subdir='adaptiveface_dim3')
->>>>>>> 7a361f00db1eca7afdb44d60a1af71e2c1a28bc2
 
 #     exit(0)
 

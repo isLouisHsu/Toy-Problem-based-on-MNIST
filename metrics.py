@@ -152,12 +152,14 @@ class MarginLossWithParameter(nn.Module):
 
 class LossUnsupervised(nn.Module):
 
-    def __init__(self, num_clusters, feature_size=128):
+    def __init__(self, num_clusters, feature_size):
         super(LossUnsupervised, self).__init__()
 
         self.m = nn.Parameter(torch.Tensor(num_clusters, feature_size))
         nn.init.xavier_uniform_(self.m)
-    
+
+        # TODO: zheng jiao
+
         # self.s1 = None; self.s2 = None
         self.s1 = nn.Parameter(torch.ones(num_clusters))
         self.s2 = nn.Parameter(torch.ones(num_clusters))

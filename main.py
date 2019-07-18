@@ -85,10 +85,10 @@ def main_margin_with_vector_loss(used_labels=None, feature_size=2, s=8.0, m1=2.0
     del trainer
 
 # ==============================================================================================================================
-def main_unsupervised(feature_size, used_labels=None):
+def main_unsupervised(feature_size, n_clusters=50, used_labels=None):
     trainset = MNIST('train', used_labels); validset = MNIST('valid', used_labels)
-    net = Network(num_classes=trainset.n_classes, feature_size=feature_size)
-    criterion = LossUnsupervised(trainset.n_classes, feature_size)
+    net = Network(feature_size, 512)
+    criterion = LossUnsupervised(n_clusters, feature_size)
     # params = [{'params': net.parameters(), }, {'params': criterion.m, }]
     params = [{'params': net.parameters(), }, {'params': criterion.parameters(), }]
     optimizer = optim.SGD
@@ -134,17 +134,17 @@ def main_unsupervised(feature_size, used_labels=None):
 
 # ==============================================================================================================================
 # 实验二： adaptiveface
-if __name__ == "__main__":
+# if __name__ == "__main__":
 
-    # -------------------------------------------------------- dim=2 ---------------------------------------------------------
-    # adaptiveface
-    main_adaptivemargin(used_labels=None, feature_size=2, s=8.0, subdir='adaptiveface_dim2_F')
+#     # -------------------------------------------------------- dim=2 ---------------------------------------------------------
+#     # adaptiveface
+#     main_adaptivemargin(used_labels=None, feature_size=2, s=8.0, subdir='adaptiveface_dim2_F')
 
-    # -------------------------------------------------------- dim=3 ---------------------------------------------------------
-    # adaptiveface
-    main_adaptivemargin(used_labels=None, feature_size=3, s=8.0, subdir='adaptiveface_dim3_F')
+#     # -------------------------------------------------------- dim=3 ---------------------------------------------------------
+#     # adaptiveface
+#     main_adaptivemargin(used_labels=None, feature_size=3, s=8.0, subdir='adaptiveface_dim3_F')
 
-    exit(0)
+#     exit(0)
 
 # 实验二： cosmulface 
 # if __name__ == "__main__":
@@ -208,3 +208,7 @@ if __name__ == "__main__":
 #     main_margin_with_vector_loss(used_labels=[0, 1, 2, 3, 4], feature_size= 3, s= 8.0, m1=1.00, m2=0.5, m3=0.00, m4=1.0, lda=16.0, subdir='arcface_dim3_lda=16.0_c5')   # n_classes = 5
 
 #     exit(0)
+
+if __name__ == "__main__":
+    
+    main_unsupervised(128, 50)

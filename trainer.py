@@ -699,7 +699,9 @@ class MarginTrainerWithParameter(SupervisedTrainer):
 class UnsupervisedTrainer():
 
     def __init__(self, configer, net, params, trainset, validset, criterion, 
-                    optimizer, lr_scheduler, num_to_keep=5, resume=False, valid_freq=1):
+                    optimizer, lr_scheduler, num_to_keep=5, resume=False, valid_freq=1, show_embedding=True, subdir=None):
+
+        self.show_embedding = show_embedding
 
         self.configer = configer
         self.valid_freq = valid_freq
@@ -708,8 +710,11 @@ class UnsupervisedTrainer():
         
         ## directory for log and checkpoints
         self.logdir = os.path.join(configer.logdir, self.net._get_name())
-        if not os.path.exists(self.logdir): os.makedirs(self.logdir)
         self.ckptdir = configer.ckptdir
+        if subdir is not None:
+            self.logdir = os.path.join(self.logdir, subdir)
+            self.ckptdir = os.path.join(self.ckptdir, subdir)
+        if not os.path.exists(self.logdir): os.makedirs(self.logdir)
         if not os.path.exists(self.ckptdir): os.makedirs(self.ckptdir)
         
         ## datasets
@@ -850,6 +855,10 @@ class UnsupervisedTrainer():
         start_time = time.time()
         n_batch = len(self.validset) // self.configer.batchsize
 
+        if self.show_embedding:
+            mat = None
+            metadata = None
+
         for i_batch, (X, y) in enumerate(self.validloader):
 
             X = Variable(X.float()); y = Variable(y.long())
@@ -866,7 +875,14 @@ class UnsupervisedTrainer():
 
             duration_time = time.time() - start_time
             start_time = time.time()
+
+            if self.show_embedding:
+                mat = torch.cat([mat, feature], dim=0) if mat is not None else feat
+                metadata = torch.cat([metadata, y], dim=0) if metadata is not None else y
         
+        if self.show_embedding:
+            self.writer.add_embedding(mat, metadata, global_step=self.cur_epoch)
+
         avg_loss = np.mean(np.array(avg_loss))
         avg_ami  = np.mean(np.array(avg_ami))
         return avg_loss, avg_ami
@@ -917,23 +933,3 @@ class UnsupervisedTrainer():
         self.optimizer.load_state_dict(checkpoint_state['optimizer_state'])
         self.lr_scheduler.load_state_dict(checkpoint_state['lr_scheduler_state'])
 
-    def show_embedding_features(self, dataset):
-        
-        embedding_images   = torch.zeros(len(dataset), 1, 28, 28)
-        embedding_features = torch.zeros(len(dataset), self.criterion.m.shape[1])
-        embedding_labels   = torch.zeros(len(dataset))
-
-        self.net.eval()
-
-        dataloader = DataLoader(dataset)
-        for i, (X, y) in enumerate(dataloader):
-
-            if self.configer.cuda and cuda.is_available():
-                X = X.cuda()
-            embedding_features[i] = self.net(X)
-
-            embedding_images[i] = X[0]
-            embedding_labels[i] = y
-
-        self.writer.add_embedding(embedding_features, 
-                    metadata=embedding_labels, label_img=embedding_images)

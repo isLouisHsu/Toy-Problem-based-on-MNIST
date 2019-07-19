@@ -85,7 +85,7 @@ def main_margin_with_vector_loss(used_labels=None, feature_size=2, s=8.0, m1=2.0
     del trainer
 
 # ==============================================================================================================================
-def main_unsupervised(feature_size, n_clusters=50, used_labels=None):
+def main_unsupervised(feature_size, n_clusters=50, used_labels=None, show_embedding=True, subdir=None):
     trainset = MNIST('train', used_labels); validset = MNIST('valid', used_labels)
     net = Network(feature_size, 512)
     criterion = LossUnsupervised(n_clusters, feature_size)
@@ -95,9 +95,8 @@ def main_unsupervised(feature_size, n_clusters=50, used_labels=None):
     lr_scheduler = MultiStepLR
 
     trainer = UnsupervisedTrainer(configer, net, params, trainset, validset, criterion, 
-                    optimizer, lr_scheduler, num_to_keep=5, resume=False, valid_freq=1)
+                    optimizer, lr_scheduler, num_to_keep=5, resume=False, valid_freq=1, show_embedding=True, subdir=subdir)
     trainer.train()
-    trainer.show_embedding_features(validset)
     del trainer
     
 ## ==============================================================================================================================
@@ -210,5 +209,12 @@ def main_unsupervised(feature_size, n_clusters=50, used_labels=None):
 #     exit(0)
 
 if __name__ == "__main__":
+
+    main_unsupervised(128, 10, subdir='unsupervised_c10_f128')
+    main_unsupervised(128, 20, subdir='unsupervised_c20_f128')
+    main_unsupervised(128, 30, subdir='unsupervised_c30_f128')
+
+    main_unsupervised(3, 10, subdir='unsupervised_c10_f3')
+    main_unsupervised(3, 20, subdir='unsupervised_c20_f3')
+    main_unsupervised(3, 30, subdir='unsupervised_c30_f3')
     
-    main_unsupervised(128, 50)

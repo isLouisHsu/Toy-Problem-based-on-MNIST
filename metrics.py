@@ -1,4 +1,6 @@
 import math
+import numpy as np
+
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -159,10 +161,12 @@ class LossUnsupervised(nn.Module):
     def __init__(self, num_clusters, feature_size):
         super(LossUnsupervised, self).__init__()
 
-        self.m = nn.Parameter(torch.Tensor(num_clusters, feature_size))
-        nn.init.xavier_uniform_(self.m)
+        m = np.random.rand(num_clusters, feature_size)
+        u, s, vh = np.linalg.svd(m)
+        self.m = nn.Parameter(torch.from_numpy(vh[: num_clusters]).float())
 
-        # TODO: zheng jiao
+        # self.m = nn.Parameter(torch.Tensor(num_clusters, feature_size))
+        # nn.init.xavier_uniform_(self.m)
 
         # self.s1 = None; self.s2 = None
         self.s1 = nn.Parameter(torch.ones(num_clusters))
@@ -191,7 +195,6 @@ class LossUnsupervised(nn.Module):
         Notes:
             p^{(i)}_k = \frac{\exp( - \frac{||x^{(i)} - m_k||^2}{s_k^2})}{\sum_j \exp( - \frac{||x^{(i)} - m_j||^2}{s_j^2})}
         """
-        a = x - m
         y = torch.norm(x - m, dim=1)
         if s is not None: y = y / s
             

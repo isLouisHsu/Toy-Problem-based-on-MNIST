@@ -162,8 +162,11 @@ class LossUnsupervised(nn.Module):
         super(LossUnsupervised, self).__init__()
 
         m = np.random.rand(num_clusters, feature_size)
-        u, s, vh = np.linalg.svd(m)
-        self.m = nn.Parameter(torch.from_numpy(vh[: num_clusters]).float())
+        if num_clusters > feature_size: m = m.T
+        u, s, vh = np.linalg.svd(m, full_matrices=False)
+        m = vh[: num_clusters]
+        if num_clusters > feature_size: m = m.T
+        self.m = nn.Parameter(torch.from_numpy(m).float())
 
         # self.m = nn.Parameter(torch.Tensor(num_clusters, feature_size))
         # nn.init.xavier_uniform_(self.m)

@@ -877,7 +877,7 @@ class UnsupervisedTrainer():
             start_time = time.time()
 
             if self.show_embedding:
-                mat = torch.cat([mat, feature], dim=0) if mat is not None else feat
+                mat = torch.cat([mat, feature], dim=0) if mat is not None else feature
                 metadata = torch.cat([metadata, y], dim=0) if metadata is not None else y
         
         if self.show_embedding:

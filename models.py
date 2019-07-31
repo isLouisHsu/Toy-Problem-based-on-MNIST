@@ -7,7 +7,7 @@ from torch.nn import Parameter
 
 class Network(nn.Module):
 
-    def __init__(self, num_classes, feature_size):
+    def __init__(self, num_classes, feature_size, init_once=True):
         super(Network, self).__init__()
 
         self.pre_layers = nn.Sequential(
@@ -22,6 +22,17 @@ class Network(nn.Module):
             nn.Conv2d( 64,  feature_size, 7),
             nn.Conv2d(feature_size, num_classes, 1),
         )
+
+        if init_once:
+            pkldir = './initial'
+            if not os.path.exists(pkldir): os.mkdir(pkldir)
+            pklpath = '%s/%s_class%d_dim%d.pkl' % (pkldir, self._get_name(), num_classes, feature_size)
+            if os.path.exists(pklpath):
+                state = torch.load(pklpath)
+                self.load_state_dict(state)
+            else:
+                state = self.state_dict()
+                torch.save(state, pklpath)
 
     def get_feature(self, x):
         
@@ -78,7 +89,9 @@ class NetworkMargin(nn.Module):
         self.cosine_layer = CosineLayer(num_classes, feature_size)
 
         if init_once:
-            pklpath = '%s_class%d_dim%d.pkl' % (self._get_name(), num_classes, feature_size)
+            pkldir = './initial'
+            if not os.path.exists(pkldir): os.mkdir(pkldir)
+            pklpath = '%s/%s_class%d_dim%d.pkl' % (pkldir, self._get_name(), num_classes, feature_size)
             if os.path.exists(pklpath):
                 state = torch.load(pklpath)
                 self.load_state_dict(state)
@@ -103,7 +116,7 @@ class NetworkMargin(nn.Module):
 
 class NetworkUnsupervised(nn.Module):
 
-    def __init__(self, feature_size):
+    def __init__(self, feature_size, init_once=True):
         super(NetworkUnsupervised, self).__init__()
 
         self.pre_layers = nn.Sequential(
@@ -117,6 +130,17 @@ class NetworkUnsupervised(nn.Module):
 
             nn.Conv2d( 64,  feature_size, 7),
         )
+
+        if init_once:
+            pkldir = './initial'
+            if not os.path.exists(pkldir): os.mkdir(pkldir)
+            pklpath = '%s/%s_dim%d.pkl' % (pkldir, self._get_name(), feature_size)
+            if os.path.exists(pklpath):
+                state = torch.load(pklpath)
+                self.load_state_dict(state)
+            else:
+                state = self.state_dict()
+                torch.save(state, pklpath)
 
     def get_feature(self, x):
         

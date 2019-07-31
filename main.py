@@ -85,10 +85,10 @@ def main_margin_with_vector_loss(used_labels=None, feature_size=2, s=8.0, m1=2.0
     del trainer
 
 # ==============================================================================================================================
-def main_unsupervised(feature_size, n_clusters=50, used_labels=None, show_embedding=True, subdir=None):
+def main_unsupervised(feature_size, n_clusters=50, entropy_type='shannon', used_labels=None, show_embedding=True, subdir=None):
     trainset = MNIST('train', used_labels); validset = MNIST('valid', used_labels)
     net = Network(feature_size, 512)
-    criterion = LossUnsupervised(n_clusters, feature_size)
+    criterion = LossUnsupervised(n_clusters, feature_size, entropy_type)
     # params = [{'params': net.parameters(), }, {'params': criterion.m, }]
     params = [{'params': net.parameters(), }, {'params': criterion.parameters(), }]
     optimizer = optim.SGD
@@ -210,11 +210,32 @@ def main_unsupervised(feature_size, n_clusters=50, used_labels=None, show_embedd
 
 if __name__ == "__main__":
 
-    main_unsupervised(128, 10, subdir='unsupervised_c10_f128')
-    main_unsupervised(128, 20, subdir='unsupervised_c20_f128')
-    main_unsupervised(128, 30, subdir='unsupervised_c30_f128')
+    main_unsupervised(128, 10, entropy_type='shannon', subdir='unsupervised_shannon_c10_f128')
+    main_unsupervised(128, 20, entropy_type='shannon', subdir='unsupervised_shannon_c20_f128')
+    main_unsupervised(128, 40, entropy_type='shannon', subdir='unsupervised_shannon_c40_f128')
+    main_unsupervised(128, 60, entropy_type='shannon', subdir='unsupervised_shannon_c60_f128')
+    main_unsupervised(128, 80, entropy_type='shannon', subdir='unsupervised_shannon_c80_f128')
+    main_unsupervised(128, 100, entropy_type='shannon', subdir='unsupervised_shannon_c100_f128')
 
-    main_unsupervised(3, 10, subdir='unsupervised_c10_f3')
-    main_unsupervised(3, 20, subdir='unsupervised_c20_f3')
-    main_unsupervised(3, 30, subdir='unsupervised_c30_f3')
+    main_unsupervised(3, 10, entropy_type='shannon', subdir='unsupervised_shannon_c10_f3')
+    main_unsupervised(3, 20, entropy_type='shannon', subdir='unsupervised_shannon_c20_f3')
+    main_unsupervised(3, 40, entropy_type='shannon', subdir='unsupervised_shannon_c40_f3')
+    main_unsupervised(3, 60, entropy_type='shannon', subdir='unsupervised_shannon_c60_f3')
+    main_unsupervised(3, 80, entropy_type='shannon', subdir='unsupervised_shannon_c80_f3')
+    main_unsupervised(3, 100, entropy_type='shannon', subdir='unsupervised_shannon_c100_f3')
+
+
+    main_unsupervised(128, 10, entropy_type='kapur', subdir='unsupervised_kapur_c10_f128')
+    main_unsupervised(128, 20, entropy_type='kapur', subdir='unsupervised_kapur_c20_f128')
+    main_unsupervised(128, 40, entropy_type='kapur', subdir='unsupervised_kapur_c40_f128')
+    main_unsupervised(128, 60, entropy_type='kapur', subdir='unsupervised_kapur_c60_f128')
+    main_unsupervised(128, 80, entropy_type='kapur', subdir='unsupervised_kapur_c80_f128')
+    main_unsupervised(128, 100, entropy_type='kapur', subdir='unsupervised_kapur_c100_f128')
+
+    main_unsupervised(3, 10, entropy_type='kapur', subdir='unsupervised_kapur_c10_f3')
+    main_unsupervised(3, 20, entropy_type='kapur', subdir='unsupervised_kapur_c20_f3')
+    main_unsupervised(3, 40, entropy_type='kapur', subdir='unsupervised_kapur_c40_f3')
+    main_unsupervised(3, 60, entropy_type='kapur', subdir='unsupervised_kapur_c60_f3')
+    main_unsupervised(3, 80, entropy_type='kapur', subdir='unsupervised_kapur_c80_f3')
+    main_unsupervised(3, 100, entropy_type='kapur', subdir='unsupervised_kapur_c100_f3')
     

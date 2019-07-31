@@ -158,8 +158,10 @@ class MarginLossWithParameter(nn.Module):
 
 class LossUnsupervised(nn.Module):
 
-    def __init__(self, num_clusters, feature_size):
+    def __init__(self, num_clusters, feature_size, entropy_type='shannon'):
         super(LossUnsupervised, self).__init__()
+
+        self.entropy_type = entropy_type
 
         m = np.random.rand(num_clusters, feature_size)
         if num_clusters > feature_size: m = m.T
@@ -167,9 +169,6 @@ class LossUnsupervised(nn.Module):
         m = vh[: num_clusters]
         if num_clusters > feature_size: m = m.T
         self.m = nn.Parameter(torch.from_numpy(m).float())
-
-        # self.m = nn.Parameter(torch.Tensor(num_clusters, feature_size))
-        # nn.init.xavier_uniform_(self.m)
 
         # self.s1 = None; self.s2 = None
         self.s1 = nn.Parameter(torch.ones(num_clusters))
@@ -211,7 +210,12 @@ class LossUnsupervised(nn.Module):
             p: tensor{(num_clusters)}
         """
         p = torch.where(p<=0, 1e-16*torch.ones_like(p), p)
-        p = torch.sum(- p * torch.log(p))
+        
+        if self.entropy_type == 'shannon':
+            p = - torch.sum(p * torch.log(p))
+        elif self.entropy_type == 'kapur':
+            p = - torch.sum(p * torch.log(p) + (1 - p) * torch.log(1 - p))
+
         return p
 
     def forward(self, x):
@@ -239,4 +243,4 @@ class LossUnsupervised(nn.Module):
         total = intra - inter
         # total = intra + 1. / inter
 
-        return total, intra, 1. / inter
+        return total, intra, inter

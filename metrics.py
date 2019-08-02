@@ -232,6 +232,7 @@ class LossUnsupervised(nn.Module):
         -   inter = \frac{1}{N} \sum_i entropy^{(i)}
         """
         ## TODO: x单位化 or batchnorm
+        x = F.normalize(x)
 
         ## 类内，属于各类别的概率的熵，求极小
         intra = torch.cat(list(map(lambda x: self._p(x, self.m, self.s1).unsqueeze(0), x)), dim=0)  # P_{N × n_classes} = [p_{ik}]

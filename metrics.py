@@ -158,9 +158,10 @@ class MarginLossWithParameter(nn.Module):
 
 class LossUnsupervised(nn.Module):
 
-    def __init__(self, num_clusters, feature_size, entropy_type='shannon'):
+    def __init__(self, num_clusters, feature_size, lamb=1.0, entropy_type='shannon'):
         super(LossUnsupervised, self).__init__()
 
+        self.lamb = lamb
         self.entropy_type = entropy_type
 
         m = np.random.rand(num_clusters, feature_size)
@@ -230,6 +231,8 @@ class LossUnsupervised(nn.Module):
         -   entropy^{(i)}  = - \sum_k p_{ik} \log p_{ik}
         -   inter = \frac{1}{N} \sum_i entropy^{(i)}
         """
+        ## TODO: x单位化 or batchnorm
+
         ## 类内，属于各类别的概率的熵，求极小
         intra = torch.cat(list(map(lambda x: self._p(x, self.m, self.s1).unsqueeze(0), x)), dim=0)  # P_{N × n_classes} = [p_{ik}]
         intra = torch.cat(list(map(lambda x: self._entropy(x).unsqueeze(0), intra)), dim=0)         # ent_i = \sum_k p_{ik} \log p_{ik}
@@ -241,7 +244,7 @@ class LossUnsupervised(nn.Module):
 
         ## 优化目标，最小化
         # total = intra / inter
-        total = intra - inter
+        total = intra - self.self.lamb * inter
         # total = intra + 1. / inter
 
         return total, intra, inter

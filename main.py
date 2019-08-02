@@ -85,12 +85,12 @@ def main_margin_with_vector_loss(used_labels=None, feature_size=2, s=8.0, m1=2.0
     del trainer
 
 # ==============================================================================================================================
-def main_unsupervised(feature_size, n_clusters=50, entropy_type='shannon', used_labels=None, show_embedding=True, subdir=None):
+def main_unsupervised(feature_size, n_clusters=50, lamb=1.0, entropy_type='shannon', lr_m=1.0, used_labels=None, show_embedding=True, subdir=None):
     trainset = MNIST('train', used_labels); validset = MNIST('valid', used_labels)
     net = Network(feature_size, 512)
-    criterion = LossUnsupervised(n_clusters, feature_size, entropy_type)
+    criterion = LossUnsupervised(n_clusters, feature_size, lamb, entropy_type)
     # params = [{'params': net.parameters(), }, {'params': criterion.m, }]
-    params = [{'params': net.parameters(), }, {'params': criterion.parameters(), }]
+    params = [{'params': net.parameters(), }, {'params': criterion.parameters(), 'lr': lr_m * configer.lrbase}]
     optimizer = optim.SGD
     lr_scheduler = MultiStepLR
 
@@ -210,32 +210,29 @@ def main_unsupervised(feature_size, n_clusters=50, entropy_type='shannon', used_
 
 if __name__ == "__main__":
 
-    main_unsupervised(128, 10, entropy_type='shannon', subdir='unsupervised_shannon_c10_f128')
-    main_unsupervised(128, 20, entropy_type='shannon', subdir='unsupervised_shannon_c20_f128')
-    main_unsupervised(128, 40, entropy_type='shannon', subdir='unsupervised_shannon_c40_f128')
-    main_unsupervised(128, 60, entropy_type='shannon', subdir='unsupervised_shannon_c60_f128')
-    main_unsupervised(128, 80, entropy_type='shannon', subdir='unsupervised_shannon_c80_f128')
-    main_unsupervised(128, 100, entropy_type='shannon', subdir='unsupervised_shannon_c100_f128')
+    ## TODO
+    # 1. 单位化
 
-    main_unsupervised(3, 10, entropy_type='shannon', subdir='unsupervised_shannon_c10_f3')
-    main_unsupervised(3, 20, entropy_type='shannon', subdir='unsupervised_shannon_c20_f3')
-    main_unsupervised(3, 40, entropy_type='shannon', subdir='unsupervised_shannon_c40_f3')
-    main_unsupervised(3, 60, entropy_type='shannon', subdir='unsupervised_shannon_c60_f3')
-    main_unsupervised(3, 80, entropy_type='shannon', subdir='unsupervised_shannon_c80_f3')
-    main_unsupervised(3, 100, entropy_type='shannon', subdir='unsupervised_shannon_c100_f3')
+    # for entropy_type in ['kapur', 'shannon',]:
+    #     for num_feats in [3, 128]:
+    #         for num_clusters in [10, 20, 40, 60, 80, 100]:
+    #             main_unsupervised(num_feats, num_clusters, entropy_type, subdir='unsupervised_{:s}_c{:d}_f{:d}_lamb{:d}')
 
+    ## shannon
+    ### 选择lambda
+    for lamb in [5**i for i in range(6)]:    # 1, 5, 25, 125, 625, 3125
+        main_unsupervised(3, 50, lamb=lamb, entropy_type='shannon', 
+                            subdir='unsupervised_{:s}_c{:3d}_f{:3d}_[lamb]{:4d}'.\
+                                            format('shannon', 50, 3, lamb))
 
-    main_unsupervised(128, 10, entropy_type='kapur', subdir='unsupervised_kapur_c10_f128')
-    main_unsupervised(128, 20, entropy_type='kapur', subdir='unsupervised_kapur_c20_f128')
-    main_unsupervised(128, 40, entropy_type='kapur', subdir='unsupervised_kapur_c40_f128')
-    main_unsupervised(128, 60, entropy_type='kapur', subdir='unsupervised_kapur_c60_f128')
-    main_unsupervised(128, 80, entropy_type='kapur', subdir='unsupervised_kapur_c80_f128')
-    main_unsupervised(128, 100, entropy_type='kapur', subdir='unsupervised_kapur_c100_f128')
+    ### 选择聚类数目
+    # for num_clusters in [20 * (i + 1) for i in range(5)]:    # 20, 40, 60, 80, 100
+    #     main_unsupervised(3, num_clusters, lamb=TODO, entropy_type='shannon', 
+    #                         subdir='unsupervised_{:s}_[c]{:3d}_f{:3d}_lamb{:4d}'.\
+    #                                         format('shannon', num_clusters, 3, TODO))
 
-    main_unsupervised(3, 10, entropy_type='kapur', subdir='unsupervised_kapur_c10_f3')
-    main_unsupervised(3, 20, entropy_type='kapur', subdir='unsupervised_kapur_c20_f3')
-    main_unsupervised(3, 40, entropy_type='kapur', subdir='unsupervised_kapur_c40_f3')
-    main_unsupervised(3, 60, entropy_type='kapur', subdir='unsupervised_kapur_c60_f3')
-    main_unsupervised(3, 80, entropy_type='kapur', subdir='unsupervised_kapur_c80_f3')
-    main_unsupervised(3, 100, entropy_type='kapur', subdir='unsupervised_kapur_c100_f3')
-    
+    ### 选择学习率倍数
+    # for lr_m in [3**i for i in range(6)]:    # 1, 3, 9, 27, 81, 243
+    #     main_unsupervised(3, 50, lamb=TODO, entropy_type='shannon', lr_m=lr_m
+    #                         subdir='unsupervised_{:s}_c{:3d}_f{:3d}_lamb{:4d}_[lrm]{:4d}'.\
+    #                                         format('shannon', 50, 3, TODO, lr_m))

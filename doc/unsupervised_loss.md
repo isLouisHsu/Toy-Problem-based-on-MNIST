@@ -38,3 +38,27 @@ $$ L = L_{intra} + \frac{1}{L_{inter}} $$
 $$ K(p) = - \sum_{k=1}^C p_k \log p_k + \frac{1}{\gamma} \sum_{k=1}^C (1 + \gamma p_k) \ln (1 + \gamma p_k) - \frac{1}{\gamma} (1 + \gamma) \ln (1 + \gamma) $$
 
 其中 $-1 < \gamma < 1$
+
+
+# 实验
+
+## 设置lambda
+``` python
+for lamb in [5**i for i in range(6)]:    # 1, 5, 25, 125, 625, 3125
+    main_unsupervised(3, 50, lamb=lamb, entropy_type='shannon', 
+                        subdir='unsupervised_{:s}_c{:3d}_f{:3d}_[lamb]{:4d}'.\
+                                        format('shannon', 50, 3, lamb))
+```
+
+![1](/../images/1.jpg)
+
+上图可见，调整`lamb`作用不大。
+
+## 单位化x后，计算距离等
+
+由于初始化各类中心为单位正交向量，故将特征先单位化
+``` python
+main_unsupervised(3, 50, entropy_type='shannon', 
+                    subdir='unsupervised_{:s}_c{:3d}_f{:3d}_[normalized]'.\
+                                    format('shannon', 50, 3))
+```

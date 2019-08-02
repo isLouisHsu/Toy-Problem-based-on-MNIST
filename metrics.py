@@ -244,7 +244,7 @@ class LossUnsupervised(nn.Module):
 
         ## 优化目标，最小化
         # total = intra / inter
-        total = intra - self.self.lamb * inter
+        total = intra - self.lamb * inter
         # total = intra + 1. / inter
 
         return total, intra, inter

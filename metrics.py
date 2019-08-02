@@ -210,6 +210,7 @@ class LossUnsupervised(nn.Module):
             p: tensor{(num_clusters)}
         """
         p = torch.where(p<=0, 1e-16*torch.ones_like(p), p)
+        p = torch.where(p>=1, 1 - 1e-16*torch.ones_like(p), p)
         
         if self.entropy_type == 'shannon':
             p = - torch.sum(p * torch.log(p))

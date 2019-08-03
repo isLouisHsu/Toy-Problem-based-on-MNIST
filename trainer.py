@@ -881,8 +881,8 @@ class UnsupervisedTrainer():
                 metadata = torch.cat([metadata, y], dim=0) if metadata is not None else y
         
         if self.show_embedding:
-            mat = torch.cat([mat, self.criterion.m, dim=0])
-            metadata = torch.cat([mat, torch.ones(self.criterion.m.shape[0])*10, dim=0])
+            mat = torch.cat([mat, self.criterion.m], dim=0)
+            metadata = torch.cat([mat, torch.ones(self.criterion.m.shape[0])*10], dim=0)
             self.writer.add_embedding(mat, metadata, global_step=self.cur_epoch)
 
         avg_loss = np.mean(np.array(avg_loss))

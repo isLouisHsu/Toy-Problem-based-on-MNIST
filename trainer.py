@@ -776,6 +776,10 @@ class UnsupervisedTrainer():
     
     def train(self):
         
+        tens = torch.ones(self.criterion.m.shape[0], dtype=metadata.dtype)*10
+        if torch.cuda.is_available() and self.configer.cuda: tens = tens.cuda()
+        self.writer.add_embedding(self.criterion.m, tens, global_step=self.cur_epoch)
+        
         n_epoch = self.configer.n_epoch - self.cur_epoch
         print("Start training! current epoch: {}, remain epoch: {}".format(self.cur_epoch, n_epoch))
 

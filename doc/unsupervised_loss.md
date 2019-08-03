@@ -62,3 +62,17 @@ main_unsupervised(3, 50, entropy_type='shannon',
                     subdir='unsupervised_{:s}_c{:3d}_f{:3d}_[normalized]'.\
                                     format('shannon', 50, 3))
 ```
+
+# 修改为角度形式
+
+## 类内熵分布：极小
+$$
+p^{(i)}_k = \frac{\exp( \frac{m_k^T x^{(i)}}{||m_k|| ||x^{(i)}||} )}{\sum_j \exp( \frac{m_j^T x^{(i)}}{||m_j|| ||x^{(i)}||} )}
+$$
+
+$$
+L_{intra} = \frac{1}{N} \sum_{i=1}^N \sum_{k=1}^{C} p^{(i)}_k \log \frac{1}{p^{(i)}_k}
+$$
+
+其中$N$表示样本数，$C$表示指定的聚类数，$x^{(i)}$为第$i$个样本，$m_k$为第$k$类中心。
+

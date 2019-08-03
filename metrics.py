@@ -249,3 +249,74 @@ class LossUnsupervised(nn.Module):
         # total = intra + 1. / inter
 
         return total, intra, inter
+
+
+class LossUnsupervisedAngle(nn.Module):
+
+    def __init__(self, num_clusters, feature_size, lamb=1.0, entropy_type='shannon'):
+        super(LossUnsupervisedAngle, self).__init__()
+
+        self.lamb = lamb
+        self.entropy_type = entropy_type
+
+        m = np.random.rand(num_clusters, feature_size)
+        if num_clusters > feature_size: m = m.T
+        u, s, vh = np.linalg.svd(m, full_matrices=False)
+        m = vh[: num_clusters]
+        if num_clusters > feature_size: m = m.T
+        self.m = nn.Parameter(torch.from_numpy(m).float())
+
+    def _softmax(self, x):
+        """
+        Params:
+            x: {tensor(n_samples)}
+        Returns:
+            x: {tensor(n_samples)}
+        """
+        x = torch.exp(x - torch.max(x))
+        return x / torch.sum(x)
+
+    def _p(self, x, m):
+        """
+        Params:
+            x: {tensor(n_features(n_samples, n_features))}
+            m: {tensor(n_features(num_clusters, n_features))}
+        Returns:
+            y: {tensor(n_samples, num_clusters}
+        """
+        y = F.linear(F.normalize(x), F.normalize(self.weights))
+        y = torch.cat(list(map(lambda x: self._softmax(x).unsqueeze(0), y)), dim=0)
+        return y
+        
+    def _entropy(self, p):
+        """
+        Params:
+            p: tensor{(num_clusters)}
+        """
+        p = torch.where(p<=0, 1e-16*torch.ones_like(p), p)
+        p = torch.where(p>=1, 1 - 1e-16*torch.ones_like(p), p)
+        
+        if self.entropy_type == 'shannon':
+            p = - torch.sum(p * torch.log(p))
+        elif self.entropy_type == 'kapur':
+            p = - torch.sum(p * torch.log(p) + (1 - p) * torch.log(1 - p))
+
+        return p
+
+    def forward(self, x):
+        """
+        Params:
+            x:    {tensor(N, n_features(128))}
+        Returns:
+            loss: {tensor(1)}
+        """
+
+        ## 类内，属于各类别的概率的熵，求极小
+        intra = self._p(x, self.m)
+        intra = torch.cat(list(map(lambda x: self._entropy(x).unsqueeze(0), intra)), dim=0)         # ent_i = \sum_k p_{ik} \log p_{ik}
+        intra = torch.mean(intra)                                                                   # ent   = \frac{1}{N} \sum_i ent_i
+        
+        inter = 0
+        total = intra
+
+        return total, intra, inter

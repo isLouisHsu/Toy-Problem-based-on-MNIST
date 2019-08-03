@@ -87,10 +87,30 @@ def main_margin_with_vector_loss(used_labels=None, feature_size=2, s=8.0, m1=2.0
 # ==============================================================================================================================
 def main_unsupervised(feature_size, n_clusters=50, lamb=1.0, entropy_type='shannon', lr_m=1.0, used_labels=None, show_embedding=True, subdir=None):
     trainset = MNIST('train', used_labels); validset = MNIST('valid', used_labels)
-    net = Network(feature_size, 512)
+    net = NetworkUnsupervised(feature_size)
     criterion = LossUnsupervised(n_clusters, feature_size, lamb, entropy_type)
-    # params = [{'params': net.parameters(), }, {'params': criterion.m, }]
-    params = [{'params': net.parameters(), }, {'params': criterion.parameters(), 'lr': lr_m * configer.lrbase}]
+    params = [
+        {'params': net.parameters(), }, 
+        {'params': criterion.parameters(), 'lr': lr_m * configer.lrbase}
+    ]
+    
+    optimizer = optim.SGD
+    lr_scheduler = MultiStepLR
+
+    trainer = UnsupervisedTrainer(configer, net, params, trainset, validset, criterion, 
+                    optimizer, lr_scheduler, num_to_keep=5, resume=False, valid_freq=1, show_embedding=True, subdir=subdir)
+    trainer.train()
+    del trainer
+
+def main_unsupervised_angle(feature_size, n_clusters=50, lamb=1.0, entropy_type='shannon', lr_m=1.0, used_labels=None, show_embedding=True, subdir=None):
+    trainset = MNIST('train', used_labels); validset = MNIST('valid', used_labels)
+    net = NetworkUnsupervised(feature_size)
+    criterion = LossUnsupervisedAngle(n_clusters, feature_size, lamb, entropy_type)
+    params = [
+        {'params': net.parameters(), }, 
+        {'params': criterion.parameters(), 'lr': lr_m * configer.lrbase}
+    ]
+    
     optimizer = optim.SGD
     lr_scheduler = MultiStepLR
 
@@ -212,9 +232,9 @@ if __name__ == "__main__":
 
     ## TODO
     # 1. 单位化
-    main_unsupervised(3, 50, entropy_type='shannon', 
-                        subdir='unsupervised_{:s}_c{:3d}_f{:3d}_[normalized]'.\
-                                        format('shannon', 50, 3))
+    # main_unsupervised(3, 50, entropy_type='shannon', 
+    #                     subdir='unsupervised_{:s}_c{:3d}_f{:3d}_[normalized]'.\
+    #                                     format('shannon', 50, 3))
 
     ## shannon
     ### 选择lambda
@@ -234,3 +254,7 @@ if __name__ == "__main__":
     #     main_unsupervised(3, 50, lamb=TODO, entropy_type='shannon', lr_m=lr_m
     #                         subdir='unsupervised_{:s}_c{:3d}_f{:3d}_lamb{:4d}_[lrm]{:4d}'.\
     #                                         format('shannon', 50, 3, TODO, lr_m))
+
+    # 角度
+    main_unsupervised_angle(3, n_clusters=50, lamb=1.0, entropy_type='shannon', lr_m=1.0, used_labels=None, show_embedding=True, 
+                            subdir='unsupervised_angle_{:s}_c{:3d}_[angel]')

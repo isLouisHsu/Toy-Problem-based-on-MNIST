@@ -284,7 +284,7 @@ class LossUnsupervisedAngle(nn.Module):
         Returns:
             y: {tensor(n_samples, num_clusters}
         """
-        y = F.linear(F.normalize(x), F.normalize(self.weights))
+        y = F.linear(F.normalize(x), F.normalize(self.m))
         y = torch.cat(list(map(lambda x: self._softmax(x).unsqueeze(0), y)), dim=0)
         return y
         

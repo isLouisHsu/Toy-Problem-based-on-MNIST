@@ -882,7 +882,7 @@ class UnsupervisedTrainer():
         
         if self.show_embedding:
             mat = torch.cat([mat, self.criterion.m], dim=0)
-            tens = torch.ones(self.criterion.m.shape[0])*10
+            tens = torch.ones(self.criterion.m.shape[0], dtype=metadata.dtype)*10
             if torch.cuda.is_available() and self.configer.cuda:
                 tens = tens.cuda()
             metadata = torch.cat([metadata, tens], dim=0)

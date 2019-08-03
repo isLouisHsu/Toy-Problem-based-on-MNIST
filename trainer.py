@@ -708,6 +708,8 @@ class UnsupervisedTrainer():
         self.valid_freq = valid_freq
 
         self.net = net
+        if configer.cuda and cuda.is_available(): 
+            self.net.cuda()
         
         ## directory for log and checkpoints
         self.logdir = os.path.join(configer.logdir, self.net._get_name())
@@ -726,6 +728,9 @@ class UnsupervisedTrainer():
 
         ## for optimization
         self.criterion = criterion
+        if configer.cuda and cuda.is_available(): 
+            self.criterion.cuda()
+            
         ## 初始化中心，随机选择
         features = None
         for i_batch, (X, y) in enumerate(self.trainloader):
@@ -755,10 +760,6 @@ class UnsupervisedTrainer():
             self.load_checkpoint()
 
         ## print information
-        if configer.cuda and cuda.is_available(): 
-            self.net.cuda()
-            self.criterion.cuda()
-            
         print("==============================================================================================")
         print("model:           {}".format(self.net._get_name()))
         print("logdir:          {}".format(self.logdir))

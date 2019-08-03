@@ -933,3 +933,22 @@ class UnsupervisedTrainer():
         self.optimizer.load_state_dict(checkpoint_state['optimizer_state'])
         self.lr_scheduler.load_state_dict(checkpoint_state['lr_scheduler_state'])
 
+
+class UnsupervisedTrainerAngle(UnsupervisedTrainer):
+
+    def __init__(self, configer, net, params, trainset, validset, criterion, 
+                    optimizer, lr_scheduler, num_to_keep=5, resume=False, valid_freq=1, show_embedding=True, subdir=None):
+
+        super(UnsupervisedTrainerAngle, self).__init__(configer, net, params, trainset, validset, criterion,
+                        optimizer, lr_scheduler, num_to_keep, resume, valid_freq, show_embedding, subdir)
+    
+    def predict(self, x):
+        """
+        Params:
+            x: {tensor(N, n_features)}
+        Returns:
+            y: {tensor(N)}
+        """
+        x = self.criterion._p(x, self.criterion.m)
+        y = torch.argmin(x, dim=1)
+        return y

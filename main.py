@@ -114,7 +114,7 @@ def main_unsupervised_angle(feature_size, n_clusters=50, lamb=1.0, entropy_type=
     optimizer = optim.SGD
     lr_scheduler = MultiStepLR
 
-    trainer = UnsupervisedTrainer(configer, net, params, trainset, validset, criterion, 
+    trainer = UnsupervisedTrainerAngle(configer, net, params, trainset, validset, criterion, 
                     optimizer, lr_scheduler, num_to_keep=5, resume=False, valid_freq=1, show_embedding=True, subdir=subdir)
     trainer.train()
     del trainer

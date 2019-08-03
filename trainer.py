@@ -730,17 +730,16 @@ class UnsupervisedTrainer():
         self.criterion = criterion
         if configer.cuda and cuda.is_available(): 
             self.criterion.cuda()
-            
+
         ## 初始化中心，随机选择
-        features = None
+        centroid = None
         for i_batch, (X, y) in enumerate(self.trainloader):
             X = Variable(X.float()); y = Variable(y.long())
             if self.configer.cuda and cuda.is_available(): X = X.cuda(); y = y.cuda()
-            feature = self.net(X)
-            features = feature if i_batch == 0 else torch.cat([features, feature], dim=0)
-        m = random.choices(features, k=self.criterion.m.shape[0])
-        m = torch.cat(list(map(lambda x: x.unsqueeze(0), m)), dim=0)
-        self.criterion.m = nn.Parameter(m.float())
+            c = torch.mean(self.net(X), dim=1)
+            centroid = c if i_batch == 0 else torch.cat([centroid, c], dim=0)
+        centroid = torch.mean(centroid, dim=1)
+        self.criterion.m += centroid
 
         self.optimizer = optimizer(params, configer.lrbase)
         self.lr_scheduler = lr_scheduler(self.optimizer, configer.adjstep, configer.gamma)

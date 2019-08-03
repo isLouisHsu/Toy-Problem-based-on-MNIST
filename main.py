@@ -243,12 +243,10 @@ def main_unsupervised_angle(feature_size, n_clusters=50, lamb=1.0, entropy_type=
 
 if __name__ == "__main__":
     pass
-    
-    ## TODO
-    # 1. 单位化
-    # main_unsupervised(3, 50, entropy_type='shannon', 
-    #                     subdir='unsupervised_{:s}_c{:3d}_f{:3d}_[normalized]'.\
-    #                                     format('shannon', 50, 3))
+
+    main_unsupervised(3, 50, entropy_type='shannon', 
+                        subdir='unsupervised_{:s}_c{:3d}_f{:3d}_[baseline]'.\
+                                        format('shannon', 50, 3))
 
     ## shannon
     ### 选择lambda

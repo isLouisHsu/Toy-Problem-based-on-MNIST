@@ -737,8 +737,7 @@ class UnsupervisedTrainer():
             X = Variable(X.float()); y = Variable(y.long())
             if self.configer.cuda and cuda.is_available(): X = X.cuda(); y = y.cuda()
             c = torch.mean(self.net(X), dim=1)
-            centroid = c if i_batch == 0 else torch.cat([centroid, c], dim=0)
-        centroid = torch.mean(centroid, dim=1)
+            centroid = c if i_batch == 0 else (centroid*i_batch + c) / (i_batch + 1)
         self.criterion.m += centroid
 
         self.optimizer = optimizer(params, configer.lrbase)

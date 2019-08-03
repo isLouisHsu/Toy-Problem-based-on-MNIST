@@ -165,10 +165,10 @@ class LossUnsupervised(nn.Module):
         self.entropy_type = entropy_type
 
         m = np.random.rand(num_clusters, feature_size)
-        if num_clusters > feature_size: m = m.T
-        u, s, vh = np.linalg.svd(m, full_matrices=False)
-        m = vh[: num_clusters]
-        if num_clusters > feature_size: m = m.T
+        if num_clusters < feature_size:
+            u, s, vh = np.linalg.svd(m, full_matrices=False)
+            m = vh[:]
+        m = F.normalize(m)
         self.m = nn.Parameter(torch.from_numpy(m).float())
 
         # self.s1 = None; self.s2 = None

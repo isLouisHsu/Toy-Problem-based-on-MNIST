@@ -734,7 +734,7 @@ class UnsupervisedTrainer():
             feature = self.net(X)
             features = feature if i_batch == 0 else torch.cat([features, feature], dim=0)
         m = random.choices(features, k=self.criterion.m.shape[0])
-        m = torch.cat(list(map(lambda x: x.unsqueeze(0)， m)), dim=0)
+        m = torch.cat(list(map(lambda x: x.unsqueeze(0), m)), dim=0)
         self.criterion.m = nn.Parameter(m.float())
 
         self.optimizer = optimizer(params, configer.lrbase)

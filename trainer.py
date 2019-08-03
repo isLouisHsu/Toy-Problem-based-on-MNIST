@@ -885,7 +885,7 @@ class UnsupervisedTrainer():
             tens = torch.ones(self.criterion.m.shape[0])*10
             if torch.cuda.is_available() and self.configer.cuda:
                 tens = tens.cuda()
-            metadata = torch.cat([mat, tens], dim=0)
+            metadata = torch.cat([metadata, tens], dim=0)
             self.writer.add_embedding(mat, metadata, global_step=self.cur_epoch)
 
         avg_loss = np.mean(np.array(avg_loss))

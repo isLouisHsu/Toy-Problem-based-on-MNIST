@@ -168,7 +168,7 @@ class LossUnsupervised(nn.Module):
         if num_clusters < feature_size:
             u, s, vh = np.linalg.svd(m, full_matrices=False)
             m = vh[:]
-        m = F.normalize(m)
+        m /= np.linalg.norm(m, axis=1).reshape(-1, 1)
         self.m = nn.Parameter(torch.from_numpy(m).float())
 
         # self.s1 = None; self.s2 = None

@@ -1,3 +1,4 @@
+import os
 import numpy as np
 
 import torch
@@ -5,12 +6,24 @@ from torch import nn
 from torch.nn import functional as F
 from torch import optim
 from torch.optim.lr_scheduler import MultiStepLR
+from tensorboardX import SummaryWriter
 
 from config import configer
 from datasets import MNIST
 from metrics import *
 from models import *
 from trainer import *
+
+def main_pca(used_labels=None, subdir='PCA'):
+    from sklearn.decomposition import PCA
+    
+    validset = MNIST('valid', used_labels)
+    pca = PCA(n_components=3)
+    mat = pca.fit_transform(validset.images.reshape(validset.images.shape[0], -1))
+    
+    logdir = os.path.join(configer.logdir, subdir) if subdir is not None else configer.logdir
+    with SummaryWriter(logdir) as w:
+        w.add_embedding(mat, validset.labels)
 
 def main_crossent(feature_size, used_labels=None):
     trainset = MNIST('train', used_labels); validset = MNIST('valid', used_labels)
@@ -229,7 +242,8 @@ def main_unsupervised_angle(feature_size, n_clusters=50, lamb=1.0, entropy_type=
 #     exit(0)
 
 if __name__ == "__main__":
-
+    pass
+    
     ## TODO
     # 1. 单位化
     # main_unsupervised(3, 50, entropy_type='shannon', 
@@ -254,7 +268,3 @@ if __name__ == "__main__":
     #     main_unsupervised(3, 50, lamb=TODO, entropy_type='shannon', lr_m=lr_m
     #                         subdir='unsupervised_{:s}_c{:3d}_f{:3d}_lamb{:4d}_[lrm]{:4d}'.\
     #                                         format('shannon', 50, 3, TODO, lr_m))
-
-    # 角度
-    main_unsupervised_angle(3, n_clusters=50, lamb=1.0, entropy_type='shannon', lr_m=1.0, used_labels=None, show_embedding=True, 
-                            subdir='unsupervised_angle_{:s}_c{:3d}_[angel]')

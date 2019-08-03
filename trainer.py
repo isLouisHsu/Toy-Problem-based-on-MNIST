@@ -2,6 +2,7 @@ import os
 import cv2
 import time
 import numpy as np
+import random
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 from scipy import io
@@ -725,6 +726,17 @@ class UnsupervisedTrainer():
 
         ## for optimization
         self.criterion = criterion
+        ## 初始化中心，随机选择
+        features = None
+        for i_batch, (X, y) in enumerate(self.trainloader):
+            X = Variable(X.float()); y = Variable(y.long())
+            if self.configer.cuda and cuda.is_available(): X = X.cuda(); y = y.cuda()
+            feature = self.net(X)
+            features = feature if i_batch == 0 else torch.cat([features, feature], dim=0)
+        m = random.choices(features, k=self.criterion.m.shape[0])
+        m = torch.cat(list(map(lambda x: x.unsqueeze(0)， m)), dim=0)
+        self.criterion.m = nn.Parameter(m.float())
+
         self.optimizer = optimizer(params, configer.lrbase)
         self.lr_scheduler = lr_scheduler(self.optimizer, configer.adjstep, configer.gamma)
         self.writer = SummaryWriter(self.logdir)

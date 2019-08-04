@@ -6,6 +6,8 @@ import torch.nn as nn
 import torch.nn.functional as F
 from torch.nn import Parameter
 
+from utils import softmax, norm
+
 def arccos(x, n=5):
     """
     Params:
@@ -171,21 +173,8 @@ class LossUnsupervised(nn.Module):
         m /= np.linalg.norm(m, axis=1).reshape(-1, 1)
         self.m = nn.Parameter(torch.from_numpy(m).float())
 
-        # self.s1 = None; self.s2 = None
-        self.s1 = nn.Parameter(torch.ones(num_clusters))
-        self.s2 = nn.Parameter(torch.ones(num_clusters))
-
-    def _softmax(self, x):
-        """
-        Params:
-            x: {tensor(n_samples)}
-        Returns:
-            x: {tensor(n_samples)}
-        Notes:
-            - x_i := \frac{e^{x_i}} {\sum_j e^{x_j}}
-        """
-        x = torch.exp(x - torch.max(x))
-        return x / torch.sum(x)
+        self.s1 = None; self.s2 = None
+        # self.s1 = nn.Parameter(torch.ones(num_clusters)); self.s2 = nn.Parameter(torch.ones(num_clusters))
 
     def _p(self, x, m, s=None):
         """
@@ -198,11 +187,10 @@ class LossUnsupervised(nn.Module):
         Notes:
             p^{(i)}_k = \frac{\exp( - \frac{||x^{(i)} - m_k||^2}{s_k^2})}{\sum_j \exp( - \frac{||x^{(i)} - m_j||^2}{s_j^2})}
         """
-        y = torch.norm(x - m, dim=1)
-        if s is not None: y = y / s
+        y = norm(x, m, s)
             
         y = - y**2
-        y = self._softmax(y)
+        y = softmax(y)
         return y
         
     def _entropy(self, p):
@@ -232,13 +220,46 @@ class LossUnsupervised(nn.Module):
         -   inter = \frac{1}{N} \sum_i entropy^{(i)}
         """
         ## 类内，属于各类别的概率的熵，求极小
-        intra = torch.cat(list(map(lambda x: self._p(x, self.m, self.s1).unsqueeze(0), x)), dim=0)  # P_{N × n_classes} = [p_{ik}]
-        intra = torch.cat(list(map(lambda x: self._entropy(x).unsqueeze(0), intra)), dim=0)         # ent_i = \sum_k p_{ik} \log p_{ik}
+        p = torch.cat(list(map(lambda x: self._p(x, self.m, self.s1).unsqueeze(0), x)), dim=0)      # P_{N × n_classes} = [p_{ik}]
+        intra = torch.cat(list(map(lambda x: self._entropy(x).unsqueeze(0), p)), dim=0)             # ent_i = \sum_k p_{ik} \log p_{ik}
         intra = torch.mean(intra)                                                                   # ent   = \frac{1}{N} \sum_i ent_i
 
         ## 类间
-        inter = self._p(torch.mean(self.m, dim=0), self.m, self.s2)
-        inter = self._entropy(inter)
+        p = self._p(torch.mean(self.m, dim=0), self.m, self.s2)
+        inter = self._entropy(p)
+
+        ## 优化目标，最小化
+        # total = intra / inter
+        total = intra - self.lamb * inter
+        # total = intra + 1. / inter
+
+        return total, intra, inter
+
+
+class LossUnsupervisedWeightedSum(LossUnsupervised):
+
+    def __init__(self, num_clusters, feature_size, lamb=1.0, entropy_type='shannon'):
+        super(LossUnsupervisedWeightedSum, self).__init__(num_clusters, feature_size, lamb, entropy_type)
+
+        self.s1 = None; self.s2 = None
+
+    def forward(self, x):
+        """
+        Params:
+            x:    {tensor(N, n_features(128))}
+        Returns:
+            loss: {tensor(1)}
+        """
+        ## 类内，属于各类别的概率的熵，求极小
+        p = torch.cat(list(map(lambda x: self._p(x, self.m, self.s1).unsqueeze(0), x)), dim=0)  # P_{N × n_classes} = [p_{ik}]
+        n = torch.cat(list(map(lambda x: norm(x, self.m).unsqueeze(0), x)), dim=0)              # N_{N × n_classes} = [n_{ik}]
+        intra = torch.mean(torch.sum(p * n, dim=1))
+
+        ## 类间
+        m = torch.mean(self.m, dim=0)
+        p = self._p(m, self.m, self.s2)
+        n = norm(m, self.m)
+        inter = torch.sum(p * n)
 
         ## 优化目标，最小化
         # total = intra / inter
@@ -263,16 +284,6 @@ class LossUnsupervisedAngle(nn.Module):
         if num_clusters > feature_size: m = m.T
         self.m = nn.Parameter(torch.from_numpy(m).float())
 
-    def _softmax(self, x):
-        """
-        Params:
-            x: {tensor(n_samples)}
-        Returns:
-            x: {tensor(n_samples)}
-        """
-        x = torch.exp(x - torch.max(x))
-        return x / torch.sum(x)
-
     def _p(self, x, m):
         """
         Params:
@@ -282,7 +293,7 @@ class LossUnsupervisedAngle(nn.Module):
             y: {tensor(n_samples, num_clusters}
         """
         y = F.linear(F.normalize(x), F.normalize(self.m))
-        y = torch.cat(list(map(lambda x: self._softmax(x).unsqueeze(0), y)), dim=0)
+        y = torch.cat(list(map(lambda x: softmax(x).unsqueeze(0), y)), dim=0)
         return y
         
     def _entropy(self, p):

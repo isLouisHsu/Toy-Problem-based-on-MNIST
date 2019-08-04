@@ -1,10 +1,14 @@
 # 类内熵分布：极小
 $$
-p^{(i)}_k = \frac{\exp( - \frac{||x^{(i)} - m_k||^2}{s_k^2})}{\sum_j \exp( - \frac{||x^{(i)} - m_j||^2}{s_j^2})}
+p^{(i)}_k = \frac{\exp( - \frac{||x^{(i)} - m_k||^2}{s_k^2})}{\sum_j \exp( - \frac{||x^{(i)} - m_j||^2}{s_j^2})} \tag{1.1}
 $$
 
 $$
-L_{intra} = \frac{1}{N} \sum_{i=1}^N \sum_{k=1}^{C} p^{(i)}_k \log \frac{1}{p^{(i)}_k}
+L_{intra} = \frac{1}{N} \sum_{i=1}^N \sum_{k=1}^{C} p^{(i)}_k \log \frac{1}{p^{(i)}_k} \tag{1.2}
+$$
+
+$$ 
+L_{intra, weighted sum} = \frac{1}{N} \sum_{i=1}^N \sum_{k=1}^{C} p^{(i)}_k ||x^{(i)} - m_k||^2 \tag{1.3}
 $$
 
 其中$N$表示样本数，$C$表示指定的聚类数，$x^{(i)}$为第$i$个样本，$m_k$为第$k$类中心。
@@ -13,14 +17,18 @@ $$
 
 各类聚类中心矢量的中心
 
-$$ m = \frac{1}{C} \sum_{k=1}^C m_k $$
+$$ m = \frac{1}{C} \sum_{k=1}^C m_k \tag{2} $$
 
 $$
-p^{(i)}_k = \frac{\exp( - \frac{||m - m_k||^2}{s_k^2})}{\sum_j \exp( - \frac{||m - m_j||^2}{s_j^2})}
+p_k = \frac{\exp( - \frac{||m - m_k||^2}{s_k^2})}{\sum_j \exp( - \frac{||m - m_j||^2}{s_j^2})} \tag{2.1}
 $$
 
 $$
-L_{inter} = \frac{1}{N} \sum_{i=1}^N \sum_{k=1}^{C} p^{(i)}_k \log \frac{1}{p^{(i)}_k}
+L_{inter} = \frac{1}{N} \sum_{i=1}^N \sum_{k=1}^{C} p_k \log \frac{1}{p_k} \tag{2.2}
+$$
+
+$$
+L_{inter, weighted sum} = \sum_{k=1}^{C} p_k ||m - m_k||^2 \tag{2.2}
 $$
 
 # 总体损失
@@ -63,7 +71,7 @@ main_unsupervised(3, 50, entropy_type='shannon',
                                     format('shannon', 50, 3))
 ```
 
-# 修改为角度形式
+<!-- # 修改为角度形式
 
 ## 类内熵分布：极小
 $$
@@ -74,5 +82,5 @@ $$
 L_{intra} = \frac{1}{N} \sum_{i=1}^N \sum_{k=1}^{C} p^{(i)}_k \log \frac{1}{p^{(i)}_k}
 $$
 
-其中$N$表示样本数，$C$表示指定的聚类数，$x^{(i)}$为第$i$个样本，$m_k$为第$k$类中心。
+其中$N$表示样本数，$C$表示指定的聚类数，$x^{(i)}$为第$i$个样本，$m_k$为第$k$类中心。 -->
 

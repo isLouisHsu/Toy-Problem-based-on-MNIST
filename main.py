@@ -98,10 +98,27 @@ def main_margin_with_vector_loss(used_labels=None, feature_size=2, s=8.0, m1=2.0
     del trainer
 
 # ==============================================================================================================================
-def main_unsupervised(feature_size, n_clusters=50, lamb=1.0, entropy_type='shannon', lr_m=1.0, used_labels=None, show_embedding=True, subdir=None):
+def main_unsupervised_entropy(feature_size, n_clusters=50, lamb=1.0, entropy_type='shannon', lr_m=1.0, used_labels=None, show_embedding=True, subdir=None):
     trainset = MNIST('train', used_labels); validset = MNIST('valid', used_labels)
     net = NetworkUnsupervised(feature_size)
     criterion = LossUnsupervised(n_clusters, feature_size, lamb, entropy_type)
+    params = [
+        {'params': net.parameters(), }, 
+        {'params': criterion.parameters(), 'lr': lr_m * configer.lrbase}
+    ]
+    
+    optimizer = optim.SGD
+    lr_scheduler = MultiStepLR
+
+    trainer = UnsupervisedTrainer(configer, net, params, trainset, validset, criterion, 
+                    optimizer, lr_scheduler, num_to_keep=5, resume=False, valid_freq=1, show_embedding=True, subdir=subdir)
+    trainer.train()
+    del trainer
+
+def main_unsupervised_weighted_sum(feature_size, n_clusters=50, lamb=1.0, entropy_type='shannon', lr_m=1.0, used_labels=None, show_embedding=True, subdir=None):
+    trainset = MNIST('train', used_labels); validset = MNIST('valid', used_labels)
+    net = NetworkUnsupervised(feature_size)
+    criterion = LossUnsupervisedWeightedSum(n_clusters, feature_size, lamb, entropy_type)
     params = [
         {'params': net.parameters(), }, 
         {'params': criterion.parameters(), 'lr': lr_m * configer.lrbase}
@@ -244,25 +261,25 @@ def main_unsupervised_angle(feature_size, n_clusters=50, lamb=1.0, entropy_type=
 if __name__ == "__main__":
     pass
 
-    main_unsupervised(3, 50, entropy_type='shannon', 
+    main_unsupervised_weighted_sum(3, 50, entropy_type='shannon', 
                         subdir='unsupervised_{:s}_c{:3d}_f{:3d}_[baseline]'.\
                                         format('shannon', 50, 3))
 
     ## shannon
     ### 选择lambda
     # for lamb in [5**i for i in range(6)]:    # 1, 5, 25, 125, 625, 3125
-    #     main_unsupervised(3, 50, lamb=lamb, entropy_type='shannon', 
+    #     main_unsupervised_entropy(3, 50, lamb=lamb, entropy_type='shannon', 
     #                         subdir='unsupervised_{:s}_c{:3d}_f{:3d}_[lamb]{:4d}'.\
     #                                         format('shannon', 50, 3, lamb))
 
     ### 选择聚类数目
     # for num_clusters in [20 * (i + 1) for i in range(5)]:    # 20, 40, 60, 80, 100
-    #     main_unsupervised(3, num_clusters, lamb=TODO, entropy_type='shannon', 
+    #     main_unsupervised_entropy(3, num_clusters, lamb=TODO, entropy_type='shannon', 
     #                         subdir='unsupervised_{:s}_[c]{:3d}_f{:3d}_lamb{:4d}'.\
     #                                         format('shannon', num_clusters, 3, TODO))
 
     ### 选择学习率倍数
     # for lr_m in [3**i for i in range(6)]:    # 1, 3, 9, 27, 81, 243
-    #     main_unsupervised(3, 50, lamb=TODO, entropy_type='shannon', lr_m=lr_m
+    #     main_unsupervised_entropy(3, 50, lamb=TODO, entropy_type='shannon', lr_m=lr_m
     #                         subdir='unsupervised_{:s}_c{:3d}_f{:3d}_lamb{:4d}_[lrm]{:4d}'.\
     #                                         format('shannon', 50, 3, TODO, lr_m))

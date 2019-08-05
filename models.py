@@ -171,27 +171,27 @@ class NetworkUnsupervisedWithEncoderDecoder(nn.Module):
             nn.MaxPool2d(2, 2),                     #  7 x  7 x 64
 
             nn.Conv2d( 64,  feature_size, 3, 1, 1), #  7 x  7 x feature_size
+
+            nn.AdaptiveAvgPool2d((1, 1)),           #  1 x  1 x feature_size
         )
 
-        self.feature = nn.AdaptiveAvgPool2d((1, 1)) #  7 x  7 x feature_size ->  1 x  1 x feature_size
-
         self.decoder = nn.Sequential(
-            nn.ConvTranspose2d(
-                feature_size, 64, 3, 1, 1),         #  7 x  7 x 64
-            nn.ReLU(),
+            nn.UpsamplingBilinear2d(scale_factor=7),#  7 x  7 x feature_size
 
-            nn.ConvTranspose2d(
-                64, 64, 3, 1, 1),                   # 14 x 14 x 64
+            nn.Conv2d(feature_size, 64, 3, 1, 1),   #  7 x  7 x 64
             nn.ReLU(),
+            nn.UpsamplingBilinear2d(scale_factor=2),# 14 x 14 x 64
 
-            nn.ConvTranspose2d(
-                64,  1, 3, 1, 1),                   # 28 x 28 x  1
+            nn.Conv2d(64, 64, 3, 1, 1),             # 14 x 14 x 64
+            nn.ReLU(),
+            nn.UpsamplingBilinear2d(scale_factor=2),# 28 x 28 x 64
+            
+            nn.Conv2d(64,  1, 3, 1, 1),             # 28 x 28 x 1
         )
     
     def get_feature(self, x):
 
         x = self.encoder(x)
-        x = self.feature(x)
         x = x.view(x.shape[0], -1)
 
         return x
@@ -211,7 +211,8 @@ class NetworkUnsupervisedWithEncoderDecoder(nn.Module):
         return f, r
 
 if __name__ == "__main__":
-    net = NetworkMargin(10, 2)
+    net = NetworkUnsupervisedWithEncoderDecoder(3)
     state = net.state_dict()
     X = torch.rand(32, 1, 28, 28)
-    net(X)
+    y = net(X)
+    pass

@@ -1138,8 +1138,8 @@ class UnsupervisedTrainerWithEncoderDecoder(UnsupervisedTrainer):
                 metadata = torch.cat([metadata, y], dim=0) if metadata is not None else y
         
         if self.show_embedding:
-            mat = torch.cat([mat, self.criterion.m], dim=0)
-            tens = torch.ones(self.criterion.m.shape[0], dtype=metadata.dtype)*10
+            mat = torch.cat([mat, self.criterion.unsupervised_loss.m], dim=0)
+            tens = torch.ones(self.criterion.unsupervised_loss.m.shape[0], dtype=metadata.dtype)*10
             if torch.cuda.is_available() and self.configer.cuda:
                 tens = tens.cuda()
             metadata = torch.cat([metadata, tens], dim=0)

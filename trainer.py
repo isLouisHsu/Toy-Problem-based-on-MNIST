@@ -793,7 +793,7 @@ class UnsupervisedTrainer():
             map(lambda x: self.criterion._p(
                 x, self.criterion.m, self.criterion.s1).unsqueeze(0), x)), dim=0)
         n = torch.cat(list(
-            map(lambda x: norm(x, self.m).unsqueeze(0), x)), dim=0)
+            map(lambda x: norm(x, self.criterion.m).unsqueeze(0), x)), dim=0)
 
         y = torch.argmin(p * n, dim=1)
         return y
@@ -856,7 +856,8 @@ class UnsupervisedTrainer():
             feature = self.net(X)
             total_i, intra_i, inter_i = self.criterion(feature)
             ami_i  = adjusted_mutual_info_score(y.detach().cpu().numpy(), 
-                            self.predict(feature).detach().cpu().numpy())
+                            self.predict(feature).detach().cpu().numpy(),
+                            average_method='arithmetic')
 
             self.optimizer.zero_grad()
             total_i.backward()
@@ -895,7 +896,8 @@ class UnsupervisedTrainer():
             feature = self.net(X)
             total_i, intra_i, inter_i  = self.criterion(feature)
             ami_i  = adjusted_mutual_info_score(y.detach().cpu().numpy(), 
-                            self.predict(feature).detach().cpu().numpy())
+                            self.predict(feature).detach().cpu().numpy(),
+                            average_method='arithmetic')
             
             avg_loss += [total_i.detach().cpu().numpy()]; avg_ami += [ami_i]
             self.writer.add_scalars('{}/valid/loss_i'.format(self.net._get_name()), {'total_i': total_i, 'intra_i': intra_i, 'inter_i': inter_i, }, self.cur_epoch*n_batch + i_batch)
@@ -991,6 +993,26 @@ class UnsupervisedTrainerWithEncoderDecoder(UnsupervisedTrainer):
             m = torch.cat(m, dim=0)
             self.criterion.unsupervised_loss.m = nn.Parameter(m)
 
+
+    def predict(self, x):
+        """
+        Params:
+            x: {tensor(N, n_features)}
+        Returns:
+            y: {tensor(N)}
+        Notes:
+            self.criterion.m: {tensor(num_clusters, n_features)}
+        """
+        p = torch.cat(list(
+            map(lambda x: self.criterion.unsupervised_loss._p(
+                x, self.criterion.unsupervised_loss.m, 
+                self.criterion.unsupervised_loss.s1).unsqueeze(0), x)), dim=0)
+        n = torch.cat(list(
+            map(lambda x: norm(x, self.criterion.unsupervised_loss.m).unsqueeze(0), x)), dim=0)
+
+        y = torch.argmin(p * n, dim=1)
+        return y
+
     def train(self):
         
         tens = torch.ones(self.criterion.unsupervised_loss.m.shape[0], dtype=torch.long)*10
@@ -1049,7 +1071,8 @@ class UnsupervisedTrainerWithEncoderDecoder(UnsupervisedTrainer):
             feature, reconstruct = self.net(X)
             total_i, reconstruct_i, intra_i, inter_i = self.criterion(X, feature, reconstruct)
             ami_i  = adjusted_mutual_info_score(y.detach().cpu().numpy(), 
-                            self.predict(feature).detach().cpu().numpy())
+                            self.predict(feature).detach().cpu().numpy(),
+                            average_method='arithmetic')
 
             self.optimizer.zero_grad()
             total_i.backward()
@@ -1094,7 +1117,8 @@ class UnsupervisedTrainerWithEncoderDecoder(UnsupervisedTrainer):
             feature, reconstruct = self.net(X)
             total_i, reconstruct_i, intra_i, inter_i = self.criterion(X, feature, reconstruct)
             ami_i  = adjusted_mutual_info_score(y.detach().cpu().numpy(), 
-                            self.predict(feature).detach().cpu().numpy())
+                            self.predict(feature).detach().cpu().numpy(),
+                            average_method='arithmetic')
             
             avg_loss += [total_i.detach().cpu().numpy()]; avg_ami += [ami_i]
             self.writer.add_scalars('{}/valid/loss_i'.format(self.net._get_name()), 

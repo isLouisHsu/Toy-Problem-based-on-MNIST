@@ -188,6 +188,17 @@ class NetworkUnsupervisedWithEncoderDecoder(nn.Module):
             
             nn.Conv2d(64,  1, 3, 1, 1),             # 28 x 28 x 1
         )
+
+        if init_once:
+            pkldir = './initial'
+            if not os.path.exists(pkldir): os.mkdir(pkldir)
+            pklpath = '%s/%s_dim%d.pkl' % (pkldir, self._get_name(), feature_size)
+            if os.path.exists(pklpath):
+                state = torch.load(pklpath)
+                self.load_state_dict(state)
+            else:
+                state = self.state_dict()
+                torch.save(state, pklpath)
     
     def get_feature(self, x):
 

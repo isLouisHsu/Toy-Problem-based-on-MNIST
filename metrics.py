@@ -158,10 +158,10 @@ class MarginLossWithParameter(nn.Module):
 
 #############################################################################################
 
-class LossUnsupervised(nn.Module):
+class LossUnsupervisedEntropy(nn.Module):
 
     def __init__(self, num_clusters, feature_size, lamb=1.0, entropy_type='shannon'):
-        super(LossUnsupervised, self).__init__()
+        super(LossUnsupervisedEntropy, self).__init__()
 
         self.lamb = lamb
         self.entropy_type = entropy_type
@@ -236,7 +236,7 @@ class LossUnsupervised(nn.Module):
         return total, intra, inter
 
 
-class LossUnsupervisedWeightedSum(LossUnsupervised):
+class LossUnsupervisedWeightedSum(LossUnsupervisedEntropy):
 
     def __init__(self, num_clusters, feature_size, lamb=1.0, entropy_type='shannon'):
         super(LossUnsupervisedWeightedSum, self).__init__(num_clusters, feature_size, lamb, entropy_type)
@@ -269,62 +269,32 @@ class LossUnsupervisedWeightedSum(LossUnsupervised):
         return total, intra, inter
 
 
-class LossUnsupervisedAngle(nn.Module):
+class LossReconstruct(nn.Module):
+
+    def forward(self, x, r):
+
+        e = x - r
+        e = e**2
+
+        l = torch.sum(e.view(e.shape[0], -1), dim=1)
+        l = torch.mean(l)
+
+        return l
+
+
+class LossUnsupervisedWithEncoderDecoder(nn.Module):
 
     def __init__(self, num_clusters, feature_size, lamb=1.0, entropy_type='shannon'):
-        super(LossUnsupervisedAngle, self).__init__()
 
-        self.lamb = lamb
-        self.entropy_type = entropy_type
+        self.reconstruct_loss = LossReconstruct()
+        self.unsupervised_loss = LossUnsupervisedWeightedSum(num_clusters, feature_size, lamb, entropy_type)
+    
+    def forward(self, x, f, r):
 
-        m = np.random.rand(num_clusters, feature_size)
-        if num_clusters > feature_size: m = m.T
-        u, s, vh = np.linalg.svd(m, full_matrices=False)
-        m = vh[: num_clusters]
-        if num_clusters > feature_size: m = m.T
-        self.m = nn.Parameter(torch.from_numpy(m).float())
+        loss_r = self.reconstruct_loss(x, r)
+        loss_u, intra, inter = self.unsupervised_loss(f)
 
-    def _p(self, x, m):
-        """
-        Params:
-            x: {tensor(n_features(n_samples, n_features))}
-            m: {tensor(n_features(num_clusters, n_features))}
-        Returns:
-            y: {tensor(n_samples, num_clusters}
-        """
-        y = F.linear(F.normalize(x), F.normalize(self.m))
-        y = torch.cat(list(map(lambda x: softmax(x).unsqueeze(0), y)), dim=0)
-        return y
+        total = loss_r + loss_u
+
+        return total, loss_r, intra, inter
         
-    def _entropy(self, p):
-        """
-        Params:
-            p: tensor{(num_clusters)}
-        """
-        p = torch.where(p<=0, 1e-16*torch.ones_like(p), p)
-        p = torch.where(p>=1, 1 - 1e-16*torch.ones_like(p), p)
-        
-        if self.entropy_type == 'shannon':
-            p = - torch.sum(p * torch.log(p))
-        elif self.entropy_type == 'kapur':
-            p = - torch.sum(p * torch.log(p) + (1 - p) * torch.log(1 - p))
-
-        return p
-
-    def forward(self, x):
-        """
-        Params:
-            x:    {tensor(N, n_features(128))}
-        Returns:
-            loss: {tensor(1)}
-        """
-
-        ## 类内，属于各类别的概率的熵，求极小
-        intra = self._p(x, self.m)
-        intra = torch.cat(list(map(lambda x: self._entropy(x).unsqueeze(0), intra)), dim=0)         # ent_i = \sum_k p_{ik} \log p_{ik}
-        intra = torch.mean(intra)                                                                   # ent   = \frac{1}{N} \sum_i ent_i
-        
-        inter = 0
-        total = intra
-
-        return total, intra, inter

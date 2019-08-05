@@ -156,6 +156,59 @@ class NetworkUnsupervised(nn.Module):
         return  x
 
 
+class NetworkUnsupervisedWithEncoderDecoder(nn.Module):
+
+    def __init__(self, feature_size, init_once=True):
+        super(NetworkUnsupervisedWithEncoderDecoder, self).__init__()
+
+        self.encoder = nn.Sequential(
+            nn.Conv2d(   1,  64, 3, 1, 1),          # 28 x 28 x 64
+            nn.ReLU(),
+            nn.MaxPool2d(2, 2),                     # 14 x 14 x 64
+
+            nn.Conv2d(  64,  64, 3, 1, 1),          # 14 x 14 x 64
+            nn.ReLU(),
+            nn.MaxPool2d(2, 2),                     #  7 x  7 x 64
+
+            nn.Conv2d( 64,  feature_size, 3, 1, 1), #  7 x  7 x feature_size
+        )
+
+        self.feature = nn.AdaptiveAvgPool2d((1, 1)) #  7 x  7 x feature_size ->  1 x  1 x feature_size
+
+        self.decoder = nn.Sequential(
+            nn.Conv2d(feature_size,  64, 3, 1, 1),  #  7 x  7 x 64
+            nn.ReLU(),
+            nn.UpsamplingBilinear2d(scale_factor=2) # 14 x 14 x 64
+
+            nn.Conv2d(  64,  64, 3, 1, 1),          # 14 x 14 x 64
+            nn.ReLU(),
+            nn.UpsamplingBilinear2d(scale_factor=2) # 28 x 28 x 64
+
+            nn.Conv2d( 64, 3, 7),                   # 28 x 28 x  3
+        )
+    
+    def get_feature(self, x):
+
+        x = self.encoder(x)
+        x = self.feature(x)
+        x = x.view(x.shape[0], -1)
+
+        return x
+
+    def get_reconstruct(self, x):
+
+        x = self.encoder(x)
+        x = self.decoder(x)
+
+        return x
+
+    def forward(self, x):
+
+        f = self.get_feature(x)
+        r = self.get_reconstruct(self, x)
+
+        return f, r
+
 if __name__ == "__main__":
     net = NetworkMargin(10, 2)
     state = net.state_dict()

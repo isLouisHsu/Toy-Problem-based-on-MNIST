@@ -20,7 +20,7 @@ from torch.utils.data import DataLoader
 from tensorboardX import SummaryWriter
 
 from processbar import ProcessBar
-from utils import getTime, accuracy
+from utils import getTime, accuracy, norm, softmax
 
 class SupervisedTrainer(object):
     """ Train Templet
@@ -787,9 +787,13 @@ class UnsupervisedTrainer():
         Notes:
             self.criterion.m: {tensor(num_clusters, n_features)}
         """
-        x = torch.cat(list(map(lambda x: self.criterion._p(x, 
-                    self.criterion.m, self.criterion.s1).unsqueeze(0), x)), dim=0)
-        y = torch.argmin(x, dim=1)
+        p = torch.cat(list(
+            map(lambda x: self.criterion._p(
+                x, self.criterion.m, self.criterion.s1).unsqueeze(0), x)), dim=0)
+        n = torch.cat(list(
+            map(lambda x: norm(x, self.m).unsqueeze(0), x)), dim=0)
+
+        y = torch.argmin(p * n, dim=1)
         return y
     
     def train(self):
@@ -961,21 +965,102 @@ class UnsupervisedTrainer():
         self.lr_scheduler.load_state_dict(checkpoint_state['lr_scheduler_state'])
 
 
-class UnsupervisedTrainerAngle(UnsupervisedTrainer):
+class UnsupervisedTrainerWithEncoderDecoder(UnsupervisedTrainer):
 
     def __init__(self, configer, net, params, trainset, validset, criterion, 
                     optimizer, lr_scheduler, num_to_keep=5, resume=False, valid_freq=1, show_embedding=True, subdir=None):
+        super(UnsupervisedTrainerWithEncoderDecoder, self).__init__(configer, net, params, trainset, validset, criterion, 
+                    optimizer, lr_scheduler, num_to_keep, resume, valid_freq, show_embedding, subdir)
 
-        super(UnsupervisedTrainerAngle, self).__init__(configer, net, params, trainset, validset, criterion,
-                        optimizer, lr_scheduler, num_to_keep, resume, valid_freq, show_embedding, subdir)
-    
-    def predict(self, x):
-        """
-        Params:
-            x: {tensor(N, n_features)}
-        Returns:
-            y: {tensor(N)}
-        """
-        x = self.criterion._p(x, self.criterion.m)
-        y = torch.argmin(x, dim=1)
-        return y
+    def train_epoch(self):
+
+        self.net.train()
+        avg_loss = []; avg_ami = []
+        start_time = time.time()
+        n_batch = len(self.trainset) // self.configer.batchsize
+
+        for i_batch, (X, y) in enumerate(self.trainloader):
+
+            self.cur_batch += 1
+
+            X = Variable(X.float()); y = Variable(y.long())
+            if self.configer.cuda and cuda.is_available(): X = X.cuda(); y = y.cuda()
+            
+            feature, reconstruct = self.net(X)
+            total_i, reconstruct_i, intra_i, inter_i = self.criterion(X, feature, reconstruct)
+            ami_i  = adjusted_mutual_info_score(y.detach().cpu().numpy(), 
+                            self.predict(feature).detach().cpu().numpy())
+
+            self.optimizer.zero_grad()
+            total_i.backward()
+            self.optimizer.step()
+
+            avg_loss += [total_i.detach().cpu().numpy()]; avg_ami += [ami_i]
+            self.writer.add_scalars('{}/train/loss_i'.format(self.net._get_name()), 
+                {
+                    'total_i': total_i, 
+                    'reconstruct_i': reconstruct_i, 
+                    'intra_i': intra_i, 
+                    'inter_i': inter_i, 
+                }, self.cur_epoch*n_batch + i_batch)
+            self.writer.add_scalar('{}/train/ami_i'.format(self.net._get_name()),  ami_i,  self.cur_epoch*n_batch + i_batch)
+
+            duration_time = time.time() - start_time
+            start_time = time.time()
+            self.elapsed_time += duration_time
+            total_time = duration_time * self.configer.n_epoch * len(self.trainset) // self.configer.batchsize
+            left_time = total_time - self.elapsed_time
+
+        avg_loss = np.mean(np.array(avg_loss))
+        avg_ami  = np.mean(np.array(avg_ami))
+        return avg_loss, avg_ami
+
+    def valid_epoch(self):
+
+        self.net.eval()
+        avg_loss = []; avg_ami = []
+        start_time = time.time()
+        n_batch = len(self.validset) // self.configer.batchsize
+
+        if self.show_embedding:
+            mat = None
+            metadata = None
+
+        for i_batch, (X, y) in enumerate(self.validloader):
+
+            X = Variable(X.float()); y = Variable(y.long())
+            if self.configer.cuda and cuda.is_available(): X = X.cuda(); y = y.cuda()
+            
+            feature, reconstruct = self.net(X)
+            total_i, reconstruct_i, intra_i, inter_i = self.criterion(X, feature, reconstruct)
+            ami_i  = adjusted_mutual_info_score(y.detach().cpu().numpy(), 
+                            self.predict(feature).detach().cpu().numpy())
+            
+            avg_loss += [total_i.detach().cpu().numpy()]; avg_ami += [ami_i]
+            self.writer.add_scalars('{}/valid/loss_i'.format(self.net._get_name()), 
+                {
+                    'total_i': total_i, 
+                    'reconstruct_i': reconstruct_i, 
+                    'intra_i': intra_i, 
+                    'inter_i': inter_i, 
+                }, self.cur_epoch*n_batch + i_batch)
+            self.writer.add_scalar('{}/valid/ami_i'.format(self.net._get_name()),  ami_i,  self.cur_epoch*n_batch + i_batch)
+
+            duration_time = time.time() - start_time
+            start_time = time.time()
+
+            if self.show_embedding:
+                mat = torch.cat([mat, feature], dim=0) if mat is not None else feature
+                metadata = torch.cat([metadata, y], dim=0) if metadata is not None else y
+        
+        if self.show_embedding:
+            mat = torch.cat([mat, self.criterion.m], dim=0)
+            tens = torch.ones(self.criterion.m.shape[0], dtype=metadata.dtype)*10
+            if torch.cuda.is_available() and self.configer.cuda:
+                tens = tens.cuda()
+            metadata = torch.cat([metadata, tens], dim=0)
+            self.writer.add_embedding(mat, metadata, global_step=self.cur_epoch)
+
+        avg_loss = np.mean(np.array(avg_loss))
+        avg_ami  = np.mean(np.array(avg_ami))
+        return avg_loss, avg_ami

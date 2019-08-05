@@ -101,7 +101,7 @@ def main_margin_with_vector_loss(used_labels=None, feature_size=2, s=8.0, m1=2.0
 def main_unsupervised_entropy(feature_size, n_clusters=50, lamb=1.0, entropy_type='shannon', lr_m=1.0, used_labels=None, show_embedding=True, subdir=None):
     trainset = MNIST('train', used_labels); validset = MNIST('valid', used_labels)
     net = NetworkUnsupervised(feature_size)
-    criterion = LossUnsupervised(n_clusters, feature_size, lamb, entropy_type)
+    criterion = LossUnsupervisedEntropy(n_clusters, feature_size, lamb, entropy_type)
     params = [
         {'params': net.parameters(), }, 
         {'params': criterion.parameters(), 'lr': lr_m * configer.lrbase}
@@ -132,10 +132,10 @@ def main_unsupervised_weighted_sum(feature_size, n_clusters=50, lamb=1.0, entrop
     trainer.train()
     del trainer
 
-def main_unsupervised_angle(feature_size, n_clusters=50, lamb=1.0, entropy_type='shannon', lr_m=1.0, used_labels=None, show_embedding=True, subdir=None):
+def main_unsupervised_weighted_sum_with_encoder_decoder(feature_size, n_clusters=50, lamb=1.0, entropy_type='shannon', lr_m=1.0, used_labels=None, show_embedding=True, subdir=None):
     trainset = MNIST('train', used_labels); validset = MNIST('valid', used_labels)
-    net = NetworkUnsupervised(feature_size)
-    criterion = LossUnsupervisedAngle(n_clusters, feature_size, lamb, entropy_type)
+    net = NetworkUnsupervisedWithEncoderDecoder(feature_size)
+    criterion = LossUnsupervisedWithEncoderDecoder(n_clusters, feature_size, lamb, entropy_type)
     params = [
         {'params': net.parameters(), }, 
         {'params': criterion.parameters(), 'lr': lr_m * configer.lrbase}
@@ -144,11 +144,11 @@ def main_unsupervised_angle(feature_size, n_clusters=50, lamb=1.0, entropy_type=
     optimizer = optim.SGD
     lr_scheduler = MultiStepLR
 
-    trainer = UnsupervisedTrainerAngle(configer, net, params, trainset, validset, criterion, 
+    trainer = UnsupervisedTrainerWithEncoderDecoder(configer, net, params, trainset, validset, criterion, 
                     optimizer, lr_scheduler, num_to_keep=5, resume=False, valid_freq=1, show_embedding=True, subdir=subdir)
     trainer.train()
     del trainer
-    
+
 ## ==============================================================================================================================
 # 实验一：modified & sphereface & arcface & cosface
 # if __name__ == "__main__":
@@ -263,6 +263,10 @@ if __name__ == "__main__":
 
     main_unsupervised_weighted_sum(3, 50, entropy_type='shannon', 
                         subdir='unsupervised_{:s}_c{:3d}_f{:3d}_[baseline]'.\
+                                        format('shannon', 50, 3))
+
+    main_unsupervised_weighted_sum_with_encoder_decoder(3, 50, entropy_type='shannon', 
+                        subdir='unsupervised_{:s}_c{:3d}_f{:3d}_[baseline_with_encoder_decoder]'.\
                                         format('shannon', 50, 3))
 
     ## shannon

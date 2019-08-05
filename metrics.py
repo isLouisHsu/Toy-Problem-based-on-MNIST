@@ -271,6 +271,9 @@ class LossUnsupervisedWeightedSum(LossUnsupervisedEntropy):
 
 class LossReconstruct(nn.Module):
 
+    def __init__(self):
+        super(LossReconstruct, self).__init__()
+
     def forward(self, x, r):
 
         e = x - r
@@ -285,7 +288,8 @@ class LossReconstruct(nn.Module):
 class LossUnsupervisedWithEncoderDecoder(nn.Module):
 
     def __init__(self, num_clusters, feature_size, lamb=1.0, entropy_type='shannon'):
-
+        super(LossUnsupervisedWithEncoderDecoder, self).__init__()
+        
         self.reconstruct_loss = LossReconstruct()
         self.unsupervised_loss = LossUnsupervisedWeightedSum(num_clusters, feature_size, lamb, entropy_type)
     

@@ -176,15 +176,16 @@ class NetworkUnsupervisedWithEncoderDecoder(nn.Module):
         self.feature = nn.AdaptiveAvgPool2d((1, 1)) #  7 x  7 x feature_size ->  1 x  1 x feature_size
 
         self.decoder = nn.Sequential(
-            nn.Conv2d(feature_size,  64, 3, 1, 1),  #  7 x  7 x 64
+            nn.ConvTranspose2d(
+                feature_size, 64, 3, 1, 1),         #  7 x  7 x 64
             nn.ReLU(),
-            nn.UpsamplingBilinear2d(scale_factor=2) # 14 x 14 x 64
 
-            nn.Conv2d(  64,  64, 3, 1, 1),          # 14 x 14 x 64
+            nn.ConvTranspose2d(
+                64, 64, 3, 1, 1),                   # 14 x 14 x 64
             nn.ReLU(),
-            nn.UpsamplingBilinear2d(scale_factor=2) # 28 x 28 x 64
 
-            nn.Conv2d( 64, 3, 7),                   # 28 x 28 x  3
+            nn.ConvTranspose2d(
+                64,  1, 3, 1, 1),                   # 28 x 28 x  1
         )
     
     def get_feature(self, x):
@@ -205,7 +206,7 @@ class NetworkUnsupervisedWithEncoderDecoder(nn.Module):
     def forward(self, x):
 
         f = self.get_feature(x)
-        r = self.get_reconstruct(self, x)
+        r = self.get_reconstruct(x)
 
         return f, r
 

@@ -730,22 +730,7 @@ class UnsupervisedTrainer():
         self.criterion = criterion
         if configer.cuda and cuda.is_available(): 
             self.criterion.cuda()
-
-        ## 初始化中心，随机选择
-        with torch.no_grad():
-            feats = None
-            for i_batch, (X, y) in enumerate(self.trainloader):
-                if i_batch == self.criterion.m.data.shape[0]:
-                    break
-                X = Variable(X.float()); y = Variable(y.long())
-                if self.configer.cuda and cuda.is_available(): 
-                    X = X.cuda(); y = y.cuda()
-                f = self.net(X)
-                feats = f if feats is None else torch.cat([feats, f], dim=0)
-            m = random.choices(feats, k=self.criterion.m.shape[0])
-            m = list(map(lambda x: x.unsqueeze(0), m))
-            m = torch.cat(m, dim=0)
-            self.criterion.m = nn.Parameter(m)
+        self._init_criterion()
 
         self.optimizer = optimizer(params, configer.lrbase)
         self.lr_scheduler = lr_scheduler(self.optimizer, configer.adjstep, configer.gamma)
@@ -777,6 +762,23 @@ class UnsupervisedTrainer():
         print("val frequency:   {}".format(self.valid_freq))
         print("learing rate:    {}".format(configer.lrbase))
         print("==============================================================================================")
+
+    def _init_criterion(self):
+        ## 初始化中心，随机选择
+        with torch.no_grad():
+            feats = None
+            for i_batch, (X, y) in enumerate(self.trainloader):
+                if i_batch == self.criterion.m.data.shape[0]:
+                    break
+                X = Variable(X.float()); y = Variable(y.long())
+                if self.configer.cuda and cuda.is_available(): 
+                    X = X.cuda(); y = y.cuda()
+                f = self.net(X)
+                feats = f if feats is None else torch.cat([feats, f], dim=0)
+            m = random.choices(feats, k=self.criterion.m.shape[0])
+            m = list(map(lambda x: x.unsqueeze(0), m))
+            m = torch.cat(m, dim=0)
+            self.criterion.m = nn.Parameter(m)
 
     def predict(self, x):
         """
@@ -971,6 +973,64 @@ class UnsupervisedTrainerWithEncoderDecoder(UnsupervisedTrainer):
                     optimizer, lr_scheduler, num_to_keep=5, resume=False, valid_freq=1, show_embedding=True, subdir=None):
         super(UnsupervisedTrainerWithEncoderDecoder, self).__init__(configer, net, params, trainset, validset, criterion, 
                     optimizer, lr_scheduler, num_to_keep, resume, valid_freq, show_embedding, subdir)
+
+    def _init_criterion(self):
+        ## 初始化中心，随机选择
+        with torch.no_grad():
+            feats = None
+            for i_batch, (X, y) in enumerate(self.trainloader):
+                if i_batch == self.criterion.unsupervised_loss.m.data.shape[0]:
+                    break
+                X = Variable(X.float()); y = Variable(y.long())
+                if self.configer.cuda and cuda.is_available(): 
+                    X = X.cuda(); y = y.cuda()
+                f, _ = self.net(X)
+                feats = f if feats is None else torch.cat([feats, f], dim=0)
+            m = random.choices(feats, k=self.criterion.unsupervised_loss.m.shape[0])
+            m = list(map(lambda x: x.unsqueeze(0), m))
+            m = torch.cat(m, dim=0)
+            self.criterion.unsupervised_loss.m = nn.Parameter(m)
+
+    def train(self):
+        
+        tens = torch.ones(self.criterion.unsupervised_loss.m.shape[0], dtype=torch.long)*10
+        if torch.cuda.is_available() and self.configer.cuda: tens = tens.cuda()
+        self.writer.add_embedding(self.criterion.unsupervised_loss.m, tens, global_step=self.cur_epoch)
+        
+        n_epoch = self.configer.n_epoch - self.cur_epoch
+        print("Start training! current epoch: {}, remain epoch: {}".format(self.cur_epoch, n_epoch))
+
+        bar = ProcessBar(n_epoch)
+        loss_train = 0.; loss_valid = 0.
+        ami_train  = 0.; ami_valid  = 0.
+
+        for i_epoch in range(n_epoch):
+
+            if self.configer.cuda and cuda.is_available(): cuda.empty_cache()
+
+            self.cur_epoch += 1
+            bar.step()
+
+            self.lr_scheduler.step(self.cur_epoch)
+            cur_lr = self.lr_scheduler.get_lr()[-1]
+            self.writer.add_scalar('{}/lr'.format(self.net._get_name()), cur_lr, self.cur_epoch)
+
+            loss_train, ami_train = self.train_epoch()
+
+            if self.valid_freq != 0 and self.cur_epoch % self.valid_freq == 0:
+                loss_valid, ami_valid = self.valid_epoch()
+
+            self.writer.add_scalars('{}/loss'.format(self.net._get_name()), {'train': loss_train, 'valid': loss_valid}, self.cur_epoch)
+            self.writer.add_scalars('{}/ami'.format(self.net._get_name()),  {'train': ami_train,  'valid': ami_valid }, self.cur_epoch)
+
+            if self.valid_freq == 0:
+                self.save_checkpoint()
+            
+            else:
+                if ami_valid > self.valid_ami:
+                    self.valid_ami = ami_valid
+                    self.valid_loss = loss_valid
+                    self.save_checkpoint()
 
     def train_epoch(self):
 

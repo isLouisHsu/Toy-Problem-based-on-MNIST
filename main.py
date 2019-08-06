@@ -261,9 +261,9 @@ def main_unsupervised_weighted_sum_with_encoder_decoder(feature_size, n_clusters
 if __name__ == "__main__":
     pass
 
-    main_unsupervised_weighted_sum(3, 50, entropy_type='shannon', 
-                        subdir='unsupervised_{:s}_c{:3d}_f{:3d}_[baseline]'.\
-                                        format('shannon', 50, 3))
+    # main_unsupervised_weighted_sum(3, 50, entropy_type='shannon', 
+    #                     subdir='unsupervised_{:s}_c{:3d}_f{:3d}_[baseline]'.\
+    #                                     format('shannon', 50, 3))
 
     main_unsupervised_weighted_sum_with_encoder_decoder(3, 50, entropy_type='shannon', 
                         subdir='unsupervised_{:s}_c{:3d}_f{:3d}_[baseline_with_encoder_decoder]'.\

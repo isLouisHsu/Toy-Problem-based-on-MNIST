@@ -7,11 +7,11 @@ configer.logdir = './log'
 
 configer.inputsize = (1, 28, 28)    # (C, H, W)
 configer.batchsize = 256
-configer.n_epoch = 30
+configer.n_epoch = 50
 configer.valid_freq = 1
 
-configer.lrbase = 0.001
-configer.adjstep = [25]
+configer.lrbase = 0.0001
+configer.adjstep = [35]
 configer.gamma = 0.1
 
 configer.cuda = True

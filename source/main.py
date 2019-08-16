@@ -1,3 +1,14 @@
+# -*- coding: utf-8 -*-
+'''
+@Description: 
+@Version: 1.0.0
+@Author: louishsu
+@Github: https://github.com/isLouisHsu
+@E-mail: is.louishsu@foxmail.com
+@Date: 2019-07-11 11:15:04
+@LastEditTime: 2019-08-16 13:58:14
+@Update: 
+'''
 import os
 import numpy as np
 
@@ -115,9 +126,9 @@ def main_unsupervised_entropy(feature_size, n_clusters=50, lamb=1.0, entropy_typ
     trainer.train()
     del trainer
 
-def main_unsupervised_weighted_sum(feature_size, n_clusters=50, lamb=1.0, entropy_type='shannon', lr_m=1.0, used_labels=None, show_embedding=True, subdir=None):
+def main_unsupervised_weighted_sum(feature_size, n_clusters=50, batchnorm=False, lamb=1.0, entropy_type='shannon', lr_m=1.0, used_labels=None, show_embedding=True, subdir=None):
     trainset = MNIST('train', used_labels); validset = MNIST('valid', used_labels)
-    net = NetworkUnsupervised(feature_size)
+    net = NetworkUnsupervised(feature_size, batchnorm=batchnorm)
     criterion = LossUnsupervisedWeightedSum(n_clusters, feature_size, lamb, entropy_type)
     params = [
         {'params': net.parameters(), }, 
@@ -259,15 +270,17 @@ def main_unsupervised_weighted_sum_with_encoder_decoder(feature_size, n_clusters
 #     exit(0)
 
 if __name__ == "__main__":
-    pass
 
-    # main_unsupervised_weighted_sum(3, 50, entropy_type='shannon', 
-    #                     subdir='unsupervised_{:s}_c{:3d}_f{:3d}_[baseline]'.\
-    #                                     format('shannon', 50, 3))
-
-    main_unsupervised_weighted_sum_with_encoder_decoder(3, 50, entropy_type='shannon', 
-                        subdir='unsupervised_{:s}_c{:3d}_f{:3d}_[baseline_with_encoder_decoder]'.\
+    main_unsupervised_weighted_sum(3, 50, batchnorm=True, entropy_type='shannon', 
+                        subdir='unsupervised_{:s}_c{:3d}_f{:3d}_[baseline_bn]'.\
                                         format('shannon', 50, 3))
+    main_unsupervised_weighted_sum(3, 50, batchnorm=False, entropy_type='shannon', 
+                        subdir='unsupervised_{:s}_c{:3d}_f{:3d}_[baseline]'.\
+                                        format('shannon', 50, 3))
+
+    # main_unsupervised_weighted_sum_with_encoder_decoder(3, 50, entropy_type='shannon', 
+    #                     subdir='unsupervised_{:s}_c{:3d}_f{:3d}_[baseline_with_encoder_decoder]'.\
+    #                                     format('shannon', 50, 3))
 
     ## shannon
     ### 选择lambda

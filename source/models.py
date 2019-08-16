@@ -1,3 +1,14 @@
+# -*- coding: utf-8 -*-
+'''
+@Description: 
+@Version: 1.0.0
+@Author: louishsu
+@Github: https://github.com/isLouisHsu
+@E-mail: is.louishsu@foxmail.com
+@Date: 2019-07-11 11:15:04
+@LastEditTime: 2019-08-16 13:56:10
+@Update: 
+'''
 import os
 import torch
 import torch.nn as nn
@@ -24,7 +35,7 @@ class Network(nn.Module):
         )
 
         if init_once:
-            pkldir = './initial'
+            pkldir = '../initial'
             if not os.path.exists(pkldir): os.mkdir(pkldir)
             pklpath = '%s/%s_class%d_dim%d.pkl' % (pkldir, self._get_name(), num_classes, feature_size)
             if os.path.exists(pklpath):
@@ -89,7 +100,7 @@ class NetworkMargin(nn.Module):
         self.cosine_layer = CosineLayer(num_classes, feature_size)
 
         if init_once:
-            pkldir = './initial'
+            pkldir = '../initial'
             if not os.path.exists(pkldir): os.mkdir(pkldir)
             pklpath = '%s/%s_class%d_dim%d.pkl' % (pkldir, self._get_name(), num_classes, feature_size)
             if os.path.exists(pklpath):
@@ -116,25 +127,42 @@ class NetworkMargin(nn.Module):
 
 class NetworkUnsupervised(nn.Module):
 
-    def __init__(self, feature_size, init_once=True):
+    def __init__(self, feature_size, init_once=True, batchnorm=False):
         super(NetworkUnsupervised, self).__init__()
 
-        self.pre_layers = nn.Sequential(
-            nn.Conv2d(   1,  64, 3, 1, 1),
-            nn.ReLU(),
-            nn.MaxPool2d(2, 2),
+        if batchnorm:
+            self.pre_layers = nn.Sequential(
+                nn.Conv2d(   1,  64, 3, 1, 1),
+                nn.BatchNorm2d(64),
+                nn.ReLU(),
+                nn.MaxPool2d(2, 2),
 
-            nn.Conv2d(  64,  64, 3, 1, 1),
-            nn.ReLU(),
-            nn.MaxPool2d(2, 2),
+                nn.Conv2d(  64,  64, 3, 1, 1),
+                nn.BatchNorm2d(64),
+                nn.ReLU(),
+                nn.MaxPool2d(2, 2),
 
-            nn.Conv2d( 64,  feature_size, 7),
-        )
+                nn.Conv2d( 64,  feature_size, 7),
+                nn.BatchNorm2d(feature_size),
+            )
+        else:
+            self.pre_layers = nn.Sequential(
+                nn.Conv2d(   1,  64, 3, 1, 1),
+                nn.ReLU(),
+                nn.MaxPool2d(2, 2),
+
+                nn.Conv2d(  64,  64, 3, 1, 1),
+                nn.ReLU(),
+                nn.MaxPool2d(2, 2),
+
+                nn.Conv2d( 64,  feature_size, 7),
+            )
 
         if init_once:
-            pkldir = './initial'
+            pkldir = '../initial'
             if not os.path.exists(pkldir): os.mkdir(pkldir)
-            pklpath = '%s/%s_dim%d.pkl' % (pkldir, self._get_name(), feature_size)
+            pklpath = '%s/%s_dim%d%s.pkl' % (pkldir, 
+                    self._get_name(), feature_size, '_bn' if batchnorm else '')
             if os.path.exists(pklpath):
                 state = torch.load(pklpath)
                 self.load_state_dict(state)
@@ -190,7 +218,7 @@ class NetworkUnsupervisedWithEncoderDecoder(nn.Module):
         )
 
         if init_once:
-            pkldir = './initial'
+            pkldir = '../initial'
             if not os.path.exists(pkldir): os.mkdir(pkldir)
             pklpath = '%s/%s_dim%d.pkl' % (pkldir, self._get_name(), feature_size)
             if os.path.exists(pklpath):

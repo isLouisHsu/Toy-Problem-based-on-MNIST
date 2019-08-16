@@ -1,3 +1,14 @@
+# -*- coding: utf-8 -*-
+'''
+@Description: 
+@Version: 1.0.0
+@Author: louishsu
+@Github: https://github.com/isLouisHsu
+@E-mail: is.louishsu@foxmail.com
+@Date: 2019-07-11 11:15:04
+@LastEditTime: 2019-08-16 13:38:35
+@Update: 
+'''
 import os
 import cv2
 import struct
@@ -10,11 +21,11 @@ class MNIST(Dataset):
 
     def __init__(self, mode='train', used_labels=None):
         if mode == 'train':
-            images_path = './data/train-images.idx3-ubyte'
-            labels_path = './data/train-labels.idx1-ubyte'
+            images_path = '../data/train-images.idx3-ubyte'
+            labels_path = '../data/train-labels.idx1-ubyte'
         elif mode == 'valid':
-            images_path = './data/t10k-images.idx3-ubyte'
-            labels_path = './data/t10k-labels.idx1-ubyte'
+            images_path = '../data/t10k-images.idx3-ubyte'
+            labels_path = '../data/t10k-labels.idx1-ubyte'
         
         with open(images_path, 'rb') as f:
             magic, num, rows, cols = struct.unpack('>IIII', f.read(16))

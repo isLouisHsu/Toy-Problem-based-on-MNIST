@@ -1,3 +1,14 @@
+# -*- coding: utf-8 -*-
+'''
+@Description: 
+@Version: 1.0.0
+@Author: louishsu
+@Github: https://github.com/isLouisHsu
+@E-mail: is.louishsu@foxmail.com
+@Date: 2019-07-11 11:15:04
+@LastEditTime: 2019-08-18 16:46:20
+@Update: 
+'''
 import math
 import numpy as np
 
@@ -235,6 +246,7 @@ class LossUnsupervisedEntropy(nn.Module):
 
         return total, intra, inter
 
+# ===========================================================================================
 
 class LossUnsupervisedWeightedSum(LossUnsupervisedEntropy):
 
@@ -268,6 +280,7 @@ class LossUnsupervisedWeightedSum(LossUnsupervisedEntropy):
 
         return total, intra, inter
 
+# ===========================================================================================
 
 class LossReconstruct(nn.Module):
 
@@ -302,3 +315,33 @@ class LossUnsupervisedWithEncoderDecoder(nn.Module):
 
         return total, loss_r, intra, inter
         
+# ===========================================================================================
+
+class LossUnsupervisedSigmaI(LossUnsupervisedEntropy):
+
+    def __init__(self, num_clusters, feature_size, lamb=1.0, entropy_type='shannon'):
+
+        super(LossUnsupervisedSigmaI, self).__init__(num_clusters, feature_size, lamb, entropy_type)
+        
+        self.s1 = None; self.s2 = None
+    
+    def forward(self, x):
+        """
+        Params:
+            x:    {tensor(N, n_features(128))}
+        Returns:
+            loss: {tensor(1)}
+        """
+        N = x.shape[0]
+
+        p = torch.cat(list(map(lambda x: self._p(x, self.m, self.s1).unsqueeze(0), x)), dim=0)      # P_{N × n_classes} = [p_{ik}]
+        t = torch.sum(p, dim=0)
+
+        p = p / N; t = t / N
+
+        L = list(map(lambda x: self._entropy(x).unsqueeze(0), p))
+        L = torch.sum(torch.cat(L, dim=0))
+
+        L = L - self._entropy(t)
+
+        return L

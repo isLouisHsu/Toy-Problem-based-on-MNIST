@@ -6,7 +6,7 @@
 @Github: https://github.com/isLouisHsu
 @E-mail: is.louishsu@foxmail.com
 @Date: 2019-07-11 11:15:04
-@LastEditTime: 2019-08-18 16:46:20
+@LastEditTime: 2019-08-18 16:56:21
 @Update: 
 '''
 import math
@@ -344,4 +344,4 @@ class LossUnsupervisedSigmaI(LossUnsupervisedEntropy):
 
         L = L - self._entropy(t)
 
-        return L
+        return L, L, L

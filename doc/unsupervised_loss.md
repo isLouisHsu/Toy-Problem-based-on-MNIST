@@ -68,22 +68,21 @@ $$ \Rightarrow p_{ij} = \frac{\exp (- \eta_j || x^{(i)} - m_j ||^2)}{\sum_k \exp
 <!-- $$ L_{intra} = - \frac{1}{N} \sum_j \sum_i \frac{p_{ij}}{\sum_i p_{ij}} \ln \frac{p_{ij}}{\sum_i p_{ij}} $$ -->
 
 定义
-$$ L = - \sum_i \sum_j \frac{p_{ij}}{\sum_i \sum_j p_{ij}} \ln \frac{p_{ij}}{\sum_i \sum_j p_{ij}} $$
+$$ L_{t} = - \sum_i \sum_j \frac{p_{ij}}{\sum_i \sum_j p_{ij}} \ln \frac{p_{ij}}{\sum_i \sum_j p_{ij}} $$
 
 其中$\sum_j p_{ij} = 1$，故$\sum_i \sum_j p_{ij} = N$
 
-$$ L = - \sum_i \sum_j \frac{p_{ij}}{N} \ln \frac{p_{ij}}{N} $$
+$$ L_{t} = - \sum_i \sum_j \frac{p_{ij}}{N} \ln \frac{p_{ij}}{N} $$
 
 令$T_j = \sum_i p_{ij}$，有$\sum_j T_j = N$
 
-$$ L = - \sum_i \sum_j \frac{p_{ij}}{N} \frac{T_j}{T_j} \ln \frac{p_{ij}}{N} \frac{T_j}{T_j} $$
+$$ L_{t} = - \sum_i \sum_j \frac{p_{ij}}{N} \frac{T_j}{T_j} \ln \frac{p_{ij}}{N} \frac{T_j}{T_j} $$
 
 $$ = - \sum_i \sum_j \frac{p_{ij}}{T_j} \frac{T_j}{N} (\ln \frac{p_{ij}}{T_j} + \ln \frac{T_j}{N}) $$
 
-$$ = - \sum_j \frac{T_j}{N} \sum_i \frac{p_{ij}}{T_j} \ln \frac{p_{ij}}{T_j}  - \sum_j \frac{T_j}{N} \ln \frac{T_j}{N} $$
+$$ = \underbrace{- \sum_j \frac{T_j}{N} \sum_i \frac{p_{ij}}{T_j} \ln \frac{p_{ij}}{T_j}}_{L_{intra}} \underbrace{- \sum_j \frac{T_j}{N} \ln \frac{T_j}{N}}_{L_{inter}} $$
 
-令
-$$ L_{intra} = - \sum_j \frac{T_j}{N} \sum_i \frac{p_{ij}}{T_j} \ln \frac{p_{ij}}{T_j} = - \frac{1}{N} \sum_j \sum_i p_{ij} \ln \frac{p_{ij}}{T_j} $$
+> $$ L_{intra} = - \sum_i \sum_j \frac{p_{ij}}{N} \ln \frac{p_{ij}}{N} + \sum_j \frac{T_j}{N} \ln \frac{T_j}{N} $$
 
-或
-$$ L_{intra} = - \sum_i \sum_j \frac{p_{ij}}{N} \ln \frac{p_{ij}}{N} + \sum_j \frac{T_j}{N} \ln \frac{T_j}{N} $$
+记
+$$ L = L_{intra} - L_{inter} = - \sum_i \sum_j \frac{p_{ij}}{N} \ln \frac{p_{ij}}{N} + 2 \sum_j \frac{T_j}{N} \ln \frac{T_j}{N} $$

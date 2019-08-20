@@ -6,7 +6,7 @@
 @Github: https://github.com/isLouisHsu
 @E-mail: is.louishsu@foxmail.com
 @Date: 2019-07-11 11:15:04
-@LastEditTime: 2019-08-18 16:56:21
+@LastEditTime: 2019-08-20 08:54:19
 @Update: 
 '''
 import math
@@ -339,9 +339,12 @@ class LossUnsupervisedSigmaI(LossUnsupervisedEntropy):
 
         p = p / N; t = t / N
 
-        L = list(map(lambda x: self._entropy(x).unsqueeze(0), p))
-        L = torch.sum(torch.cat(L, dim=0))
+        Lt = list(map(lambda x: self._entropy(x).unsqueeze(0), p))
+        Lt = torch.sum(torch.cat(Lt, dim=0))
 
-        L = L - self._entropy(t)
+        inter = self._entropy(t)
+        intra = Lt - inter
 
-        return L, L, L
+        total = intra - inter   # total = Lt - 2*inter
+
+        return total, intra, inter

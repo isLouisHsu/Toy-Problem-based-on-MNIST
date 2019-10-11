@@ -6,7 +6,7 @@
 @Github: https://github.com/isLouisHsu
 @E-mail: is.louishsu@foxmail.com
 @Date: 2019-07-11 11:15:04
-@LastEditTime: 2019-08-16 15:12:05
+@LastEditTime: 2019-10-11 10:58:44
 @Update: 
 '''
 import os
@@ -249,9 +249,79 @@ class NetworkUnsupervisedWithEncoderDecoder(nn.Module):
 
         return f, r
 
+
+class GeneratorNet(nn.Module):
+
+    def __init__(self, feature_size):
+        super(GeneratorNet, self).__init__()
+        
+        self.layers = nn.Sequential(
+            nn.UpsamplingBilinear2d(scale_factor=7),    #  7 x  7 x feature_size
+
+            nn.Conv2d(feature_size, 64, 3, 1, 1),       #  7 x  7 x 64
+            nn.ReLU(),
+            nn.UpsamplingBilinear2d(scale_factor=2),    # 14 x 14 x 64
+
+            nn.Conv2d(64, 64, 3, 1, 1),                 # 14 x 14 x 64
+            nn.ReLU(),
+            nn.UpsamplingBilinear2d(scale_factor=2),    # 28 x 28 x 64
+            
+            nn.Conv2d(64,  1, 3, 1, 1),                 # 28 x 28 x 1
+        )
+
+    def forward(self, x):
+        """ 
+        Params:
+            x: {tensor(N, D)}
+        Returns:
+            x: {tensor(N, 1, 28, 28)}
+        """
+        x = x.unsqueeze(-1).unsqueeze(-1)               # N x D x  1 x  1
+        x = self.layers(x)                              # N x 1 x 28 x 28
+
+        return x
+
+class DiscriminatorNet(nn.Module):
+
+    def __init__(self):
+        super(DiscriminatorNet, self).__init__()
+
+        self.features = nn.Sequential(
+            nn.Conv2d(   1,  64, 3, 1, 1),          # 28 x 28 x 64
+            nn.ReLU(),
+            nn.MaxPool2d(2, 2),                     # 14 x 14 x 64
+
+            nn.Conv2d(  64,  64, 3, 1, 1),          # 14 x 14 x 64
+            nn.ReLU(),
+            nn.MaxPool2d(2, 2),                     #  7 x  7 x 64
+
+            nn.Conv2d( 64,  128, 3, 1, 1),          #  7 x  7 x 128
+
+            nn.AdaptiveAvgPool2d((1, 1)),           #  1 x  1 x 128
+        )
+
+        self.classifier = nn.Sequential(
+            nn.Linear(128, 64),
+            nn.ReLU(),
+            nn.Linear(64, 1),
+        )
+
+    def forward(self, x):
+        """ 
+        Params:
+            x: {tensor(N, 1, 28, 28)}
+        Returns:
+            x: {tensor(N)}
+        """
+        x = self.features(x)
+        x = x.view(x.shape[0], -1)
+        x = self.classifier(x)
+
+        return x
+
+
 if __name__ == "__main__":
-    net = NetworkUnsupervisedWithEncoderDecoder(3)
-    state = net.state_dict()
-    X = torch.rand(32, 1, 28, 28)
+    net = GeneratorNet(32)
+    X = torch.rand(1, 32)
     y = net(X)
     pass

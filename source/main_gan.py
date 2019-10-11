@@ -6,7 +6,7 @@
 @Github: https://github.com/isLouisHsu
 @E-mail: is.louishsu@foxmail.com
 @Date: 2019-10-11 10:09:56
-@LastEditTime: 2019-10-11 11:33:55
+@LastEditTime: 2019-10-11 11:57:58
 @Update: 
 '''
 import os
@@ -87,7 +87,7 @@ def train(batchsize=128, feature_size=32, lr_g=4e-5, lr_d=1e-3, n_epoches=100, m
             lossD_fake = criterion(pred_fake, Zeros)
 
             ## 计算鉴别器损失，更新鉴别器参数
-            lossD_i = lossD_real + lossD_fake
+            lossD_i = (lossD_real + lossD_fake) / 2
             optimizerD.zero_grad()
             lossD_i.backward()
             optimizerD.step()

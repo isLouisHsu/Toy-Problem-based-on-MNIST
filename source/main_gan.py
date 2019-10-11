@@ -6,7 +6,7 @@
 @Github: https://github.com/isLouisHsu
 @E-mail: is.louishsu@foxmail.com
 @Date: 2019-10-11 10:09:56
-@LastEditTime: 2019-10-11 11:02:35
+@LastEditTime: 2019-10-11 11:22:18
 @Update: 
 '''
 import os
@@ -92,7 +92,14 @@ def train(batchsize=128, feature_size=32, lr_g=4e-5, lr_d=1e-3, n_epoches=100, m
             lossD_i.backward()
             optimizerD.step()
 
+            ## 重新生成图片
+            noise = torch.randn(batchsize, feature_size)
+            if cuda.is_available():
+                noise    = noise.cuda()
+            fakeImg = GNet(noise)
+            
             ## 计算生成器损失，希望鉴别器得到`1`
+            pred_fake = DNet(fakeImg)
             lossG_i = criterion(pred_fake, Ones )
             optimizerG.zero_grad()
             lossG_i.backward()

@@ -64,8 +64,8 @@ def train(batchsize=128, feature_size=32, lr_g=4e-5, lr_d=1e-3, n_epoches=100, m
         for i_batch, (realImg, _) in enumerate(mnistloader):
 
             ## 生成对应标签
-            Ones  = torch.ones (batchsize).float()
-            Zeros = torch.zeros(batchsize).float()
+            Ones  = torch.ones (batchsize, 1).float()
+            Zeros = torch.zeros(batchsize, 1).float()
 
             ## 生成虚假图片
             noise = torch.randn(batchsize, feature_size)
@@ -105,8 +105,8 @@ def train(batchsize=128, feature_size=32, lr_g=4e-5, lr_d=1e-3, n_epoches=100, m
             lossG_i.backward()
             optimizerG.step()
             
-            lossG += [lossG_i.cpu().numpy()]
-            lossD += [lossD_i.cpu().numpy()]
+            lossG += [lossG_i.detach().cpu().numpy()]
+            lossD += [lossD_i.detach().cpu().numpy()]
 
         ## 日志
         lossG = np.mean(lossG); lossD = np.mean(lossD)

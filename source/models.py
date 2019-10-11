@@ -304,6 +304,7 @@ class DiscriminatorNet(nn.Module):
             nn.Linear(128, 64),
             nn.ReLU(),
             nn.Linear(64, 1),
+            nn.Sigmoid(),
         )
 
     def forward(self, x):

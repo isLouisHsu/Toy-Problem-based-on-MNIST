@@ -274,6 +274,7 @@ class GeneratorNet(nn.Module):
             x: {tensor(N, 28 x 28)}
         """
         x = self.layers(x)
+        x = x.clamp(0, 1)
 
         return x
 

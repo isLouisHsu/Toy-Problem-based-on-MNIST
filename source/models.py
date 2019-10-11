@@ -6,7 +6,7 @@
 @Github: https://github.com/isLouisHsu
 @E-mail: is.louishsu@foxmail.com
 @Date: 2019-07-11 11:15:04
-@LastEditTime: 2019-10-11 12:06:53
+@LastEditTime: 2019-10-11 14:12:07
 @Update: 
 '''
 import os
@@ -256,17 +256,13 @@ class GeneratorNet(nn.Module):
         super(GeneratorNet, self).__init__()
         
         self.layers = nn.Sequential(
-            nn.UpsamplingBilinear2d(scale_factor=7),    #  7 x  7 x feature_size
-
-            nn.Conv2d(feature_size, 64, 3, 1, 1),       #  7 x  7 x 64
+            nn.Linear(feature_size, 256),
             nn.ReLU(),
-            nn.UpsamplingBilinear2d(scale_factor=2),    # 14 x 14 x 64
-
-            nn.Conv2d(64, 64, 3, 1, 1),                 # 14 x 14 x 64
-            nn.ReLU(),
-            nn.UpsamplingBilinear2d(scale_factor=2),    # 28 x 28 x 64
             
-            nn.Conv2d(64,  1, 3, 1, 1),                 # 28 x 28 x 1
+            nn.Linear(256, 256),
+            nn.ReLU(),
+            
+            nn.Linear(256, 28 * 28),
             nn.Sigmoid(),
         )
 
@@ -275,57 +271,48 @@ class GeneratorNet(nn.Module):
         Params:
             x: {tensor(N, D)}
         Returns:
-            x: {tensor(N, 1, 28, 28)}
+            x: {tensor(N, 28 x 28)}
         """
-        x = x.unsqueeze(-1).unsqueeze(-1)               # N x D x  1 x  1
-        x = self.layers(x)                              # N x 1 x 28 x 28
+        x = self.layers(x)
 
         return x
+
 
 class DiscriminatorNet(nn.Module):
 
     def __init__(self):
         super(DiscriminatorNet, self).__init__()
 
-        self.features = nn.Sequential(
-            nn.Conv2d(   1,  64, 3, 1, 1),          # 28 x 28 x 64
+        self.layers = nn.Sequential(
+            nn.Linear(28 * 28, 256),
             nn.ReLU(),
-            nn.MaxPool2d(2, 2),                     # 14 x 14 x 64
-
-            nn.Conv2d(  64,  64, 3, 1, 1),          # 14 x 14 x 64
+            
+            nn.Linear(256, 256),
             nn.ReLU(),
-            nn.MaxPool2d(2, 2),                     #  7 x  7 x 64
-
-            nn.Conv2d( 64,  128, 3, 1, 1),          #  7 x  7 x 128
-
-            nn.AdaptiveAvgPool2d((1, 1)),           #  1 x  1 x 128
-        )
-
-        self.classifier = nn.Sequential(
-            nn.Linear(128, 64),
-            nn.ReLU(),
-            nn.Linear(64, 1),
+            
+            nn.Linear(256, 1),
             nn.Sigmoid(),
         )
 
     def forward(self, x):
         """ 
         Params:
-            x: {tensor(N, 1, 28, 28)}
+            x: {tensor(N, 28 x 28)}
         Returns:
             x: {tensor(N)}
         """
-        x = self.features(x)
-        x = x.view(x.shape[0], -1)
-        x = self.classifier(x)
-        x = x.view(x.shape[0])
-
+        x = self.layers(x)
+        x = x.view(-1)
+        
         return x
 
 
 if __name__ == "__main__":
+    
     net = GeneratorNet(32)
-    net = DiscriminatorNet()
-    X = torch.rand(128, 1, 28, 28)
+    X = torch.rand(128, 32)
     y = net(X)
-    pass
+
+    net = DiscriminatorNet()
+    X = torch.rand(128, 28*28)
+    y = net(X)

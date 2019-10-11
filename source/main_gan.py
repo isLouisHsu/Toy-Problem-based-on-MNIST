@@ -6,7 +6,7 @@
 @Github: https://github.com/isLouisHsu
 @E-mail: is.louishsu@foxmail.com
 @Date: 2019-10-11 10:09:56
-@LastEditTime: 2019-10-11 12:10:34
+@LastEditTime: 2019-10-11 14:15:44
 @Update: 
 '''
 import os
@@ -27,7 +27,7 @@ from datasets import MNIST
 from models import GeneratorNet, DiscriminatorNet
 from processbar import ProcessBar
 
-def train(batchsize=128, feature_size=32, lr_g=4e-5, lr_d=1e-3, n_epoches=100, milestones=[40, 80]):
+def train(batchsize=128, feature_size=64, lr_g=1e-3, lr_d=4e-5, n_epoches=200, milestones=[100, 160]):
 
     ## 数据
     mnistdata = MNIST()
@@ -63,9 +63,12 @@ def train(batchsize=128, feature_size=32, lr_g=4e-5, lr_d=1e-3, n_epoches=100, m
 
         for i_batch, (realImg, _) in enumerate(mnistloader):
 
+            ## 展开为长向量
+            realImg = realImg.view(batchsize, -1)
+
             ## 生成对应标签
-            Ones  = torch.ones (batchsize).float()
-            Zeros = torch.zeros(batchsize).float()
+            realLabels = torch.ones (batchsize).float()
+            fakeLabels = torch.zeros(batchsize).float()
 
             ## 生成虚假图片
             noise = torch.randn(batchsize, feature_size)
@@ -73,18 +76,18 @@ def train(batchsize=128, feature_size=32, lr_g=4e-5, lr_d=1e-3, n_epoches=100, m
             if cuda.is_available():
                 noise    = noise.cuda()
                 realImg  = realImg.cuda()
-                Ones     = Ones.cuda()
-                Zeros    = Zeros.cuda()
+                realLabels = realLabels.cuda()
+                fakeLabels = fakeLabels.cuda()
 
             fakeImg = GNet(noise)
 
             ## 计算真实图片的鉴别损失，希望其为`1`
             pred_real = DNet(realImg)
-            lossD_real = criterion(pred_real, Ones )
+            lossD_real = criterion(pred_real, realLabels)
 
             ## 计算虚假图片的鉴别损失，希望其为`0`
             pred_fake = DNet(fakeImg)
-            lossD_fake = criterion(pred_fake, Zeros)
+            lossD_fake = criterion(pred_fake, fakeLabels)
 
             ## 计算鉴别器损失，更新鉴别器参数
             lossD_i = (lossD_real + lossD_fake) / 2
@@ -100,7 +103,7 @@ def train(batchsize=128, feature_size=32, lr_g=4e-5, lr_d=1e-3, n_epoches=100, m
             
             ## 计算生成器损失，希望鉴别器得到`1`
             pred_fake = DNet(fakeImg)
-            lossG_i = criterion(pred_fake, Ones )
+            lossG_i = criterion(pred_fake, realLabels )
             optimizerG.zero_grad()
             lossG_i.backward()
             optimizerG.step()
@@ -111,7 +114,7 @@ def train(batchsize=128, feature_size=32, lr_g=4e-5, lr_d=1e-3, n_epoches=100, m
         ## 日志
         lossG = np.mean(lossG); lossD = np.mean(lossD)
         writer.add_scalars('loss', {'G': lossG, 'D': lossD}, i_epoch)
-        writer.add_images('image', fakeImg[:12].repeat(1, 3, 1, 1), i_epoch)
+        writer.add_images('image', fakeImg[:64].view(64, 1, 28, 28).repeat(1, 3, 1, 1), i_epoch)
 
     writer.close()
 

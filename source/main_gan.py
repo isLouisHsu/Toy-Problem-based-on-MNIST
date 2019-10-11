@@ -64,8 +64,8 @@ def train(batchsize=128, feature_size=32, lr_g=4e-5, lr_d=1e-3, n_epoches=100, m
         for i_batch, (realImg, _) in enumerate(mnistloader):
 
             ## 生成对应标签
-            Ones  = torch.ones (batchsize).long()
-            Zeros = torch.zeors(batchsize).long()
+            Ones  = torch.ones (batchsize).float()
+            Zeros = torch.zeros(batchsize).float()
 
             ## 生成虚假图片
             noise = torch.randn(batchsize, feature_size)
@@ -74,7 +74,7 @@ def train(batchsize=128, feature_size=32, lr_g=4e-5, lr_d=1e-3, n_epoches=100, m
                 noise    = noise.cuda()
                 realImg  = realImg.cuda()
                 Ones     = Ones.cuda()
-                Zeros    = OZerosnes.cuda()
+                Zeros    = Zeros.cuda()
 
             fakeImg = GNet(noise)
 
@@ -107,3 +107,6 @@ def train(batchsize=128, feature_size=32, lr_g=4e-5, lr_d=1e-3, n_epoches=100, m
         writer.add_image('image', fakeImg[0], i_epoch)
 
     writer.close()
+
+if __name__ == "__main__":
+    train()

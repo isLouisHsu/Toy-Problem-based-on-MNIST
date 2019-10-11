@@ -6,7 +6,7 @@
 @Github: https://github.com/isLouisHsu
 @E-mail: is.louishsu@foxmail.com
 @Date: 2019-10-11 10:09:56
-@LastEditTime: 2019-10-11 14:15:44
+@LastEditTime: 2019-10-11 14:17:44
 @Update: 
 '''
 import os
@@ -114,7 +114,7 @@ def train(batchsize=128, feature_size=64, lr_g=1e-3, lr_d=4e-5, n_epoches=200, m
         ## 日志
         lossG = np.mean(lossG); lossD = np.mean(lossD)
         writer.add_scalars('loss', {'G': lossG, 'D': lossD}, i_epoch)
-        writer.add_images('image', fakeImg[:64].view(64, 1, 28, 28).repeat(1, 3, 1, 1), i_epoch)
+        writer.add_images('image', fakeImg[:4].view(4, 1, 28, 28).repeat(1, 3, 1, 1), i_epoch)
 
     writer.close()
 

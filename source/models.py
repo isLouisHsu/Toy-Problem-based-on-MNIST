@@ -256,13 +256,13 @@ class GeneratorNet(nn.Module):
         super(GeneratorNet, self).__init__()
         
         self.layers = nn.Sequential(
-            nn.Linear(feature_size, 256),
+            nn.Linear(feature_size, 512),
             nn.ReLU(),
             
-            nn.Linear(256, 256),
+            nn.Linear(512, 512),
             nn.ReLU(),
             
-            nn.Linear(256, 28 * 28),
+            nn.Linear(512, 28 * 28),
             nn.Sigmoid(),
         )
 

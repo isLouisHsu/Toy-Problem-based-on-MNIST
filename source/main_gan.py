@@ -27,7 +27,7 @@ from datasets import MNIST
 from models import GeneratorNet, DiscriminatorNet
 from processbar import ProcessBar
 
-def train(batchsize=128, feature_size=64, lr_g=1e-3, lr_d=4e-5, n_epoches=200, milestones=[100, 160]):
+def train(batchsize=512, feature_size=200, lr_g=1e-2, lr_d=5e-3, n_epoches=500, milestones=[320, 380, 480]):
 
     ## 数据
     mnistdata = MNIST()
@@ -71,7 +71,7 @@ def train(batchsize=128, feature_size=64, lr_g=1e-3, lr_d=4e-5, n_epoches=200, m
             fakeLabels = torch.zeros(batchsize).float()
 
             ## 生成虚假图片
-            noise = torch.randn(batchsize, feature_size)
+            noise = torch.rand(batchsize, feature_size)
 
             if cuda.is_available():
                 noise    = noise.cuda()
@@ -113,8 +113,8 @@ def train(batchsize=128, feature_size=64, lr_g=1e-3, lr_d=4e-5, n_epoches=200, m
 
         ## 日志
         lossG = np.mean(lossG); lossD = np.mean(lossD)
-        writer.add_scalars('loss', {'G': lossG, 'D': lossD}, i_epoch)
-        writer.add_images('image', fakeImg[:4].view(4, 1, 28, 28).repeat(1, 3, 1, 1), i_epoch)
+        writer.add_scalars('lossDss', {'G': lossG, 'D': lossD}, i_epoch)
+        writer.add_images('image', fakeImg.view(batchsize, 1, 28, 28).repeat(1, 3, 1, 1), i_epoch)
 
     writer.close()
 

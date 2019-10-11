@@ -31,7 +31,7 @@ def train(batchsize=128, feature_size=32, lr_g=4e-5, lr_d=1e-3, n_epoches=100, m
 
     ## 数据
     mnistdata = MNIST()
-    mnistloader = DataLoader(mnistdata, batchsize, True)
+    mnistloader = DataLoader(mnistdata, batchsize, True, drop_last=True)
 
     ## 网络
     GNet = GeneratorNet(feature_size)

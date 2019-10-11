@@ -6,7 +6,7 @@
 @Github: https://github.com/isLouisHsu
 @E-mail: is.louishsu@foxmail.com
 @Date: 2019-07-11 11:15:04
-@LastEditTime: 2019-10-11 11:34:09
+@LastEditTime: 2019-10-11 11:36:01
 @Update: 
 '''
 import os
@@ -324,6 +324,7 @@ class DiscriminatorNet(nn.Module):
 
 if __name__ == "__main__":
     net = GeneratorNet(32)
-    X = torch.rand(1, 32)
+    net = DiscriminatorNet()
+    X = torch.rand(128, 1, 28, 28)
     y = net(X)
     pass

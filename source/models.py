@@ -6,7 +6,7 @@
 @Github: https://github.com/isLouisHsu
 @E-mail: is.louishsu@foxmail.com
 @Date: 2019-07-11 11:15:04
-@LastEditTime: 2019-10-11 10:58:44
+@LastEditTime: 2019-10-11 11:34:09
 @Update: 
 '''
 import os
@@ -317,6 +317,7 @@ class DiscriminatorNet(nn.Module):
         x = self.features(x)
         x = x.view(x.shape[0], -1)
         x = self.classifier(x)
+        x = x.view(x.shape[0])
 
         return x
 

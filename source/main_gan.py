@@ -6,7 +6,7 @@
 @Github: https://github.com/isLouisHsu
 @E-mail: is.louishsu@foxmail.com
 @Date: 2019-10-11 10:09:56
-@LastEditTime: 2019-10-11 11:22:18
+@LastEditTime: 2019-10-11 11:33:55
 @Update: 
 '''
 import os
@@ -64,8 +64,8 @@ def train(batchsize=128, feature_size=32, lr_g=4e-5, lr_d=1e-3, n_epoches=100, m
         for i_batch, (realImg, _) in enumerate(mnistloader):
 
             ## 生成对应标签
-            Ones  = torch.ones (batchsize, 1).float()
-            Zeros = torch.zeros(batchsize, 1).float()
+            Ones  = torch.ones (batchsize).float()
+            Zeros = torch.zeros(batchsize).float()
 
             ## 生成虚假图片
             noise = torch.randn(batchsize, feature_size)

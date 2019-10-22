@@ -6,7 +6,7 @@
 @Github: https://github.com/isLouisHsu
 @E-mail: is.louishsu@foxmail.com
 @Date: 2019-10-22 10:34:45
-@LastEditTime: 2019-10-22 10:37:45
+@LastEditTime: 2019-10-22 11:34:55
 @Update: 
 '''
 import os
@@ -21,15 +21,28 @@ from tensorboardX import SummaryWriter
 
 from config import configer
 from datasets import MNIST
-from metrics import LossSupervisedNew
+from metrics import LossSupervisedNew, LossUnsupervisedNew
 from models import Network
-from trainer import SupervisedTrainer
+from trainer import SupervisedTrainer, UnsupervisedTrainer
 
 def main_supervised_new(used_labels=None):
     trainset = MNIST('train', used_labels); validset = MNIST('valid', used_labels)
     net = Network(trainset.n_classes, feature_size=128)
     params = net.parameters()
     criterion = LossSupervisedNew()
+    optimizer = optim.SGD
+    lr_scheduler = MultiStepLR
+
+    trainer = SupervisedTrainer(configer, net, params, trainset, validset, criterion, 
+                    optimizer, lr_scheduler, num_to_keep=5, resume=False, valid_freq=1, show_embedding=True)
+    trainer.train()
+    del trainer
+
+def main_unsupervised_new(used_labels=None):
+    trainset = MNIST('train', used_labels); validset = MNIST('valid', used_labels)
+    net = Network(trainset.n_classes, feature_size=128)
+    params = net.parameters()
+    criterion = LossUnsupervisedNew()
     optimizer = optim.SGD
     lr_scheduler = MultiStepLR
 

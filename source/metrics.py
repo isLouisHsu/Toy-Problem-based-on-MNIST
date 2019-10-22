@@ -6,7 +6,7 @@
 @Github: https://github.com/isLouisHsu
 @E-mail: is.louishsu@foxmail.com
 @Date: 2019-07-11 11:15:04
-@LastEditTime: 2019-10-22 10:59:23
+@LastEditTime: 2019-10-22 11:35:07
 @Update: 
 '''
 import math
@@ -370,7 +370,27 @@ class LossSupervisedNew(nn.Module):
         y_pred_onehot = torch.zeros_like(y_pred).scatter_(1, y_pred_label.view(-1, 1), 1)
         y_true_onehot = torch.zeros_like(y_pred).scatter_(1, y_true.view(-1, 1), 1)
 
-        y_pred_softmax = torch.softmax(y_pred, dim=1)
-        l = torch.mean(1 - torch.sum(y_pred_onehot * y_true_onehot * y_pred_softmax, dim=1))
+        p = torch.softmax(y_pred, dim=1)
+        l = torch.mean(1 - torch.sum(y_pred_onehot * y_true_onehot * p, dim=1))
+        
+        return l
+
+class LossUnsupervisedNew(nn.Module):
+
+    def __init__(self):
+        super(LossUnsupervisedNew, self).__init__()
+
+    def forward(self, y_pred, y_true):
+        """
+        Params:
+            y_pred: {tensor(n_samples, n_classes}
+        Returns:
+            loss: {tensor(1)}
+        """
+        n_samples, n_classes = y_pred.shape
+        p = torch.softmax(y_pred, dim=1)
+        l = p * (1 - p)
+        l = torch.sum(l, dim=1)
+        l = torch.mean(l)
         
         return l

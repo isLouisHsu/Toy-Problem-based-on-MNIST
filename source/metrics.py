@@ -6,7 +6,7 @@
 @Github: https://github.com/isLouisHsu
 @E-mail: is.louishsu@foxmail.com
 @Date: 2019-07-11 11:15:04
-@LastEditTime: 2019-08-20 08:54:19
+@LastEditTime: 2019-10-22 10:38:02
 @Update: 
 '''
 import math
@@ -348,3 +348,28 @@ class LossUnsupervisedSigmaI(LossUnsupervisedEntropy):
         total = intra - inter   # total = Lt - 2*inter
 
         return total, intra, inter
+
+#############################################################################################
+
+class LossSupervisedNew(nn.Module):
+
+    def __init__(self):
+        super(LossSupervisedNew, self).__init__()
+
+    def forward(self, y_pred, y_true):
+        """
+        Params:
+            y_pred: {tensor(n_samples, n_classes}
+            y_true: {tensor(n_samples}
+        Returns:
+            loss: {tensor(1)}
+        """
+        n_samples, n_classes = y_pred.shape
+        
+        y_pred_label  = torch.argmax(y_pred, dim=1)
+        y_pred_onehot = torch.zeros(n_samples, n_classes).scatter_(1, y_pred_label.view(-1, 1), 1)
+        y_true_onehot = torch.zeros(n_samples, n_classes).scatter_(1, y_true.view(-1, 1), 1)
+
+        l = torch.mean(1 - torch.sum(y_pred_onehot * y_true_onehot * y_pred, dim=1))
+        
+        return l

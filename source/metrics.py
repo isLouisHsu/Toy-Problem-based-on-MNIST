@@ -6,7 +6,7 @@
 @Github: https://github.com/isLouisHsu
 @E-mail: is.louishsu@foxmail.com
 @Date: 2019-07-11 11:15:04
-@LastEditTime: 2019-10-22 10:38:02
+@LastEditTime: 2019-10-22 10:41:49
 @Update: 
 '''
 import math
@@ -367,8 +367,8 @@ class LossSupervisedNew(nn.Module):
         n_samples, n_classes = y_pred.shape
         
         y_pred_label  = torch.argmax(y_pred, dim=1)
-        y_pred_onehot = torch.zeros(n_samples, n_classes).scatter_(1, y_pred_label.view(-1, 1), 1)
-        y_true_onehot = torch.zeros(n_samples, n_classes).scatter_(1, y_true.view(-1, 1), 1)
+        y_pred_onehot = torch.zeros_like(y_pred).scatter_(1, y_pred_label.view(-1, 1), 1)
+        y_true_onehot = torch.zeros_like(y_pred).scatter_(1, y_true.view(-1, 1), 1)
 
         l = torch.mean(1 - torch.sum(y_pred_onehot * y_true_onehot * y_pred, dim=1))
         

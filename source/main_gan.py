@@ -27,7 +27,7 @@ from datasets import MNIST
 from models import GeneratorNet, DiscriminatorNet
 from processbar import ProcessBar
 
-def train(batchsize=512, feature_size=200, lr_g=1e-2, lr_d=1e-2, n_epoches=500, milestones=[320, 380, 480]):
+def train(batchsize=512, feature_size=200, lr_g=3e-3, lr_d=3e-3, n_epoches=5000, milestones=[3500, 4000,]):
 
     ## 数据
     mnistdata = MNIST()

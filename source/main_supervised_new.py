@@ -40,4 +40,4 @@ def main_supervised_new(used_labels=None):
 
 if __name__ == "__main__":
     
-    main_supervised_new()
+    main_supervised_new([1, 2])

@@ -1,6 +1,3 @@
-data/
-ckpt/
-log/
 *.pyc
 .vscode
 *.pkl
